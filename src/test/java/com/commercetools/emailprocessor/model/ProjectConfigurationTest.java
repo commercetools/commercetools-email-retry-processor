@@ -38,7 +38,7 @@ public class ProjectConfigurationTest {
         assertEquals(configuration.isValid(), true);
 
     }
-    
+
     @Test
     public void isNotValid() throws Exception {
         ProjectConfiguration configuration = new ProjectConfiguration();

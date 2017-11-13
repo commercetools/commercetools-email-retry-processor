@@ -1,5 +1,7 @@
 package com.commercetools.emailprocessor.model;
 
+import io.sphere.sdk.client.SphereApiConfig;
+import io.sphere.sdk.client.SphereClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -7,6 +9,7 @@ import org.mockito.Mockito;
 import static org.junit.Assert.*;
 
 public class TenantConfigurationTest {
+
 
     private String projectKey = "anyKey";
     private String clientId = "anyID";
@@ -46,31 +49,43 @@ public class TenantConfigurationTest {
     @Test
     public void isValid() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, webhookURL);
-        assertEquals(tenantConfig.isValid(),true);
+        assertEquals(tenantConfig.isValid(), true);
     }
+
     @Test
     public void isNotValid1() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, null);
-        assertEquals(tenantConfig.isValid(),false);
+        assertEquals(tenantConfig.isValid(), false);
     }
+
     @Test
     public void isNotValid2() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, null, webhookURL);
-        assertEquals(tenantConfig.isValid(),false);
+        assertEquals(tenantConfig.isValid(), false);
     }
+
     @Test
     public void isNotValid3() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, null, clientSecret, webhookURL);
-        assertEquals(tenantConfig.isValid(),false);
+        assertEquals(tenantConfig.isValid(), false);
     }
+
     @Test
     public void isNotValid4() throws Exception {
         tenantConfig = new TenantConfiguration(null, clientId, clientSecret, webhookURL);
-        assertEquals(tenantConfig.isValid(),false);
+        assertEquals(tenantConfig.isValid(), false);
     }
+
     @Test
     public void isNotValid5() throws Exception {
         tenantConfig = new TenantConfiguration(null, null, null, null);
-        assertEquals(tenantConfig.isValid(),false);
+        assertEquals(tenantConfig.isValid(), false);
+    }
+
+    @Test
+    public void getSphereClient() throws Exception {
+        SphereClient client = tenantConfig.getSphereClient();
+        SphereApiConfig clientConfig = client.getConfig();
+        assertEquals(clientConfig.getProjectKey(), projectKey);
     }
 }

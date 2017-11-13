@@ -1,9 +1,15 @@
 package com.commercetools.emailprocessor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.sphere.sdk.client.BlockingSphereClient;
+import io.sphere.sdk.client.SphereClient;
+import io.sphere.sdk.client.SphereClientConfig;
+import io.sphere.sdk.client.SphereClientFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -82,5 +88,13 @@ public class TenantConfiguration {
        return isValid;
 
     }
+
+    public SphereClient getSphereClient() {
+        SphereClientConfig sphereConfig = SphereClientConfig.of(projectKey, clientId, clientSecret);
+        final SphereClientFactory factory = SphereClientFactory.of();
+        final SphereClient client = factory.createClient(sphereConfig);
+        return client;
+    }
+
 
 }
