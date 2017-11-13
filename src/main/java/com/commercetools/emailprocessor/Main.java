@@ -18,7 +18,8 @@ import java.time.temporal.TemporalAccessor;
 
 public class Main {
     /**
-     * Application entry point.
+     * This jobs try to resend emails of a given List of tenant using the EmailProcessor
+     * The configuration of this job, can be pass by  a File or enviroment variable.
      *
      * @param args all args
      */

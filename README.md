@@ -6,6 +6,7 @@ Scheduled service which allows to send emails asynchronously and retry on errors
 
 - [Usage](#usage)
   - [Prerequisites](#prerequisites)
+  - [Configuration](#configuration)
   - [Run the application](#run-the-application)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -15,12 +16,26 @@ Scheduled service which allows to send emails asynchronously and retry on errors
  
  - install Java 8
  - CTP projects for which the email should be delivery
- - set the following environment variable, before running the job
+ 
+ 
+ ### Configuration
+ 
+The configuration can be passed by enviroment variable or by Configurationfile to the processor
+
+
+
+#### using the enviroment variable
+ 
+  - Just  set the following environment variable, before running the job
    ```bash
    export CTP_PROJECT_CONFIG = <JSON SNIPPET> 
    ```
- 
- Example configuration: 
+
+#### Using Config file
+
+- Just add the configfile path to the service call
+
+####  Example configuration: 
  
 ```
  {
@@ -34,8 +49,9 @@ Scheduled service which allows to send emails asynchronously and retry on errors
    ]
  }
    ```  
-   
-### Run the application   
+
+## Run the application   
+ 
  - First, package the JAR
    ```bash
    ./gradlew clean jar

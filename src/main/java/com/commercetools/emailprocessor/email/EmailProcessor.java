@@ -34,8 +34,8 @@ public class EmailProcessor {
 
     /**
      * Iterate through all Email objects and triggers the webhook for each  pending email object
-     * @param tenantConfiguration Configuration of a teneamt
-     * @return
+     * @param tenantConfiguration Configuration of a tenant
+     * @return Statics of the sended emails
      */
 
     public Statistics processEmails(TenantConfiguration tenantConfiguration) {
@@ -66,6 +66,12 @@ public class EmailProcessor {
 
     }
 
+    /**
+     * Sends a post request to a webhook
+     * @param customObject customobject, which constains a email
+     * @param tenantConfiguration
+     * @return Http Status code
+     */
     int callWebHook(CustomObject<JsonNode> customObject, TenantConfiguration tenantConfiguration) {
         int responseCode = HttpStatus.SC_OK;
         OutputStream outputStream = null;
