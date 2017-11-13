@@ -11,16 +11,22 @@ public class TenantConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
 
-    public TenantConfiguration() {
-    }
-
     private String projectKey;
     private String clientId;
     private String clientSecret;
     private String webhookURL;
 
+    public TenantConfiguration() {
+    }
 
-    public String getProjectKey() {
+    public TenantConfiguration(String key,String id,String secret,String url) {
+        projectKey=key;
+        clientId=id;
+        clientSecret=secret;
+        webhookURL=url;
+
+    }
+   public String getProjectKey() {
         return projectKey;
     }
 
@@ -53,23 +59,24 @@ public class TenantConfiguration {
     }
 
     public boolean isValid() {
-        String errorMessage = "Please define the missing Property %s";
+        String errorMessage = "Please define the missing Property '%s'";
         boolean isValid = true;
+
         if (StringUtils.isEmpty(projectKey)) {
-            LOG.error(String.format(errorMessage, projectKey.toString()));
+            LOG.error(String.format(errorMessage, "projectKey"));
             isValid = false;
         }
         if (StringUtils.isEmpty(clientId)) {
-            LOG.error(String.format(errorMessage, clientId.toString()));
+            LOG.error(String.format(errorMessage, "clientId"));
             isValid = false;
         }
         if (StringUtils.isEmpty(clientSecret)) {
-            LOG.error(String.format(errorMessage, clientSecret.toString()));
+            LOG.error(String.format(errorMessage, "clientSecret"));
             isValid = false;
         }
 
         if (StringUtils.isEmpty(webhookURL)) {
-            LOG.error(String.format(errorMessage, webhookURL.toString()));
+            LOG.error(String.format(errorMessage, "webhookURL"));
             isValid = false;
         }
        return isValid;

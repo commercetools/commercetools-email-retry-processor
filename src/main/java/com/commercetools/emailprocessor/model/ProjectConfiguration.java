@@ -25,14 +25,17 @@ public class ProjectConfiguration {
 
     public boolean isValid() {
 
-            boolean valid = true;
-            if (tenants != null || tenants.isEmpty()) {
-                LOG.error("Please define at least on tenant");
-                valid = false;
-            }
+        boolean valid = true;
+        if (tenants != null && !tenants.isEmpty()) {
             for (TenantConfiguration tenant : tenants) {
-                valid = tenant.isValid();
+                if (!tenant.isValid()) {
+                    valid = false;
+                }
             }
+        } else {
+            LOG.error("Please define at least on tenant");
+            valid = false;
+        }
 
 
         return valid;
