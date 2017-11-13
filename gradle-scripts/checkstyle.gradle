@@ -1,0 +1,5 @@
+checkstyle {
+    toolVersion = checkstyleVersion
+    config = rootProject.resources.text.fromFile('config/checkstyle/checkstyle.xml')
+    maxWarnings = 0 // If warnings exceed this number, build should fail.
+}

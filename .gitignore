@@ -1,0 +1,11 @@
+/target
+/.idea
+.DS_Store
+*.iml
+*.class
+
+# gradle specific
+.gradle/
+build/
+/resources/config.json
+/out/

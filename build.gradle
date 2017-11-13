@@ -1,0 +1,25 @@
+buildscript {
+    ext {
+        shadowJar = '2.0.1'
+    }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowJar}"
+    }
+}
+
+apply from: "$rootDir/gradle-scripts/plugins.gradle"
+apply from: "$rootDir/gradle-scripts/extensions.gradle"
+apply from: "$rootDir/gradle-scripts/project-info.gradle"
+apply from: "$rootDir/gradle-scripts/java-compile.gradle"
+apply from: "$rootDir/gradle-scripts/repositories.gradle"
+apply from: "$rootDir/gradle-scripts/integration-tests.gradle"
+apply from: "$rootDir/gradle-scripts/test-logging.gradle"
+apply from: "$rootDir/gradle-scripts/dependencies.gradle"
+apply from: "$rootDir/gradle-scripts/checkstyle.gradle"
+apply from: "$rootDir/gradle-scripts/pmd.gradle"
+apply from: "$rootDir/gradle-scripts/jacoco.gradle"
+apply from: "$rootDir/gradle-scripts/findbugs.gradle"
+apply from: "$rootDir/gradle-scripts/shadow.gradle"

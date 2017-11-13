@@ -1,0 +1,4 @@
+group = 'com.commercetools.emailprocessor'
+version = '1.0-dev'
+mainClassName = 'com.commercetools.emailprocessor.Main'
+description = "Scheduled service which allows to send emails asynchronously and retry on errors.."

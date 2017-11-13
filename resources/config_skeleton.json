@@ -1,0 +1,10 @@
+{
+  "tenants": [
+    {
+      "projectKey": "project-key",
+      "clientId": "XXX",
+      "clientSecret": "XXX",
+      "webhookURL": "http://www.<host>:<port>/<context-Path>"
+    }
+  ]
+}
