@@ -3,6 +3,7 @@ package com.commercetools.emailprocessor;
 
 import com.commercetools.emailprocessor.email.EmailProcessor;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
+import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sphere.sdk.json.SphereJsonUtils;
@@ -21,7 +22,7 @@ public class Main {
      *
      * @param args all args
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     public static String CTP_PROJECT_CONFIG = "git";
 
     public static void main(final String[] args) {
@@ -36,7 +37,7 @@ public class Main {
                 try {
                     projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
                 } catch (IOException e) {
-                    LOGGER.error("The File cannot be parsed", e);
+                    LOG.error("The File cannot be parsed", e);
                 }
 
             } else {
@@ -46,17 +47,19 @@ public class Main {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("The json stream cannot be parsed", e);
+            LOG.error("The json stream cannot be parsed", e);
         }
         if (projectConfiguration != null && projectConfiguration.isValid()) {
-            for (TenantConfiguration tenantConfig : projectConfiguration.getTenants()) {
-                boolean success = EmailProcessor.processEmails(tenantConfig);
-                if (!success) {
-                    break;
-                }
+            EmailProcessor emailProcessor = new EmailProcessor();
+            for (TenantConfiguration tenantConfiguration : projectConfiguration.getTenants()) {
+                Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+                LOG.info("##########################");
+                LOG.info(String.format("Processing statistic for tenant %s", tenantConfiguration.getProjectKey()));
+                statistic.print();
+                LOG.info("##########################");
             }
         } else {
-            LOGGER.error("NO valid config was found");
+            LOG.error("NO valid config was found");
 
         }
 
