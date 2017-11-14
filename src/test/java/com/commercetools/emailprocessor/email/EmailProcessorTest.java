@@ -70,17 +70,13 @@ public class EmailProcessorTest {
 
 
     private CustomObject<Email> createCustomObject(String customObjectID, String status, int webHookhttpStatus) {
-        CustomObject<Email> customObject = null;
         Mockito.when(emailProcessor.callWebHook(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
-        String unprocessedJsonString = "";
-        try {
-            unprocessedJsonString = stringFromResource("emailObject.json");
-            unprocessedJsonString = unprocessedJsonString.replaceAll("###ID###", customObjectID);
-            unprocessedJsonString = unprocessedJsonString.replaceAll("###status###", status);
-        } catch (Exception e) {
-            LOG.error("The customobject cannot be created");
-        }
-        customObject = SphereJsonUtils.readObject(unprocessedJsonString, CustomObject.class);
+        Email email=new Email();
+        email.setStatus(status);
+        CustomObject<Email> customObject=Mockito.mock(CustomObject.class);
+        Mockito.when(customObject.getId()).thenReturn(customObjectID);
+        Mockito.when(customObject.getValue()).thenReturn(email);
+
 
         return customObject;
     }
