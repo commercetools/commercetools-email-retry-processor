@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class TenantConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
-
+    private SphereClient client = null;
     private String projectKey;
     private String clientId;
     private String clientSecret;
@@ -25,14 +25,15 @@ public class TenantConfiguration {
     public TenantConfiguration() {
     }
 
-    public TenantConfiguration(String key,String id,String secret,String url) {
-        projectKey=key;
-        clientId=id;
-        clientSecret=secret;
-        webhookURL=url;
+    public TenantConfiguration(String key, String id, String secret, String url) {
+        projectKey = key;
+        clientId = id;
+        clientSecret = secret;
+        webhookURL = url;
 
     }
-   public String getProjectKey() {
+
+    public String getProjectKey() {
         return projectKey;
     }
 
@@ -64,6 +65,10 @@ public class TenantConfiguration {
         this.webhookURL = webhookURL;
     }
 
+    public void setClient(SphereClient client) {
+        this.client = client;
+    }
+
     public boolean isValid() {
         String errorMessage = "Please define the missing Property '%s'";
         boolean isValid = true;
@@ -85,14 +90,17 @@ public class TenantConfiguration {
             LOG.error(String.format(errorMessage, "webhookURL"));
             isValid = false;
         }
-       return isValid;
+        return isValid;
 
     }
 
     public SphereClient getSphereClient() {
-        SphereClientConfig sphereConfig = SphereClientConfig.of(projectKey, clientId, clientSecret);
-        final SphereClientFactory factory = SphereClientFactory.of();
-        final SphereClient client = factory.createClient(sphereConfig);
+        if (client == null) {
+            SphereClientConfig sphereConfig = SphereClientConfig.of(projectKey, clientId, clientSecret);
+            final SphereClientFactory factory = SphereClientFactory.of();
+            client = factory.createClient(sphereConfig);
+        }
+
         return client;
     }
 
