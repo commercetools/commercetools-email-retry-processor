@@ -3,23 +3,17 @@ package com.commercetools.emailprocessor.email;
 import com.commercetools.emailprocessor.model.Email;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
-import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
-import io.sphere.sdk.queries.PagedQueryResult;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
 
@@ -82,10 +76,10 @@ public class EmailProcessor {
             HttpURLConnection httpURLConnection =tenantConfiguration.getHttpURLConnection();
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setDoOutput(true);
-            outputStream = httpURLConnection.getOutputStream();
             String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
                     tenantConfiguration.getProjectKey());
-            outputStream.write(params.getBytes());
+           IOUtils.write(params,httpURLConnection.getOutputStream());
+
             responseCode = httpURLConnection.getResponseCode();
             outputStream.flush();
             outputStream.close();

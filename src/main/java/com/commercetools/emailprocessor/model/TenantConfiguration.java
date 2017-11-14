@@ -111,7 +111,7 @@ public class TenantConfiguration {
     }
 
     public HttpURLConnection getHttpURLConnection() throws Exception {
-        if (httpURLConnection == null) {
+        if ( this.httpURLConnection == null) {
             URL postUrl = new URL(webhookURL);
             HttpURLConnection con = (HttpURLConnection) postUrl.openConnection();
 

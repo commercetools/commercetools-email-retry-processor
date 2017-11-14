@@ -10,16 +10,20 @@ import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
+
 
 public class EmailProcessorTest {
 
@@ -52,6 +56,7 @@ public class EmailProcessorTest {
         assertEquals(statistic.getTempError(), 1);
         assertEquals(statistic.getPermanentError(), 1);
     }
+
     @Test
     public void shouldProcessEmails2() throws Exception {
         customObjects.add(createCustomObject("1", "pending", Statistics.RESPONSE_CODE_SUCCESS));
@@ -104,12 +109,24 @@ public class EmailProcessorTest {
 
     }
 
+    @Test
     public void shouldCallWebhook() throws Exception {
-        tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
-        assertEquals(statistic.getProcessedEmail(), 0);
-        assertEquals(statistic.getSuccessful(), 0);
-        assertEquals(statistic.getTempError(), 0);
+        Mockito.doCallRealMethod().when(emailProcessor).callWebHook(Mockito.anyString(), Mockito.any
+                (TenantConfiguration.class));
+        int httpStatus = 200;
+        String id = "123";
+        String tenantid = "testTenant";
+        String url = "http://www.anyurl.de";
+        MockURLStreamHandler handler = new MockURLStreamHandler(url);
+        URL.setURLStreamHandlerFactory(handler);
+        MockHttpURLConnection httpURLConnection = handler.getConnection();
+        TenantConfiguration configuration = new TenantConfiguration();
+        configuration.setHttpURLConnection(httpURLConnection);
+        configuration.setProjectKey(tenantid);
+        int result = emailProcessor.callWebHook(id, configuration);
+        assertEquals(httpStatus, result);
+        assertEquals(url, httpURLConnection.getURL().toString());
+        assertEquals(IOUtils.toString(httpURLConnection.getInputStream()), "emailid=" + id+"&tenantid=" + tenantid);
 
     }
 
@@ -127,18 +144,80 @@ public class EmailProcessorTest {
 
     private CustomObject<Email> createCustomObject(String customObjectID, String status, int webHookhttpStatus) {
         Mockito.when(emailProcessor.callWebHook(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
-        Email email=new Email();
+        Email email = new Email();
         email.setStatus(status);
-        CustomObject<Email> customObject=Mockito.mock(CustomObject.class);
+        CustomObject<Email> customObject = Mockito.mock(CustomObject.class);
         Mockito.when(customObject.getId()).thenReturn(customObjectID);
         Mockito.when(customObject.getValue()).thenReturn(email);
-
-
         return customObject;
     }
 
-    public static String stringFromResource(final String resourcePath) throws Exception {
-        return IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                resourcePath), "UTF-8");
+    public class MockURLStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
+        private MockHttpURLConnection mConnection;
+
+        public MockHttpURLConnection getConnection() {
+            return mConnection;
+        }
+
+        // *** URLStreamHandler
+
+        @Override
+        public HttpURLConnection openConnection(URL u) throws IOException {
+            mConnection = new MockHttpURLConnection(u);
+            return mConnection;
+        }
+
+        // *** URLStreamHandlerFactory
+
+        @Override
+        public URLStreamHandler createURLStreamHandler(String protocol) {
+            return this;
+        }
+
+        public MockURLStreamHandler(String url) throws Exception {
+            openConnection(new URL(url));
+        }
     }
+
+    public class MockHttpURLConnection extends HttpURLConnection {
+
+        protected MockHttpURLConnection(URL url) {
+            super(url);
+        }
+
+        ByteArrayOutputStream stream;
+
+        // *** HttpURLConnection
+        @Override
+        public int getResponseCode() throws IOException {
+            return 200;
+
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(stream.toByteArray());
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            stream = new ByteArrayOutputStream();
+            return stream;
+        }
+
+        @Override
+        public void connect() throws IOException {
+        }
+
+        @Override
+        public void disconnect() {
+        }
+
+        @Override
+        public boolean usingProxy() {
+            return false;
+        }
+
+    }
+
 }
