@@ -12,17 +12,17 @@ public class Statistics {
     public Statistics() {
     }
 
-    int sendEmails = 0;
+    int processedEmail = 0;
     int successful = 0;
-    int parmenentError = 0;
-    int temperror = 0;
+    int permanentError = 0;
+    int tempError = 0;
 
-    public int getSendEmails() {
-        return sendEmails;
+    public int getProcessedEmail() {
+        return processedEmail;
     }
 
-    public void setSendEmails(int sendEmails) {
-        this.sendEmails = sendEmails;
+    public void setProcessedEmail(int processedEmail) {
+        this.processedEmail = processedEmail;
     }
 
     public int getSuccessful() {
@@ -33,45 +33,45 @@ public class Statistics {
         this.successful = successful;
     }
 
-    public int getParmenentError() {
-        return parmenentError;
+    public int getPermanentError() {
+        return permanentError;
     }
 
-    public void setParmenentError(int parmenentError) {
-        this.parmenentError = parmenentError;
+    public void setPermanentError(int permanentError) {
+        this.permanentError = permanentError;
     }
 
-    public int getTemperror() {
-        return temperror;
+    public int getTempError() {
+        return tempError;
     }
 
-    public void setTemperror(int temperror) {
-        this.temperror = temperror;
+    public void setTempError(int tempError) {
+        this.tempError = tempError;
     }
 
     public void update(int httpStatusCode) {
-        sendEmails++;
+        processedEmail++;
         switch (httpStatusCode) {
             case RESPONSE_CODE_SUCCESS:
                 successful++;
                 break;
             case RESPONSE_ERROR_TEMP:
-                temperror++;
+                tempError++;
                 break;
             case RESPONSE_ERROR_PERMANENT:
-                parmenentError++;
+                permanentError++;
                 break;
             default:
-                parmenentError++;
+                permanentError++;
                 break;
         }
     }
 
     public void print() {
-        LOG.info("# processed Email " + sendEmails);
+        LOG.info("# processed Email " + processedEmail);
         LOG.info("# processed successfull " + successful);
-        LOG.info("# processed with temporal error " + temperror);
-        LOG.info("# processed with permanent error " + parmenentError);
+        LOG.info("# processed with temporal error " + tempError);
+        LOG.info("# processed with permanent error " + permanentError);
 }
 
 

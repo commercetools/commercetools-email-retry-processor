@@ -3,26 +3,21 @@ package com.commercetools.emailprocessor.email;
 import com.commercetools.emailprocessor.model.Email;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
-import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.queries.PagedQueryResult;
-import javafx.scene.shape.Sphere;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import static org.junit.Assert.*;
 
@@ -48,12 +43,73 @@ public class EmailProcessorTest {
     public void shouldProcessEmails() throws Exception {
         customObjects.add(createCustomObject("1", "pending", Statistics.RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", "pending", Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
+        tenantConfiguration.setClient(mockSphereClient(customObjects));
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+        assertEquals(statistic.getProcessedEmail(), 3);
+        assertEquals(statistic.getSuccessful(), 1);
+        assertEquals(statistic.getTempError(), 1);
+        assertEquals(statistic.getPermanentError(), 1);
+    }
+    @Test
+    public void shouldProcessEmails2() throws Exception {
+        customObjects.add(createCustomObject("1", "pending", Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", "pending", Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("3", "pending", Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
+        tenantConfiguration.setClient(mockSphereClient(customObjects));
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+        assertEquals(statistic.getProcessedEmail(), 4);
+        assertEquals(statistic.getSuccessful(), 1);
+        assertEquals(statistic.getTempError(), 2);
+        assertEquals(statistic.getPermanentError(), 1);
+    }
+
+
+    @Test
+    public void shouldProcessEmails_all_successfull() throws Exception {
+        customObjects.add(createCustomObject("1", "pending", Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", "pending", Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("3", "pending", Statistics.RESPONSE_CODE_SUCCESS));
+        tenantConfiguration.setClient(mockSphereClient(customObjects));
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+        assertEquals(statistic.getProcessedEmail(), 3);
+        assertEquals(statistic.getSuccessful(), 3);
+        assertEquals(statistic.getTempError(), 0);
+        assertEquals(statistic.getPermanentError(), 0);
+    }
+
+
+    @Test
+    public void shouldNOTProcessEmails() throws Exception {
+        customObjects.add(createCustomObject("1", "error", Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", "error", Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
-        assertEquals(statistic.getSendEmails(), 2);
-        assertEquals(statistic.getSuccessful(), 1);
-        assertEquals(statistic.getTemperror(), 1);
+        assertEquals(statistic.getProcessedEmail(), 0);
+        assertEquals(statistic.getSuccessful(), 0);
+        assertEquals(statistic.getTempError(), 0);
+
+    }
+
+    @Test
+    public void shouldNOTProcessEmails2() throws Exception {
+        tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+        assertEquals(statistic.getProcessedEmail(), 0);
+        assertEquals(statistic.getSuccessful(), 0);
+        assertEquals(statistic.getTempError(), 0);
+
+    }
+
+    public void shouldCallWebhook() throws Exception {
+        tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
+        assertEquals(statistic.getProcessedEmail(), 0);
+        assertEquals(statistic.getSuccessful(), 0);
+        assertEquals(statistic.getTempError(), 0);
 
     }
 

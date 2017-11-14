@@ -9,11 +9,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TenantConfiguration {
+
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
     private SphereClient client = null;
@@ -21,9 +25,11 @@ public class TenantConfiguration {
     private String clientId;
     private String clientSecret;
     private String webhookURL;
+    private HttpURLConnection httpURLConnection;
 
     public TenantConfiguration() {
     }
+
 
     public TenantConfiguration(String key, String id, String secret, String url) {
         projectKey = key;
@@ -104,5 +110,16 @@ public class TenantConfiguration {
         return client;
     }
 
+    public HttpURLConnection getHttpURLConnection() throws Exception {
+        if (httpURLConnection == null) {
+            URL postUrl = new URL(webhookURL);
+            HttpURLConnection con = (HttpURLConnection) postUrl.openConnection();
+
+        }
+        return httpURLConnection;
+    }
+    public void setHttpURLConnection(HttpURLConnection httpURLConnection) {
+        this.httpURLConnection = httpURLConnection;
+    }
 
 }

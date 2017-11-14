@@ -79,15 +79,14 @@ public class EmailProcessor {
         int responseCode = HttpStatus.SC_OK;
         OutputStream outputStream = null;
         try {
-            URL postUrl = new URL(tenantConfiguration.getWebhookURL());
-            HttpURLConnection con = (HttpURLConnection) postUrl.openConnection();
-            con.setRequestMethod("POST");
-            con.setDoOutput(true);
-            outputStream = con.getOutputStream();
+            HttpURLConnection httpURLConnection =tenantConfiguration.getHttpURLConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            outputStream = httpURLConnection.getOutputStream();
             String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
                     tenantConfiguration.getProjectKey());
             outputStream.write(params.getBytes());
-            responseCode = con.getResponseCode();
+            responseCode = httpURLConnection.getResponseCode();
             outputStream.flush();
             outputStream.close();
         } catch (Exception e) {
