@@ -1,8 +1,9 @@
 package com.commercetools.emailprocessor.email;
 
-import com.commercetools.emailprocessor.model.Email;
+
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
@@ -22,7 +23,7 @@ public class EmailProcessor {
     private static final String PARAM_EMAIL_ID = "emailid";
     private static final String PARAM_TENANT_ID = "tenantid";
     private static final String CONTAINER_ID = "unprocessedEmail";
-  ;
+  ;  private static final String EMAIL_PROPERTY_STATUS = "status";
     private static final String EMAIL_STATUS_PENDING = "pending";
 
     public EmailProcessor() {
@@ -38,7 +39,7 @@ public class EmailProcessor {
     public Statistics processEmails(TenantConfiguration tenantConfiguration) {
 
         SphereClient client = tenantConfiguration.getSphereClient();
-        CustomObjectQuery<Email> query = CustomObjectQuery.of(Email.class);
+        CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode();
         query = query.byContainer(CONTAINER_ID);
         return client.execute(query).thenApply(response -> {
                     Statistics statistics = new Statistics();
@@ -46,9 +47,10 @@ public class EmailProcessor {
                         LOG.error(String.format("No email to process for tenant %s", tenantConfiguration
                                 .getProjectKey()));
                     }
-                    for (CustomObject<Email> customObject : response.getResults()) {
-                        Email email = customObject.getValue();
-                        String status = email != null?email.getStatus(): "";
+                    for (CustomObject<JsonNode> customObject : response.getResults()) {
+                        JsonNode email = customObject.getValue();
+                        String status = email != null && email.get(EMAIL_PROPERTY_STATUS) != null ? email.get
+                                (EMAIL_PROPERTY_STATUS).asText() : "";
                         if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING)) {
                             int httpStatusCode = callWebHook(customObject.getId(), tenantConfiguration);
                             statistics.update(httpStatusCode);

@@ -24,7 +24,7 @@ public class Main {
      * @param args all args
      */
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-    public static String CTP_PROJECT_CONFIG = "git";
+    public static String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
 
     public static void main(final String[] args) {
         ObjectMapper objectMapper = new ObjectMapper();

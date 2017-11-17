@@ -1,11 +1,16 @@
 package com.commercetools.emailprocessor.email;
 
-import com.commercetools.emailprocessor.model.Email;
+
+
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
+import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -30,12 +35,12 @@ public class EmailProcessorTest {
 
     public EmailProcessor emailProcessor = null;
     TenantConfiguration tenantConfiguration = null;
-    List<CustomObject<Email>> customObjects = null;
+    List<CustomObject<JsonNode>> customObjects = null;
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
     @Before
     public void setUp() throws Exception {
-        customObjects = new ArrayList<CustomObject<Email>>();
+        customObjects = new ArrayList<CustomObject<JsonNode>>();
         emailProcessor = Mockito.mock(EmailProcessor.class);
         Mockito.doCallRealMethod().when(emailProcessor).processEmails(Mockito.any(TenantConfiguration.class));
         tenantConfiguration = new TenantConfiguration();
@@ -131,9 +136,9 @@ public class EmailProcessorTest {
     }
 
 
-    SphereClient mockSphereClient(List<CustomObject<Email>> customObjects) {
+    SphereClient mockSphereClient(List<CustomObject<JsonNode>> customObjects) {
         SphereClient client = Mockito.mock(SphereClient.class);
-        PagedQueryResult<CustomObject<Email>> queryResult = Mockito.mock(PagedQueryResult.class);
+        PagedQueryResult<CustomObject<JsonNode>> queryResult = Mockito.mock(PagedQueryResult.class);
         Mockito.when(queryResult.getTotal()).thenReturn(Long.valueOf(customObjects.size()));
         Mockito.when(queryResult.getResults()).thenReturn(customObjects);
         Mockito.when(client.execute(Mockito.isA(CustomObjectQuery.class))).thenReturn(CompletableFuture
@@ -142,13 +147,13 @@ public class EmailProcessorTest {
     }
 
 
-    private CustomObject<Email> createCustomObject(String customObjectID, String status, int webHookhttpStatus) {
+    private CustomObject<JsonNode> createCustomObject(String customObjectID, String status, int webHookhttpStatus) {
         Mockito.when(emailProcessor.callWebHook(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
-        Email email = new Email();
-        email.setStatus(status);
-        CustomObject<Email> customObject = Mockito.mock(CustomObject.class);
+
+        JsonNode jsonNode= SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}",status));
+        CustomObject<JsonNode> customObject = Mockito.mock(CustomObject.class);
         Mockito.when(customObject.getId()).thenReturn(customObjectID);
-        Mockito.when(customObject.getValue()).thenReturn(email);
+        Mockito.when(customObject.getValue()).thenReturn(jsonNode);
         return customObject;
     }
 
