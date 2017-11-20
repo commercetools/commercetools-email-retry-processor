@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
@@ -38,13 +37,13 @@ public class EmailProcessor {
      * @return Statics of the sended emails
      */
 
-    public CompletableFuture<Statistics> processEmails(TenantConfiguration tenantConfiguration) {
+    public CompletionStage<Statistics> processEmails(TenantConfiguration tenantConfiguration) {
 
         SphereClient client = tenantConfiguration.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode();
         query = query.byContainer(CONTAINER_ID);
         return client.execute(query).thenApply(response -> {
-                    Statistics statistics = new Statistics();
+                    Statistics statistics = new Statistics(tenantConfiguration.getProjectKey());
                     if (response.getTotal() < 1) {
                         LOG.error(String.format("No email to process for tenant %s", tenantConfiguration
                                 .getProjectKey()));
@@ -54,7 +53,7 @@ public class EmailProcessor {
                         String status = email != null && email.get(EMAIL_PROPERTY_STATUS) != null ? email.get
                                 (EMAIL_PROPERTY_STATUS).asText() : "";
                         if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING)) {
-                            int httpStatusCode = callWebHook(customObject.getId(), tenantConfiguration);
+                            int httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
                             statistics.update(httpStatusCode);
 
                         }
@@ -62,18 +61,18 @@ public class EmailProcessor {
                     return statistics;
                 }
 
-        ).toCompletableFuture();
+        );
 
     }
 
     /**
-     * Sends a post request to a webhook
+     * Sends a post request to a api endpoint
      *
      * @param customObjectID      ID of a customobject, which constains a email
      * @param tenantConfiguration
      * @return Http Status code
      */
-    int callWebHook(String customObjectID, TenantConfiguration tenantConfiguration) {
+    int callApiEndpoint(String customObjectID, TenantConfiguration tenantConfiguration) {
         int responseCode = HttpStatus.SC_OK;
         OutputStream outputStream = null;
         try {

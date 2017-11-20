@@ -5,8 +5,6 @@ package com.commercetools.emailprocessor.email;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
@@ -15,7 +13,6 @@ import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +52,7 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).join();
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessedEmail(), 3);
         assertEquals(statistic.getSuccessful(), 1);
         assertEquals(statistic.getTempError(), 1);
@@ -69,7 +66,7 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("3", "pending", Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).join();;
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();;
         assertEquals(statistic.getProcessedEmail(), 4);
         assertEquals(statistic.getSuccessful(), 1);
         assertEquals(statistic.getTempError(), 2);
@@ -83,7 +80,7 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("2", "pending", Statistics.RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("3", "pending", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).join();;
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();;
         assertEquals(statistic.getProcessedEmail(), 3);
         assertEquals(statistic.getSuccessful(), 3);
         assertEquals(statistic.getTempError(), 0);
@@ -97,7 +94,7 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("2", "error", Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).join();;
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();;
         assertEquals(statistic.getProcessedEmail(), 0);
         assertEquals(statistic.getSuccessful(), 0);
         assertEquals(statistic.getTempError(), 0);
@@ -107,7 +104,7 @@ public class EmailProcessorTest {
     @Test
     public void shouldNOTProcessEmails2() throws Exception {
         tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).join();;
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();;
         assertEquals(statistic.getProcessedEmail(), 0);
         assertEquals(statistic.getSuccessful(), 0);
         assertEquals(statistic.getTempError(), 0);
@@ -116,7 +113,7 @@ public class EmailProcessorTest {
 
     @Test
     public void shouldCallWebhook() throws Exception {
-        Mockito.doCallRealMethod().when(emailProcessor).callWebHook(Mockito.anyString(), Mockito.any
+        Mockito.doCallRealMethod().when(emailProcessor).callApiEndpoint(Mockito.anyString(), Mockito.any
                 (TenantConfiguration.class));
         int httpStatus = 200;
         String id = "123";
@@ -128,7 +125,7 @@ public class EmailProcessorTest {
         TenantConfiguration configuration = new TenantConfiguration();
         configuration.setHttpURLConnection(httpURLConnection);
         configuration.setProjectKey(tenantid);
-        int result = emailProcessor.callWebHook(id, configuration);
+        int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);
         assertEquals(url, httpURLConnection.getURL().toString());
         assertEquals(IOUtils.toString(httpURLConnection.getInputStream()), "emailid=" + id+"&tenantid=" + tenantid);
@@ -148,7 +145,7 @@ public class EmailProcessorTest {
 
 
     private CustomObject<JsonNode> createCustomObject(String customObjectID, String status, int webHookhttpStatus) {
-        Mockito.when(emailProcessor.callWebHook(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
+        Mockito.when(emailProcessor.callApiEndpoint(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
 
         JsonNode jsonNode= SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}",status));
         CustomObject<JsonNode> customObject = Mockito.mock(CustomObject.class);

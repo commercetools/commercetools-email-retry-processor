@@ -8,8 +8,14 @@ public class Statistics {
     private static final Logger LOG = LoggerFactory.getLogger(Statistics.class);
     public static final int RESPONSE_CODE_SUCCESS = 201;
     public static final int RESPONSE_ERROR_TEMP = 200;
-    public static final int RESPONSE_ERROR_PERMANENT=400;
+    public static final int RESPONSE_ERROR_PERMANENT = 400;
+    public String tenantID = "";
+
     public Statistics() {
+
+    }
+    public Statistics(String tenant) {
+        tenantID = tenant;
     }
 
     int processedEmail = 0;
@@ -68,11 +74,14 @@ public class Statistics {
     }
 
     public void print() {
+        LOG.info("##########################");
+        LOG.info(String.format("Processing statistic for tenant %s", tenantID));
         LOG.info("# processed Email " + processedEmail);
         LOG.info("# processed successfull " + successful);
         LOG.info("# processed with temporal error " + tempError);
         LOG.info("# processed with permanent error " + permanentError);
-}
+        LOG.info("##########################");
+    }
 
 
 }

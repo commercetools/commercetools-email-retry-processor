@@ -2,6 +2,7 @@ package com.commercetools.emailprocessor;
 
 
 import com.commercetools.emailprocessor.email.EmailProcessor;
+import com.commercetools.emailprocessor.jobs.EmailJob;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
@@ -13,6 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.stream.Stream;
+
+import static java.util.concurrent.CompletableFuture.allOf;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.stream.Collectors.toList;
 
 
 public class Main {
@@ -49,24 +58,13 @@ public class Main {
         } catch (IOException e) {
             LOG.error("The json stream cannot be parsed", e);
         }
-        if (projectConfiguration != null && projectConfiguration.isValid()) {
-            EmailProcessor emailProcessor = new EmailProcessor();
-            projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
-                emailProcessor.processEmails(tenantConfiguration).thenAccept(statistic -> {
-                    LOG.info("##########################");
-                    LOG.info(String.format("Processing statistic for tenant %s", tenantConfiguration.getProjectKey()));
+
+
+        EmailJob.process(projectConfiguration).stream().map(statistic -> {
                     statistic.print();
-                    LOG.info("##########################");
-
-                }).join();
-
-            });
-
-
-        } else {
-            LOG.error("NO valid config was found");
-
-        }
+                    return "";
+                }
+        );
 
     }
 }
