@@ -4,7 +4,6 @@ import io.sphere.sdk.client.SphereApiConfig;
 import io.sphere.sdk.client.SphereClient;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +41,7 @@ public class TenantConfigurationTest {
 
     @Test
     public void getWebhookURL() throws Exception {
-        assertEquals(tenantConfig.getWebhookURL(), webhookURL);
+        assertEquals(tenantConfig.getApiEndpointURL(), webhookURL);
 
     }
 

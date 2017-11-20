@@ -44,7 +44,7 @@ The configuration can be passed by enviroment variable or by Configurationfile t
        "projectKey": "project-key",
        "clientId": "XXX",
        "clientSecret": "XXX",
-       "webhookURL": "http://www.<host>:<port>/<context-Path>"
+       "apiEndpointURL": "http://www.<host>:<port>/<context-Path>"
      }
    ]
  }

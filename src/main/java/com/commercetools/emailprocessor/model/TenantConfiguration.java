@@ -1,7 +1,6 @@
 package com.commercetools.emailprocessor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
@@ -10,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,7 +21,7 @@ public class TenantConfiguration {
     private String projectKey;
     private String clientId;
     private String clientSecret;
-    private String webhookURL;
+    private String apiEndpointURL;
     private HttpURLConnection httpURLConnection;
 
     public TenantConfiguration() {
@@ -35,7 +32,7 @@ public class TenantConfiguration {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
-        webhookURL = url;
+        apiEndpointURL = url;
 
     }
 
@@ -63,12 +60,12 @@ public class TenantConfiguration {
         this.clientSecret = clientSecret;
     }
 
-    public String getWebhookURL() {
-        return webhookURL;
+    public String getApiEndpointURL() {
+        return apiEndpointURL;
     }
 
-    public void setWebhookURL(String webhookURL) {
-        this.webhookURL = webhookURL;
+    public void setApiEndpointURL(String apiEndpointURL) {
+        this.apiEndpointURL = apiEndpointURL;
     }
 
     public void setClient(SphereClient client) {
@@ -92,8 +89,8 @@ public class TenantConfiguration {
             isValid = false;
         }
 
-        if (StringUtils.isEmpty(webhookURL)) {
-            LOG.error(String.format(errorMessage, "webhookURL"));
+        if (StringUtils.isEmpty(apiEndpointURL)) {
+            LOG.error(String.format(errorMessage, "apiEndpointURL"));
             isValid = false;
         }
         return isValid;
@@ -112,7 +109,7 @@ public class TenantConfiguration {
 
     public HttpURLConnection getHttpURLConnection() throws Exception {
         if ( this.httpURLConnection == null) {
-            URL postUrl = new URL(webhookURL);
+            URL postUrl = new URL(apiEndpointURL);
             HttpURLConnection con = (HttpURLConnection) postUrl.openConnection();
 
         }

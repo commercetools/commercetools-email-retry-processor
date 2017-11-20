@@ -23,7 +23,7 @@ public class EmailProcessor {
     private static final String PARAM_EMAIL_ID = "emailid";
     private static final String PARAM_TENANT_ID = "tenantid";
     private static final String CONTAINER_ID = "unprocessedEmail";
-  ;  private static final String EMAIL_PROPERTY_STATUS = "status";
+    private static final String EMAIL_PROPERTY_STATUS = "status";
     private static final String EMAIL_STATUS_PENDING = "pending";
 
     public EmailProcessor() {
@@ -67,7 +67,7 @@ public class EmailProcessor {
     /**
      * Sends a post request to a webhook
      *
-     * @param customObjectID       ID of a customobject, which constains a email
+     * @param customObjectID      ID of a customobject, which constains a email
      * @param tenantConfiguration
      * @return Http Status code
      */
@@ -75,12 +75,12 @@ public class EmailProcessor {
         int responseCode = HttpStatus.SC_OK;
         OutputStream outputStream = null;
         try {
-            HttpURLConnection httpURLConnection =tenantConfiguration.getHttpURLConnection();
+            HttpURLConnection httpURLConnection = tenantConfiguration.getHttpURLConnection();
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setDoOutput(true);
             String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
                     tenantConfiguration.getProjectKey());
-           IOUtils.write(params,httpURLConnection.getOutputStream());
+            IOUtils.write(params, httpURLConnection.getOutputStream());
 
             responseCode = httpURLConnection.getResponseCode();
             outputStream.flush();
