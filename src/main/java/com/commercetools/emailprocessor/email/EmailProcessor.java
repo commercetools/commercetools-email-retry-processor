@@ -74,7 +74,7 @@ public class EmailProcessor {
      */
     int callApiEndpoint(String customObjectID, TenantConfiguration tenantConfiguration) {
         int responseCode = HttpStatus.SC_OK;
-        OutputStream outputStream = null;
+
         try {
             HttpURLConnection httpURLConnection = tenantConfiguration.getHttpURLConnection();
             httpURLConnection.setRequestMethod("POST");
@@ -82,10 +82,8 @@ public class EmailProcessor {
             String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
                     tenantConfiguration.getProjectKey());
             IOUtils.write(params, httpURLConnection.getOutputStream());
-
             responseCode = httpURLConnection.getResponseCode();
-            outputStream.flush();
-            outputStream.close();
+            IOUtils.close(httpURLConnection);
         } catch (Exception e) {
             LOG.error("The webhook cannot be called", e);
         }
