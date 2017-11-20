@@ -1,9 +1,6 @@
 # commercetools-email-retry-processor
 Scheduled service which allows to send emails asynchronously and retry on errors.
 
-
-
-
 - [Usage](#usage)
   - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
@@ -20,11 +17,26 @@ Scheduled service which allows to send emails asynchronously and retry on errors
  
  ### Configuration
  
-The configuration can be passed by enviroment variable or by Configurationfile to the processor
+The configuration can be passed by enviroment variable or by a configurationfile to the processor
 
 
+####  Example configuration: 
+ 
+ This JSON-SNIPPET contains the configuration of one tenant.
+ ```
+ {
+   "tenants": [
+     {
+       "projectKey": "project-key",
+       "clientId": "XXX",
+       "clientSecret": "XXX",
+       "apiEndpointURL": "http://www.<host>:<port>/<context-Path>" // URL To the api endpoind, which triggers the email delivery logiic.
+     }
+   ]
+ }
+   ```  
 
-#### using the enviroment variable
+#### Using the enviroment variable
  
   - Just  set the following environment variable, before running the job
    ```bash
@@ -35,20 +47,6 @@ The configuration can be passed by enviroment variable or by Configurationfile t
 
 - Just add the configfile path to the service call
 
-####  Example configuration: 
- 
-```
- {
-   "tenants": [
-     {
-       "projectKey": "project-key",
-       "clientId": "XXX",
-       "clientSecret": "XXX",
-       "apiEndpointURL": "http://www.<host>:<port>/<context-Path>"
-     }
-   ]
- }
-   ```  
 
 ## Run the application   
  
