@@ -42,7 +42,7 @@ public class Main {
                 }
 
             } else {
-                final String ctpProjectConfig = System.getenv(CTP_PROJECT_CONFIG);
+                String ctpProjectConfig = System.getenv(CTP_PROJECT_CONFIG);
                 if (StringUtils.isNotEmpty(ctpProjectConfig)) {
                     projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
                 }
