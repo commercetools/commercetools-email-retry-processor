@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
 
@@ -36,7 +38,7 @@ public class EmailProcessor {
      * @return Statics of the sended emails
      */
 
-    public Statistics processEmails(TenantConfiguration tenantConfiguration) {
+    public CompletableFuture<Statistics> processEmails(TenantConfiguration tenantConfiguration) {
 
         SphereClient client = tenantConfiguration.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode();
@@ -60,7 +62,7 @@ public class EmailProcessor {
                     return statistics;
                 }
 
-        ).toCompletableFuture().join();
+        ).toCompletableFuture();
 
     }
 

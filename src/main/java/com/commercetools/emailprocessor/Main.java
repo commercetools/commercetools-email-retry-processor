@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 
-
 public class Main {
     /**
      * This jobs try to resend emails of a given List of tenant using the EmailProcessor
@@ -52,13 +51,18 @@ public class Main {
         }
         if (projectConfiguration != null && projectConfiguration.isValid()) {
             EmailProcessor emailProcessor = new EmailProcessor();
-            for (TenantConfiguration tenantConfiguration : projectConfiguration.getTenants()) {
-                Statistics statistic = emailProcessor.processEmails(tenantConfiguration);
-                LOG.info("##########################");
-                LOG.info(String.format("Processing statistic for tenant %s", tenantConfiguration.getProjectKey()));
-                statistic.print();
-                LOG.info("##########################");
-            }
+            projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
+                emailProcessor.processEmails(tenantConfiguration).thenAccept(statistic -> {
+                    LOG.info("##########################");
+                    LOG.info(String.format("Processing statistic for tenant %s", tenantConfiguration.getProjectKey()));
+                    statistic.print();
+                    LOG.info("##########################");
+
+                }).join();
+
+            });
+
+
         } else {
             LOG.error("NO valid config was found");
 
