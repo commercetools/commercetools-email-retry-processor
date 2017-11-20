@@ -18,16 +18,13 @@ public class ProjectConfigurationTest {
     private String webhookURL = "anyUrl";
 
     @Test
-    public void isValid() throws Exception {
+    public void configurationShouldBeValid() throws Exception {
         ProjectConfiguration configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
                 clientSecret, webhookURL)));
         assertEquals(configuration.isValid(), true);
-    }
 
-    @Test
-    public void isValid2() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
                 clientSecret, webhookURL));
@@ -40,68 +37,40 @@ public class ProjectConfigurationTest {
     }
 
     @Test
-    public void isNotValid() throws Exception {
+    public void configurationShouldNotBeValid() throws Exception {
         ProjectConfiguration configuration = new ProjectConfiguration();
         assertEquals(configuration.isValid(), false);
 
-    }
-
-    @Test
-    public void isNotValid2() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.emptyList());
         assertEquals(false, configuration.isValid());
 
-    }
-
-
-
-    @Test
-    public void isNotValid3() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
                 clientSecret, null)));
         assertEquals(configuration.isValid(), false);
 
-    }
-
-    @Test
-    public void isNotValid4() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
                 null, webhookURL)));
         assertEquals(configuration.isValid(), false);
 
-    }
-
-    @Test
-    public void isNotValid5() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, null,
                 clientSecret, webhookURL)));
         assertEquals(configuration.isValid(), false);
 
-    }
-
-    @Test
-    public void isNotValid6() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration("", clientId,
                 clientSecret, webhookURL)));
         assertEquals(configuration.isValid(), false);
 
-    }
-    @Test
-    public void isNotValid7() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
                 clientSecret, null)));
         assertEquals(configuration.isValid(), false);
 
-    }
-    @Test
-    public void isNotValid8() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        configuration = new ProjectConfiguration();
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
                 clientSecret, null));

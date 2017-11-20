@@ -52,31 +52,19 @@ public class TenantConfigurationTest {
     }
 
     @Test
-    public void isNotValid1() throws Exception {
+    public void isNotVali1() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, null);
         assertEquals(tenantConfig.isValid(), false);
-    }
 
-    @Test
-    public void isNotValid2() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, null, webhookURL);
         assertEquals(tenantConfig.isValid(), false);
-    }
 
-    @Test
-    public void isNotValid3() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, null, clientSecret, webhookURL);
         assertEquals(tenantConfig.isValid(), false);
-    }
 
-    @Test
-    public void isNotValid4() throws Exception {
         tenantConfig = new TenantConfiguration(null, clientId, clientSecret, webhookURL);
         assertEquals(tenantConfig.isValid(), false);
-    }
-
-    @Test
-    public void isNotValid5() throws Exception {
+   
         tenantConfig = new TenantConfiguration(null, null, null, null);
         assertEquals(tenantConfig.isValid(), false);
     }
