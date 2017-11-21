@@ -41,7 +41,7 @@ public class EmailProcessor {
 
         SphereClient client = tenantConfiguration.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode();
-        query = query.byContainer(CONTAINER_ID).withLimit(100L);
+        query = query.byContainer(CONTAINER_ID).withLimit(100L).withSort(s->s.createdAt().sort().asc());
         return client.execute(query).thenApply(response -> {
                     Statistics statistics = new Statistics(tenantConfiguration.getProjectKey());
                     if (response.getTotal() < 1) {
