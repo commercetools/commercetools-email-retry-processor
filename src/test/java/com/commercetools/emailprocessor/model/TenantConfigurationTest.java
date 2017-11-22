@@ -24,35 +24,13 @@ public class TenantConfigurationTest {
     }
 
     @Test
-    public void getProjectKey() throws Exception {
-        assertEquals(tenantConfig.getProjectKey(), projectKey);
-    }
-
-    @Test
-    public void getClientId() throws Exception {
-        assertEquals(tenantConfig.getClientId(), clientId);
-    }
-
-    @Test
-    public void getClientSecret() throws Exception {
-        assertEquals(tenantConfig.getClientSecret(), clientSecret);
-
-    }
-
-    @Test
-    public void getWebhookURL() throws Exception {
-        assertEquals(tenantConfig.getApiEndpointURL(), webhookURL);
-
-    }
-
-    @Test
     public void isValid() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, webhookURL);
         assertEquals(tenantConfig.isValid(), true);
     }
 
     @Test
-    public void isNotVali1() throws Exception {
+    public void isNotValid() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, null);
         assertEquals(tenantConfig.isValid(), false);
 
