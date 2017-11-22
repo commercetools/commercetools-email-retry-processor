@@ -9,12 +9,12 @@ import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
 import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
@@ -54,7 +54,14 @@ public class EmailProcessor {
                         String status = email != null && email.get(EMAIL_PROPERTY_STATUS) != null ? email.get
                                 (EMAIL_PROPERTY_STATUS).asText() : "";
                         if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING)) {
-                            int httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
+                            int httpStatusCode = 0;
+                            try {
+                                httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
+                            } catch (Exception e) {
+                                LOG.error("Cannot call endpoint", e);
+
+
+                            }
                             statistics.update(httpStatusCode);
                         } else {
                             statistics.update(0);
@@ -74,21 +81,19 @@ public class EmailProcessor {
      * @param tenantConfiguration
      * @return Http Status code
      */
-    int callApiEndpoint(String customObjectID, TenantConfiguration tenantConfiguration) {
-        int responseCode = HttpStatus.SC_OK;
+    int callApiEndpoint(String customObjectID, TenantConfiguration tenantConfiguration) throws Exception {
 
-        try {
-            HttpURLConnection httpURLConnection = tenantConfiguration.getHttpURLConnection();
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setDoOutput(true);
-            String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
-                    tenantConfiguration.getProjectKey());
-            IOUtils.write(params, httpURLConnection.getOutputStream());
-            responseCode = httpURLConnection.getResponseCode();
-            IOUtils.close(httpURLConnection);
-        } catch (Exception e) {
-            LOG.error("The webhook cannot be called", e);
-        }
+
+
+        HttpURLConnection httpURLConnection = tenantConfiguration.getHttpURLConnection();
+        httpURLConnection.setRequestMethod("POST");
+        httpURLConnection.setDoOutput(true);
+        String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customObjectID,
+                tenantConfiguration.getProjectKey());
+        IOUtils.write(params, httpURLConnection.getOutputStream(), Charset.defaultCharset());
+       int responseCode = httpURLConnection.getResponseCode();
+        IOUtils.close(httpURLConnection);
+
         return responseCode;
     }
 }

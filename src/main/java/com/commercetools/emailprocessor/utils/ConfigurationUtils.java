@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 
 public class ConfigurationUtils {
@@ -22,7 +23,7 @@ public class ConfigurationUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
     public static String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
 
-    public static ProjectConfiguration getConfiguration(final String resourcePath) {
+    public static Optional<ProjectConfiguration> getConfiguration(final String resourcePath) {
         ObjectMapper objectMapper = new ObjectMapper();
         ProjectConfiguration projectConfiguration = null;
         try {
@@ -32,7 +33,7 @@ public class ConfigurationUtils {
                 try {
                     projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
                 } catch (IOException e) {
-                    LOG.error("The File cannot be parsed", e);
+                    LOG.error("The file cannot be parsed", e);
                 }
 
             } else {
@@ -48,6 +49,6 @@ public class ConfigurationUtils {
         if (projectConfiguration == null) {
             LOG.error("The projectconfiguration cannot be loaded");
         }
-        return projectConfiguration;
+        return Optional.ofNullable(projectConfiguration);
     }
 }

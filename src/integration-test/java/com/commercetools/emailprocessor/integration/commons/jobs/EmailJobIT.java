@@ -1,13 +1,15 @@
 package com.commercetools.emailprocessor.integration.commons.jobs;
 
+import com.commercetools.emailprocessor.Main;
 import com.commercetools.emailprocessor.email.EmailProcessor;
 import com.commercetools.emailprocessor.jobs.EmailJob;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.commercetools.emailprocessor.utils.ConfigurationUtils;
-import com.commercetools.sync.commons.utils.CtpQueryUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
+import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereRequest;
 import io.sphere.sdk.customobjects.CustomObjectDraft;
@@ -20,26 +22,31 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailJobIT {
-
+    private static final Logger LOG = LoggerFactory.getLogger(EmailJobIT.class);
     private static TenantConfiguration tenantConfiguration;
     private static SphereClient ctpClient;
     private static ProjectConfiguration configuration = null;
 
     @BeforeClass
     public static void setup() {
-        configuration = ConfigurationUtils.getConfiguration(""); //configuration  is loaded from
+        configuration = ConfigurationUtils.getConfiguration("").get(); //configuration  is loaded from
         // enviromentVarialbles
         assertThat(configuration).isNotNull();
         assertThat(configuration.isValid()).isTrue();
@@ -66,8 +73,9 @@ public class EmailJobIT {
 
 
     @Test
-    public void process_email_successfully() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
+    public void process_WithASuccessfulEmail_ShouldReturnNoError() {
+
+       createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setApiEndpointURL("https://httpbin.org/status/" + Statistics
@@ -83,7 +91,25 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_email_with_permanent_error() {
+    public void process_WithIncorrectEndpointUrl_ShouldReturnEmptyStatics() {
+
+        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
+        configuration.getTenants().get(0).setApiEndpointURL("https://unknownEndpoint.de" );
+        List<Statistics> statistics = EmailJob.process(configuration);
+        assertThat(statistics).isNotEmpty();
+        Statistics statistic = statistics.get(0);
+        statistic.print(LOG);
+        assertThat(statistic.getProcessedEmails()).isEqualTo(0);
+        assertThat(statistic.getNotProcessedEmails()).isEqualTo(0);
+        assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(0);
+        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getPermanentErrors()).isEqualTo(0);
+    }
+
+    @Test
+    public void process_WithUnsuccessfulEmail_ShouldReturnPermenantError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
@@ -100,7 +126,7 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_email_with_temporarily_error() {
+    public void process_WithUnsuccessfulEmail_ShouldReturnTemporaryError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
@@ -136,25 +162,19 @@ public class EmailJobIT {
             @Nonnull final SphereClient ctpClient,
             @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
             @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
-
-        final Function<List<T>, Stream<CompletableFuture<T>>> pageMapper =
-                pageElements -> pageElements.stream()
-                        .map(resourceMapper)
-                        .map(ctpClient::execute)
-                        .map(CompletionStage::toCompletableFuture);
-
-        CtpQueryUtils.queryAll(ctpClient, queryRequestSupplier.get(), pageMapper)
-                .thenApply(list -> list.stream().flatMap(Function.identity()))
-                .thenApply(stream -> stream.toArray(CompletableFuture[]::new))
+        queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
+                .thenApply(allRequests -> allRequests.stream()
+                                                     .map(ctpClient::execute)
+                                                     .map(CompletionStage::toCompletableFuture).collect(toList()))
+                .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
                 .thenCompose(CompletableFuture::allOf)
                 .toCompletableFuture().join();
-
     }
 
     private void createCustomObject(String status, String errorMailID) {
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
-        CustomObjectDraft draft = CustomObjectDraft.ofUnversionedUpsert(EmailProcessor.CONTAINER_ID, errorMailID,
-                jsonNode);
+        CustomObjectDraft<JsonNode> draft = CustomObjectDraft.ofUnversionedUpsert(EmailProcessor.CONTAINER_ID,
+                errorMailID, jsonNode);
         ctpClient.execute(CustomObjectUpsertCommand.of(draft)).toCompletableFuture().join();
 
     }

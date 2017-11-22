@@ -1,11 +1,13 @@
 package com.commercetools.emailprocessor.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class Statistics {
-    private static final Logger LOG = LoggerFactory.getLogger(Statistics.class);
     public static final int RESPONSE_CODE_SUCCESS = 200;
     public static final int RESPONSE_ERROR_TEMP = 503;
     public static final int RESPONSE_ERROR_PERMANENT = 400;
@@ -29,50 +31,32 @@ public class Statistics {
         return tenantID;
     }
 
-    public void setTenantID(String tenantID) {
-        this.tenantID = tenantID;
-    }
-
     public int getNotProcessedEmails() {
         return notProcessedEmails;
     }
 
-    public void setNotProcessedEmails(int notProcessedEmails) {
-        this.notProcessedEmails = notProcessedEmails;
-    }
 
     public int getProcessedEmails() {
         return processedEmails;
     }
 
-    public void setProcessedEmails(int processedEmails) {
-        this.processedEmails = processedEmails;
-    }
 
     public int getSuccessfulSendedEmails() {
         return successfulSendedEmails;
     }
 
-    public void setSuccessfulSendedEmails(int successfulSendedEmails) {
-        this.successfulSendedEmails = successfulSendedEmails;
-    }
 
     public int getPermanentErrors() {
         return permanentErrors;
     }
 
-    public void setPermanentErrors(int permanentErrors) {
-        this.permanentErrors = permanentErrors;
-    }
 
     public int getTemporarilyErrors() {
         return temporarilyErrors;
     }
 
-    public void setTemporarilyErrors(int temporarilyErrors) {
-        this.temporarilyErrors = temporarilyErrors;
-    }
 
+    @JsonIgnore
     public void update(int httpStatusCode) {
         processedEmails++;
         switch (httpStatusCode) {
@@ -89,21 +73,22 @@ public class Statistics {
                 notProcessedEmails++;
                 processedEmails--;
                 break;
-            default:
-                permanentErrors++;
-                break;
         }
     }
 
-    public void print() {
-        LOG.info("##########################");
-        LOG.info(String.format("Processing statistic for tenant %s", tenantID));
-        LOG.info("# processed Emails " + processedEmails);
-        LOG.info("# not processed Emails " + notProcessedEmails);
-        LOG.info("# processed successfull " + successfulSendedEmails);
-        LOG.info("# processed with temporal error " + temporarilyErrors);
-        LOG.info("# processed with permanent error " + permanentErrors);
-        LOG.info("##########################");
+    @JsonIgnore
+    public String getStatisticsAsJSONString() throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    @JsonIgnore
+    public void print(Logger logger) {
+        try {
+            logger.info(getStatisticsAsJSONString());
+        } catch (JsonProcessingException e) {
+            logger.error("Cannot create json statistics.", e);
+        }
     }
 
 
