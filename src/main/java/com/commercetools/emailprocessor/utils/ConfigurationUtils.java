@@ -22,14 +22,14 @@ public class ConfigurationUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
     public static String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
 
-    public static ProjectConfiguration getConfiguration (final  String resourcePath ) {
+    public static ProjectConfiguration getConfiguration(final String resourcePath) {
         ObjectMapper objectMapper = new ObjectMapper();
         ProjectConfiguration projectConfiguration = null;
         try {
 
             if (StringUtils.isNotEmpty(resourcePath)) {
                 File file = new File(resourcePath);
-                 try {
+                try {
                     projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
                 } catch (IOException e) {
                     LOG.error("The File cannot be parsed", e);
@@ -45,7 +45,9 @@ public class ConfigurationUtils {
             LOG.error("The json stream cannot be parsed", e);
         }
 
-
-   return projectConfiguration;
+        if (projectConfiguration == null) {
+            LOG.error("The projectconfiguration cannot be loaded");
+        }
+        return projectConfiguration;
     }
 }

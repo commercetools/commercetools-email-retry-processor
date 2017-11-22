@@ -1,5 +1,6 @@
 package com.commercetools.emailprocessor.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.Transient;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -22,6 +24,8 @@ public class TenantConfiguration {
     private String clientId;
     private String clientSecret;
     private String apiEndpointURL;
+
+    @JsonIgnore
     private HttpURLConnection httpURLConnection;
 
     public TenantConfiguration() {
@@ -107,14 +111,16 @@ public class TenantConfiguration {
         return client;
     }
 
+    @JsonIgnore
     public HttpURLConnection getHttpURLConnection() throws Exception {
-        if ( this.httpURLConnection == null) {
+        if (this.httpURLConnection == null) {
             URL postUrl = new URL(apiEndpointURL);
-            HttpURLConnection con = (HttpURLConnection) postUrl.openConnection();
+            return (HttpURLConnection) postUrl.openConnection();
 
         }
         return httpURLConnection;
     }
+
     public void setHttpURLConnection(HttpURLConnection httpURLConnection) {
         this.httpURLConnection = httpURLConnection;
     }

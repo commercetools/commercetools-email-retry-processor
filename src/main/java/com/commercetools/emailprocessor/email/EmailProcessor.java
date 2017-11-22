@@ -23,9 +23,10 @@ public class EmailProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
     private static final String PARAM_EMAIL_ID = "emailid";
     private static final String PARAM_TENANT_ID = "tenantid";
-    private static final String CONTAINER_ID = "unprocessedEmail";
-    private static final String EMAIL_PROPERTY_STATUS = "status";
-    private static final String EMAIL_STATUS_PENDING = "pending";
+    public static final String CONTAINER_ID = "unprocessedEmail";
+    public static final String EMAIL_PROPERTY_STATUS = "status";
+    public static final String EMAIL_STATUS_PENDING = "pending";
+    public static final String EMAIL_STATUS_ERROR = "error";
 
     public EmailProcessor() {
     }
@@ -41,7 +42,7 @@ public class EmailProcessor {
 
         SphereClient client = tenantConfiguration.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode();
-        query = query.byContainer(CONTAINER_ID).withLimit(100L).withSort(s->s.createdAt().sort().asc());
+        query = query.byContainer(CONTAINER_ID).withLimit(100L).withSort(s -> s.createdAt().sort().asc());
         return client.execute(query).thenApply(response -> {
                     Statistics statistics = new Statistics(tenantConfiguration.getProjectKey());
                     if (response.getTotal() < 1) {
@@ -55,7 +56,8 @@ public class EmailProcessor {
                         if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING)) {
                             int httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
                             statistics.update(httpStatusCode);
-
+                        } else {
+                            statistics.update(0);
                         }
                     }
                     return statistics;

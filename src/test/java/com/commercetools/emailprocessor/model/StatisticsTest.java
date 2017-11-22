@@ -17,47 +17,47 @@ public class StatisticsTest {
 
     @Test
     public void getProcessedEmail() throws Exception {
-        assertEquals(statistics.getProcessedEmail(), 0);
+        assertEquals(statistics.getProcessedEmails(), 0);
     }
 
     @Test
 
     public void setProcessedEmail() throws Exception {
-        statistics.setProcessedEmail(2);
-        assertEquals(statistics.getProcessedEmail(), 2);
+        statistics.setProcessedEmails(2);
+        assertEquals(statistics.getProcessedEmails(), 2);
     }
 
     @Test
     public void getSuccessful() throws Exception {
-        assertEquals(statistics.getSuccessful(), 0);
+        assertEquals(statistics.getSuccessfulSendedEmails(), 0);
     }
 
     @Test
     public void setSuccessful() throws Exception {
-        statistics.setSuccessful(5);
-        assertEquals(statistics.getSuccessful(), 5);
+        statistics.setSuccessfulSendedEmails(5);
+        assertEquals(statistics.getSuccessfulSendedEmails(), 5);
     }
 
     @Test
     public void getPermanentError() throws Exception {
-        assertEquals(statistics.getPermanentError(),0);
+        assertEquals(statistics.getPermanentErrors(),0);
     }
 
     @Test
     public void setPermanentError() throws Exception {
-        statistics.setPermanentError(8);
-        assertEquals(statistics.getPermanentError(), 8);
+        statistics.setPermanentErrors(8);
+        assertEquals(statistics.getPermanentErrors(), 8);
     }
 
     @Test
     public void getTempError() throws Exception {
-        assertEquals(statistics.getTempError(), 0);
+        assertEquals(statistics.getTemporarilyErrors(), 0);
     }
 
     @Test
     public void setTempError() throws Exception {
-        statistics.setTempError(3);
-        assertEquals(statistics.getTempError(), 3);
+        statistics.setTemporarilyErrors(3);
+        assertEquals(statistics.getTemporarilyErrors(), 3);
     }
 
     @Test
@@ -71,10 +71,10 @@ public class StatisticsTest {
         statistics.update(Statistics.RESPONSE_ERROR_TEMP);
         statistics.update(Statistics.RESPONSE_ERROR_PERMANENT);
 
-        assertEquals(statistics.getSuccessful(), 3);
-        assertEquals(statistics.getPermanentError(), 1);
-        assertEquals(statistics.getTempError(), 4);
-        assertEquals(statistics.getProcessedEmail(), 8);
+        assertEquals(statistics.getSuccessfulSendedEmails(), 3);
+        assertEquals(statistics.getPermanentErrors(), 1);
+        assertEquals(statistics.getTemporarilyErrors(), 4);
+        assertEquals(statistics.getProcessedEmails(), 8);
     }
 
     @Test
