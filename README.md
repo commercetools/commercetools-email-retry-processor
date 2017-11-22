@@ -1,6 +1,9 @@
 # commercetools-email-retry-processor
 Scheduled service which allows to send emails asynchronously and retry on errors.
 
+[![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)]()hhttps://travis-ci.org/commercetools/commercetools-email-retry-processor
+
+
 - [Usage](#usage)
   - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
