@@ -15,8 +15,6 @@ public class StatisticsTest {
 
     }
 
-
-
     @Test
     public void update() throws Exception {
         statistics.update(Statistics.RESPONSE_CODE_SUCCESS);
@@ -36,9 +34,4 @@ public class StatisticsTest {
         assertEquals(statistics.getProcessedEmails(), 8);
         assertEquals(statistics.getNotProcessedEmails(), 2);
     }
-
-    @Test
-    public void print() throws Exception {
-    }
-
 }
