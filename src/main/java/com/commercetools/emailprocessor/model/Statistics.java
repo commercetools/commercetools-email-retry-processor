@@ -10,7 +10,7 @@ public class Statistics {
     public static final int RESPONSE_CODE_SUCCESS = 200;
     public static final int RESPONSE_ERROR_TEMP = 503;
     public static final int RESPONSE_ERROR_PERMANENT = 400;
-    public String tenantId = "";
+    private String tenantId = "";
     private int processedEmails = 0;
     private int notProcessedEmails = 0;
     private int successfulSendedEmails = 0;
@@ -19,6 +19,14 @@ public class Statistics {
 
     public Statistics() {
 
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(final String tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Statistics(final String tenant) {

@@ -161,7 +161,7 @@ public class EmailProcessorTest {
         return customObject;
     }
 
-    public class MockUrlStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
+    public static class MockUrlStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
         private MockHttpUrlConnection mockConnection;
 
         public MockUrlStreamHandler(final String url) throws Exception {
@@ -188,7 +188,7 @@ public class EmailProcessorTest {
         }
     }
 
-    public class MockHttpUrlConnection extends HttpURLConnection {
+    public static class MockHttpUrlConnection extends HttpURLConnection {
 
         ByteArrayOutputStream stream;
 

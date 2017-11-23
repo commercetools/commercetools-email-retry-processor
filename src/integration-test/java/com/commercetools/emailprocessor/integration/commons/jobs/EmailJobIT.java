@@ -43,7 +43,9 @@ public class EmailJobIT {
      */
     @BeforeClass
     public static void setup() {
-        configuration = ConfigurationUtils.getConfiguration("").get();
+        ConfigurationUtils.getConfiguration("").ifPresent(config -> {
+            configuration = config;
+        });
         assertThat(configuration).isNotNull();
         assertThat(configuration.isValid()).isTrue();
         ctpClient = configuration.getTenants().get(0).getSphereClient();
@@ -54,7 +56,9 @@ public class EmailJobIT {
      */
     @AfterClass
     public static void tearDown() {
-        queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
+        if (ctpClient != null) {
+            queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
+        }
     }
 
     /**

@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ConfigurationUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
-    public static String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
+    public static final String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
 
     /**
      * Load a configuration from a enviroment variable or, if given, a configuration file.
