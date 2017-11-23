@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.Transient;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -23,59 +22,35 @@ public class TenantConfiguration {
     private String projectKey;
     private String clientId;
     private String clientSecret;
-    private String apiEndpointURL;
+    private String endpointUrl;
 
     @JsonIgnore
-    private HttpURLConnection httpURLConnection;
+    private HttpURLConnection httpUrlConnection;
 
     public TenantConfiguration() {
     }
 
-
-    public TenantConfiguration(String key, String id, String secret, String url) {
+    /**
+     * Creates a configuration of a tenant.
+     *
+     * @param key    ctp project key
+     * @param id     ctp project client id
+     * @param secret ctp project client secret
+     * @param url    api endpoint url
+     */
+    public TenantConfiguration(final String key, final String id, final String secret, final String url) {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
-        apiEndpointURL = url;
-
+        endpointUrl = url;
     }
 
-    public String getProjectKey() {
-        return projectKey;
-    }
 
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
-
-    public String getApiEndpointURL() {
-        return apiEndpointURL;
-    }
-
-    public void setApiEndpointURL(String apiEndpointURL) {
-        this.apiEndpointURL = apiEndpointURL;
-    }
-
-    public void setClient(SphereClient client) {
-        this.client = client;
-    }
-
+    /**
+     * Validates the current tenant configuration.
+     *
+     * @return true, if the configuration is valid
+     */
     public boolean isValid() {
         String errorMessage = "Please define the missing Property '%s'";
         boolean isValid = true;
@@ -93,14 +68,19 @@ public class TenantConfiguration {
             isValid = false;
         }
 
-        if (StringUtils.isEmpty(apiEndpointURL)) {
-            LOG.error(String.format(errorMessage, "apiEndpointURL"));
+        if (StringUtils.isEmpty(endpointUrl)) {
+            LOG.error(String.format(errorMessage, "endpointUrl"));
             isValid = false;
         }
         return isValid;
 
     }
 
+    /**
+     * Create a SphereClient based on the current tenantconfig.
+     *
+     * @return the current SphereClient
+     */
     public SphereClient getSphereClient() {
         if (client == null) {
             SphereClientConfig sphereConfig = SphereClientConfig.of(projectKey, clientId, clientSecret);
@@ -111,18 +91,27 @@ public class TenantConfiguration {
         return client;
     }
 
+    /**
+     * Create a HttpURLConnection based on the current tenantconfig.
+     *
+     * @return the current HttpURLConnection
+     * @throws Exception when the HttpURLConnection cannot be created.
+     */
     @JsonIgnore
-    public HttpURLConnection getHttpURLConnection() throws Exception {
-        if (this.httpURLConnection == null) {
-            URL postUrl = new URL(apiEndpointURL);
+    public HttpURLConnection getHttpUrlConnection() throws Exception {
+        if (this.httpUrlConnection == null) {
+            URL postUrl = new URL(endpointUrl);
             return (HttpURLConnection) postUrl.openConnection();
-
         }
-        return httpURLConnection;
+        return httpUrlConnection;
     }
 
-    public void setHttpURLConnection(HttpURLConnection httpURLConnection) {
-        this.httpURLConnection = httpURLConnection;
+    /**
+     * Sets a given urlConnection.
+     */
+    @JsonIgnore
+    void setHttpUrlConnection(final HttpURLConnection httpUrlConnection) {
+        this.httpUrlConnection = httpUrlConnection;
     }
 
 }

@@ -9,20 +9,23 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectConfiguration.class);
+    private List<TenantConfiguration> tenants;
 
     public ProjectConfiguration() {
     }
-
-    private List<TenantConfiguration> tenants;
 
     public List<TenantConfiguration> getTenants() {
         return tenants;
     }
 
-    public void setTenants(List<TenantConfiguration> tenants) {
+    public void setTenants(final List<TenantConfiguration> tenants) {
         this.tenants = tenants;
     }
 
+    /**
+     * Validates the current project configuration.
+     * @return true, if the configuration is valid
+     */
     public boolean isValid() {
 
         boolean valid = true;

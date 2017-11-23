@@ -119,7 +119,7 @@ public class EmailProcessorTest {
         URL.setURLStreamHandlerFactory(handler);
         MockHttpURLConnection httpURLConnection = handler.getConnection();
         TenantConfiguration configuration = new TenantConfiguration();
-        configuration.setHttpURLConnection(httpURLConnection);
+        configuration.setHttpUrlConnection(httpURLConnection);
         configuration.setProjectKey(tenantid);
         int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);

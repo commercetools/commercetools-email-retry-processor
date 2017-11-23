@@ -74,7 +74,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setApiEndpointURL("https://httpbin.org/status/" + Statistics
+        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
                 .RESPONSE_CODE_SUCCESS);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
@@ -92,7 +92,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setApiEndpointURL("https://unknownEndpoint.de");
+        configuration.getTenants().get(0).setEndpointUrl("https://unknownEndpoint.de");
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -109,7 +109,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setApiEndpointURL("https://httpbin.org/status/" + Statistics
+        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
                 .RESPONSE_ERROR_PERMANENT);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
@@ -126,7 +126,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setApiEndpointURL("https://httpbin.org/status/" + Statistics
+        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
                 .RESPONSE_ERROR_TEMP);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();

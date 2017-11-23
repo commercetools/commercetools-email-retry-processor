@@ -1,7 +1,6 @@
 package com.commercetools.emailprocessor.utils;
 
 
-import com.commercetools.emailprocessor.jobs.EmailJob;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -14,36 +13,35 @@ import java.util.Optional;
 
 
 public class ConfigurationUtils {
-    /**
-     * This jobs try to resend emails of a given List of tenant using the EmailProcessor
-     * The configuration of this job, can be pass by  a File or enviroment variable.
-     *
-     * @param args all args
-     */
+
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
     public static String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
 
+    /**
+     * Load a configuration from a enviroment variable or, if given, a configuration file.
+     *
+     * @param resourcePath optional path to a configuration file
+     * @return a projectconfiguration
+     */
     public static Optional<ProjectConfiguration> getConfiguration(final String resourcePath) {
         ObjectMapper objectMapper = new ObjectMapper();
         ProjectConfiguration projectConfiguration = null;
         try {
-
             if (StringUtils.isNotEmpty(resourcePath)) {
                 File file = new File(resourcePath);
                 try {
                     projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
-                } catch (IOException e) {
-                    LOG.error("The file cannot be parsed", e);
+                } catch (IOException exception) {
+                    LOG.error("The file cannot be parsed", exception);
                 }
-
             } else {
                 String ctpProjectConfig = System.getenv(CTP_PROJECT_CONFIG);
                 if (StringUtils.isNotEmpty(ctpProjectConfig)) {
                     projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
                 }
             }
-        } catch (IOException e) {
-            LOG.error("The json stream cannot be parsed", e);
+        } catch (IOException jsonExecption) {
+            LOG.error("The json stream cannot be parsed", jsonExecption);
         }
 
         if (projectConfiguration == null) {

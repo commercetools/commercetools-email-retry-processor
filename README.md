@@ -33,7 +33,7 @@ The configuration can be passed by enviroment variable or by a configurationfile
        "projectKey": "project-key",
        "clientId": "XXX",
        "clientSecret": "XXX",
-       "apiEndpointURL": "http://www.<host>:<port>/<context-Path>" // URL To the api endpoind, which triggers the email delivery logiic.
+       "endpointUrl": "http://www.<host>:<port>/<context-Path>" // URL To the api endpoind, which triggers the email delivery logiic.
      }
    ]
  }

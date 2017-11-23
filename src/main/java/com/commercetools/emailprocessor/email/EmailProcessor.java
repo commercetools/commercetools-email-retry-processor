@@ -79,7 +79,7 @@ public class EmailProcessor {
      * @return Http Status code response code of the current request
      */
     int callApiEndpoint(final String customobjectid, final TenantConfiguration tenantConfiguration) throws Exception {
-        HttpURLConnection httpUrlConnectionConnection = tenantConfiguration.getHttpURLConnection();
+        HttpURLConnection httpUrlConnectionConnection = tenantConfiguration.getHttpUrlConnection();
         httpUrlConnectionConnection.setRequestMethod("POST");
         httpUrlConnectionConnection.setDoOutput(true);
         String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customobjectid,
