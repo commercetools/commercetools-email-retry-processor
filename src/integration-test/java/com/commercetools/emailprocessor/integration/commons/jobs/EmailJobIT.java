@@ -47,15 +47,6 @@ public class EmailJobIT {
         assertThat(configuration).isNotNull();
         assertThat(configuration.isValid()).isTrue();
         ctpClient = configuration.getTenants().get(0).getSphereClient();
-
-    }
-
-    /**
-     * Create required Email objects.
-     */
-    @Before
-    public void setupTest() {
-        queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
     }
 
     /**
@@ -66,7 +57,41 @@ public class EmailJobIT {
         queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
     }
 
+    /**
+     * Applies the {@code pageMapper} function on each page fetched from the supplied {@code
+     * queryRequestSupplier} on
+     * the supplied {@code ctpClient}.
+     *
+     * @param ctpClient            defines the CTP project to apply the query on.
+     * @param queryRequestSupplier defines a supplier which, when executed, returns the query that should be made on
+     *                             the CTP project.
+     * @param resourceMapper       defines a mapper function that should be applied on each resource in the
+     *                             fetched page
+     *                             from the query on the specified CTP project.
+     */
 
+
+    public static <T, C extends QueryDsl<T, C>> void queryAndApply(
+        @Nonnull final SphereClient ctpClient,
+        @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
+        @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
+        queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
+            .thenApply(allRequests -> allRequests.stream()
+                .map(ctpClient::execute)
+                .map(CompletionStage::toCompletableFuture).collect(toList()))
+            .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
+            .thenCompose(CompletableFuture::allOf)
+            .toCompletableFuture().join();
+    }
+
+
+    /**
+     * Create required Email objects.
+     */
+    @Before
+    public void setupTest() {
+        queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
+    }
 
     @Test
     public void process_WithASuccessfulEmail_ShouldReturnNoError() {
@@ -75,7 +100,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_CODE_SUCCESS);
+            .RESPONSE_CODE_SUCCESS);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -98,7 +123,7 @@ public class EmailJobIT {
         Statistics statistic = statistics.get(0);
         statistic.print(LOG);
         assertThat(statistic.getProcessedEmails()).isEqualTo(0);
-        assertThat(statistic.getNotProcessedEmails()).isEqualTo(0);
+        assertThat(statistic.getNotProcessedEmails()).isEqualTo(3);
         assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -110,7 +135,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_ERROR_PERMANENT);
+            .RESPONSE_ERROR_PERMANENT);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -127,7 +152,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_ERROR_TEMP);
+            .RESPONSE_ERROR_TEMP);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -138,40 +163,13 @@ public class EmailJobIT {
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
-
-    /**
-     * Applies the {@code pageMapper} function on each page fetched from the supplied {@code
-     * queryRequestSupplier} on
-     * the supplied {@code ctpClient}.
-     *
-     * @param ctpClient            defines the CTP project to apply the query on.
-     * @param queryRequestSupplier defines a supplier which, when executed, returns the query that should be made on
-     *                             the CTP project.
-     * @param resourceMapper       defines a mapper function that should be applied on each resource in the
-     *                             fetched page
-     *                             from the query on the specified CTP project.
-     */
-
-
-    public static <T, C extends QueryDsl<T, C>> void queryAndApply(
-            @Nonnull final SphereClient ctpClient,
-            @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
-            @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
-        queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
-                .thenApply(allRequests -> allRequests.stream()
-                        .map(ctpClient::execute)
-                        .map(CompletionStage::toCompletableFuture).collect(toList()))
-                .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
-                .thenCompose(CompletableFuture::allOf)
-                .toCompletableFuture().join();
-    }
-
-    private void createCustomObject(final String status,final String errorMailId) {
+    private void createCustomObject(final String status, final String errorMailId) {
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObjectDraft<JsonNode> draft = CustomObjectDraft.ofUnversionedUpsert(EmailProcessor.CONTAINER_ID,
-                errorMailId, jsonNode);
+            errorMailId, jsonNode);
         ctpClient.execute(CustomObjectUpsertCommand.of(draft)).toCompletableFuture().join();
 
     }
+
 }
 

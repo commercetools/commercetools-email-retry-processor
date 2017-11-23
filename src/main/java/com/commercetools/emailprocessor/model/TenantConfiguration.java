@@ -18,6 +18,7 @@ public class TenantConfiguration {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
+
     private SphereClient client = null;
     private String projectKey;
     private String clientId;
@@ -46,6 +47,31 @@ public class TenantConfiguration {
     }
 
 
+
+    public String getProjectKey() {
+        return projectKey;
+    }
+
+    public void setProjectKey(final String projectKey) {
+        this.projectKey = projectKey;
+    }
+
+    public void setClientId(final String clientId) {
+        this.clientId = clientId;
+    }
+
+    public void setClientSecret(final String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
+    public void setEndpointUrl(final String url) {
+        this.endpointUrl = url;
+    }
+
+    public void setClient(final SphereClient client) {
+        this.client = client;
+    }
+
     /**
      * Validates the current tenant configuration.
      *
@@ -55,7 +81,7 @@ public class TenantConfiguration {
         String errorMessage = "Please define the missing Property '%s'";
         boolean isValid = true;
 
-        if (StringUtils.isEmpty(projectKey)) {
+        if (StringUtils.isEmpty(getProjectKey())) {
             LOG.error(String.format(errorMessage, "projectKey"));
             isValid = false;
         }
@@ -110,8 +136,9 @@ public class TenantConfiguration {
      * Sets a given urlConnection.
      */
     @JsonIgnore
-    void setHttpUrlConnection(final HttpURLConnection httpUrlConnection) {
+    public void setHttpUrlConnection(final HttpURLConnection httpUrlConnection) {
         this.httpUrlConnection = httpUrlConnection;
     }
+
 
 }

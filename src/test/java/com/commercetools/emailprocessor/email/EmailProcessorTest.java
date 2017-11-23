@@ -89,8 +89,7 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        ;
-        assertEquals(statistic.getProcessedEmails(), 0);
+         assertEquals(statistic.getProcessedEmails(), 0);
         assertEquals(statistic.getSuccessfulSendedEmails(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
 
