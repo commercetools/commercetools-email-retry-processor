@@ -16,24 +16,36 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 public class EmailProcessorTest {
 
 
+    private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
     public EmailProcessor emailProcessor = null;
     TenantConfiguration tenantConfiguration = null;
     List<CustomObject<JsonNode>> customObjects = null;
-    private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
+    /**
+     * Setup a email processor mock.
+     *
+     * @throws Exception when the mock cannot created
+     */
     @Before
     public void setUp() throws Exception {
         customObjects = new ArrayList<CustomObject<JsonNode>>();
@@ -83,20 +95,20 @@ public class EmailProcessorTest {
 
 
     @Test
-    public void shouldNOTProcessEmails() throws Exception {
+    public void shouldNotProcessEmails() throws Exception {
         customObjects.add(createCustomObject("1", "error", Statistics.RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", "error", Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-         assertEquals(statistic.getProcessedEmails(), 0);
+        assertEquals(statistic.getProcessedEmails(), 0);
         assertEquals(statistic.getSuccessfulSendedEmails(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
 
     }
 
     @Test
-    public void shouldNOTProcessEmails2() throws Exception {
+    public void shouldNotProcessEmails2() throws Exception {
         tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
 
@@ -108,80 +120,81 @@ public class EmailProcessorTest {
 
     @Test
     public void shouldcallApiEndpoint() throws Exception {
-        Mockito.doCallRealMethod().when(emailProcessor).callApiEndpoint(Mockito.anyString(), Mockito.any
-                (TenantConfiguration.class));
-        int httpStatus = 200;
-        String id = "123";
-        String tenantid = "testTenant";
-        String url = "http://www.anyurl.de";
-        MockURLStreamHandler handler = new MockURLStreamHandler(url);
+        Mockito.doCallRealMethod().when(emailProcessor)
+            .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
+        final int httpStatus = 200;
+        final String id = "123";
+        final String tenantid = "testTenant";
+        final String url = "http://www.anyurl.de";
+        MockUrlStreamHandler handler = new MockUrlStreamHandler(url);
         URL.setURLStreamHandlerFactory(handler);
-        MockHttpURLConnection httpURLConnection = handler.getConnection();
+        MockHttpUrlConnection httpUrlConnection = handler.getConnection();
         TenantConfiguration configuration = new TenantConfiguration();
-        configuration.setHttpUrlConnection(httpURLConnection);
+        configuration.setHttpUrlConnection(httpUrlConnection);
         configuration.setProjectKey(tenantid);
         int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);
-        assertEquals(url, httpURLConnection.getURL().toString());
-        assertEquals(IOUtils.toString(httpURLConnection.getInputStream()), "emailid=" + id + "&tenantid=" + tenantid);
+        assertEquals(url, httpUrlConnection.getURL().toString());
+        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream()), "emailid=" + id + "&tenantid=" + tenantid);
 
     }
 
 
-    private SphereClient mockSphereClient(List<CustomObject<JsonNode>> customObjects) {
+    private SphereClient mockSphereClient(final List<CustomObject<JsonNode>> customObjects) {
         SphereClient client = Mockito.mock(SphereClient.class);
         PagedQueryResult queryResult = Mockito.mock(PagedQueryResult.class);
         Mockito.when(queryResult.getTotal()).thenReturn(Long.valueOf(customObjects.size()));
         Mockito.when(queryResult.getResults()).thenReturn(customObjects);
         Mockito.when(client.execute(Mockito.isA(CustomObjectQuery.class))).thenReturn(CompletableFuture
-                .completedFuture(queryResult));
+            .completedFuture(queryResult));
         return client;
     }
 
 
-    private CustomObject createCustomObject(String customObjectID, String status, int webHookhttpStatus) throws Exception {
-        Mockito.when(emailProcessor.callApiEndpoint(customObjectID, tenantConfiguration)).thenReturn(webHookhttpStatus);
+    private CustomObject createCustomObject(final String customobjectid, final String status, final int endPointtatus)
+        throws Exception {
+        Mockito.when(emailProcessor.callApiEndpoint(customobjectid, tenantConfiguration)).thenReturn(endPointtatus);
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObject customObject = Mockito.mock(CustomObject.class);
-        Mockito.when(customObject.getId()).thenReturn(customObjectID);
+        Mockito.when(customObject.getId()).thenReturn(customobjectid);
         Mockito.when(customObject.getValue()).thenReturn(jsonNode);
         return customObject;
     }
 
-    public class MockURLStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
-        private MockHttpURLConnection mConnection;
+    public class MockUrlStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
+        private MockHttpUrlConnection mockConnection;
 
-        public MockHttpURLConnection getConnection() {
-            return mConnection;
+        public MockUrlStreamHandler(final String url) throws Exception {
+            openConnection(new URL(url));
         }
 
         // *** URLStreamHandler
 
-        @Override
-        public HttpURLConnection openConnection(URL u) throws IOException {
-            mConnection = new MockHttpURLConnection(u);
-            return mConnection;
+        public MockHttpUrlConnection getConnection() {
+            return mockConnection;
         }
 
         // *** URLStreamHandlerFactory
 
         @Override
-        public URLStreamHandler createURLStreamHandler(String protocol) {
-            return this;
+        public HttpURLConnection openConnection(final URL url) throws IOException {
+            mockConnection = new MockHttpUrlConnection(url);
+            return mockConnection;
         }
 
-        public MockURLStreamHandler(String url) throws Exception {
-            openConnection(new URL(url));
+        @Override
+        public URLStreamHandler createURLStreamHandler(final String protocol) {
+            return this;
         }
     }
 
-    public class MockHttpURLConnection extends HttpURLConnection {
-
-        protected MockHttpURLConnection(URL url) {
-            super(url);
-        }
+    public class MockHttpUrlConnection extends HttpURLConnection {
 
         ByteArrayOutputStream stream;
+
+        protected MockHttpUrlConnection(final URL url) {
+            super(url);
+        }
 
         // *** HttpURLConnection
         @Override

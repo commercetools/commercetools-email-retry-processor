@@ -47,7 +47,6 @@ public class TenantConfiguration {
     }
 
 
-
     public String getProjectKey() {
         return projectKey;
     }
