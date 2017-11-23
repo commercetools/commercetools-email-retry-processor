@@ -5,7 +5,7 @@ import io.sphere.sdk.client.SphereClient;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TenantConfigurationTest {
 
@@ -13,19 +13,19 @@ public class TenantConfigurationTest {
     private String projectKey = "anyKey";
     private String clientId = "anyID";
     private String clientSecret = "anySecret";
-    private String webhookURL = "anyUrl";
+    private String endpointUrl = "anyUrl";
 
     private TenantConfiguration tenantConfig = new TenantConfiguration();
 
     @Before
     public void setUp() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, webhookURL);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl);
 
     }
 
     @Test
     public void isValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, webhookURL);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl);
         assertEquals(tenantConfig.isValid(), true);
     }
 
@@ -34,13 +34,13 @@ public class TenantConfigurationTest {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, null);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, null, webhookURL);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, null, endpointUrl);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, null, clientSecret, webhookURL);
+        tenantConfig = new TenantConfiguration(projectKey, null, clientSecret, endpointUrl);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(null, clientId, clientSecret, webhookURL);
+        tenantConfig = new TenantConfiguration(null, clientId, clientSecret, endpointUrl);
         assertEquals(tenantConfig.isValid(), false);
    
         tenantConfig = new TenantConfiguration(null, null, null, null);
