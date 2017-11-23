@@ -136,7 +136,8 @@ public class EmailProcessorTest {
         int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);
         assertEquals(url, httpUrlConnection.getURL().toString());
-        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream(), Charset.defaultCharset()), "emailid=" + id + "&tenantid=" + tenantid);
+        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream(), Charset.defaultCharset()),
+            "emailid=" + id + "&tenantid=" + tenantid);
 
     }
 
