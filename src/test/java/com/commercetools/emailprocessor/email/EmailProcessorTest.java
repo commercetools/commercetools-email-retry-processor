@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -135,7 +136,7 @@ public class EmailProcessorTest {
         int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);
         assertEquals(url, httpUrlConnection.getURL().toString());
-        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream()), "emailid=" + id + "&tenantid=" + tenantid);
+        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream(), Charset.defaultCharset()), "emailid=" + id + "&tenantid=" + tenantid);
 
     }
 
