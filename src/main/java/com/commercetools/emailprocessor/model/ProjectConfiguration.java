@@ -29,19 +29,7 @@ public class ProjectConfiguration {
      * @return true, if the configuration is valid
      */
     public boolean isValid() {
-
-        boolean valid = true;
-        if (tenants != null && !tenants.isEmpty()) {
-            for (TenantConfiguration tenant : tenants) {
-                valid = tenant.isValid();
-            }
-        } else {
-            LOG.error("Please define at least on tenant");
-            valid = false;
-        }
-
-
-        return valid;
+        return tenants != null && tenants.size() > 0 && tenants.stream().filter(t -> !t.isValid()).count() == 0;
     }
 
 
