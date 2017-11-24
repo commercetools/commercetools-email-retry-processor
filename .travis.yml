@@ -14,12 +14,12 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
 after_success:
-#- bash <(curl -s https://codecov.io/bash) TODO: GITHUB ISSUE#3
+#- bash <(curl -s https://codecov.io/bash)
 - ./travis-publish.sh || travis_terminate 1
 notifications:
   hipchat:
     template:
-    - '<b><a href="https://github.com/commercetools/project-coeur-sync">%{repository}</a></b>
+    - '<b><a href="https://github.com/commercetools/commercetools-email-retry-processor/">%{repository}</a></b>
     #<a href="%{build_url}">%{build_number}</a>
     <br>(%{branch} - <a href="%{compare_url}">%{commit}</a> : %{author}): <b>%{message}</b>
       <br><b>Build duration:</b> %{duration}.'
