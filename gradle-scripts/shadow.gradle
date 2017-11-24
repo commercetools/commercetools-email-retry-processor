@@ -1,10 +1,10 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 shadowJar {
-    baseName = 'category-sync'
+    baseName = 'email-processor'
     classifier = null
     version = null
     manifest {
-        attributes 'Implementation-Title': rootProject.name
+            attributes 'Implementation-Title': rootProject.name
         attributes 'Implementation-Version': rootProject.version
         attributes 'Description': rootProject.description
     }
