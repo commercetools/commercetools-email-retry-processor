@@ -28,10 +28,10 @@ public class StatisticsTest {
         statistics.update(0);
         statistics.update(0);
 
-        assertEquals(statistics.getSuccessfulSendedEmails(), 3);
+        assertEquals(statistics.getSentSuccessfully(), 3);
         assertEquals(statistics.getPermanentErrors(), 1);
         assertEquals(statistics.getTemporarilyErrors(), 4);
-        assertEquals(statistics.getProcessedEmails(), 8);
-        assertEquals(statistics.getNotProcessedEmails(), 2);
+        assertEquals(statistics.getProcessed(), 8);
+        assertEquals(statistics.getNotProcessed(), 2);
     }
 }

@@ -65,8 +65,8 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        assertEquals(statistic.getProcessedEmails(), 3);
-        assertEquals(statistic.getSuccessfulSendedEmails(), 1);
+        assertEquals(statistic.getProcessed(), 3);
+        assertEquals(statistic.getSentSuccessfully(), 1);
         assertEquals(statistic.getTemporarilyErrors(), 1);
         assertEquals(statistic.getPermanentErrors(), 1);
 
@@ -77,8 +77,8 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("4", "pending", Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        assertEquals(statistic.getProcessedEmails(), 4);
-        assertEquals(statistic.getSuccessfulSendedEmails(), 1);
+        assertEquals(statistic.getProcessed(), 4);
+        assertEquals(statistic.getSentSuccessfully(), 1);
         assertEquals(statistic.getTemporarilyErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
 
@@ -88,8 +88,8 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("3", "pending", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        assertEquals(statistic.getProcessedEmails(), 3);
-        assertEquals(statistic.getSuccessfulSendedEmails(), 3);
+        assertEquals(statistic.getProcessed(), 3);
+        assertEquals(statistic.getSentSuccessfully(), 3);
         assertEquals(statistic.getTemporarilyErrors(), 0);
         assertEquals(statistic.getPermanentErrors(), 0);
     }
@@ -102,8 +102,8 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("3", "error", Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        assertEquals(statistic.getProcessedEmails(), 0);
-        assertEquals(statistic.getSuccessfulSendedEmails(), 0);
+        assertEquals(statistic.getProcessed(), 0);
+        assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
 
     }
@@ -113,8 +113,8 @@ public class EmailProcessorTest {
         tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
 
-        assertEquals(statistic.getProcessedEmails(), 0);
-        assertEquals(statistic.getSuccessfulSendedEmails(), 0);
+        assertEquals(statistic.getProcessed(), 0);
+        assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
 
     }

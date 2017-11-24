@@ -11,9 +11,9 @@ public class Statistics {
     public static final int RESPONSE_ERROR_TEMP = 503;
     public static final int RESPONSE_ERROR_PERMANENT = 400;
     private String tenantId = "";
-    private int processedEmails = 0;
-    private int notProcessedEmails = 0;
-    private int successfulSendedEmails = 0;
+    private int processed = 0;
+    private int notProcessed = 0;
+    private int sentSuccessfully = 0;
     private int permanentErrors = 0;
     private int temporarilyErrors = 0;
 
@@ -34,18 +34,18 @@ public class Statistics {
     }
 
 
-    public int getNotProcessedEmails() {
-        return notProcessedEmails;
+    public int getNotProcessed() {
+        return notProcessed;
     }
 
 
-    public int getProcessedEmails() {
-        return processedEmails;
+    public int getProcessed() {
+        return processed;
     }
 
 
-    public int getSuccessfulSendedEmails() {
-        return successfulSendedEmails;
+    public int getSentSuccessfully() {
+        return sentSuccessfully;
     }
 
 
@@ -65,10 +65,10 @@ public class Statistics {
      */
     @JsonIgnore
     public void update(int httpStatusCode) {
-        processedEmails++;
+        processed++;
         switch (httpStatusCode) {
             case RESPONSE_CODE_SUCCESS:
-                successfulSendedEmails++;
+                sentSuccessfully++;
                 break;
             case RESPONSE_ERROR_TEMP:
                 temporarilyErrors++;
@@ -77,8 +77,8 @@ public class Statistics {
                 permanentErrors++;
                 break;
             default:
-                notProcessedEmails++;
-                processedEmails--;
+                notProcessed++;
+                processed--;
                 break;
 
 

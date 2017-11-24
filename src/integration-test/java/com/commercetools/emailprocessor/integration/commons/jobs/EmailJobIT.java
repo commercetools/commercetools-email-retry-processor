@@ -108,9 +108,9 @@ public class EmailJobIT {
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
-        assertThat(statistic.getProcessedEmails()).isEqualTo(2);
-        assertThat(statistic.getNotProcessedEmails()).isEqualTo(1);
-        assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(2);
+        assertThat(statistic.getProcessed()).isEqualTo(2);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
+        assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
@@ -126,9 +126,9 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         statistic.print(LOG);
-        assertThat(statistic.getProcessedEmails()).isEqualTo(0);
-        assertThat(statistic.getNotProcessedEmails()).isEqualTo(3);
-        assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(0);
+        assertThat(statistic.getProcessed()).isEqualTo(0);
+        assertThat(statistic.getNotProcessed()).isEqualTo(3);
+        assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
@@ -143,9 +143,9 @@ public class EmailJobIT {
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
-        assertThat(statistic.getProcessedEmails()).isEqualTo(2);
-        assertThat(statistic.getNotProcessedEmails()).isEqualTo(1);
-        assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(0);
+        assertThat(statistic.getProcessed()).isEqualTo(2);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
+        assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);
     }
@@ -160,9 +160,9 @@ public class EmailJobIT {
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
-        assertThat(statistic.getProcessedEmails()).isEqualTo(2);
-        assertThat(statistic.getNotProcessedEmails()).isEqualTo(1);
-        assertThat(statistic.getSuccessfulSendedEmails()).isEqualTo(0);
+        assertThat(statistic.getProcessed()).isEqualTo(2);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
+        assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(2);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
