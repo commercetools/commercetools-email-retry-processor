@@ -19,7 +19,7 @@ public class TenantConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
 
-    private SphereClient client = null;
+    private SphereClient client;
     private String projectKey;
     private String clientId;
     private String clientSecret;
@@ -76,11 +76,11 @@ public class TenantConfiguration {
      *
      * @return true, if the configuration is valid
      */
-    public boolean isValid() {
-        String errorMessage = "Please define the missing Property '%s'";
+    boolean isValid() {
+        final String errorMessage = "Please define the missing Property '%s'";
         boolean isValid = true;
 
-        if (StringUtils.isEmpty(getProjectKey())) {
+        if (StringUtils.isEmpty(projectKey)) {
             LOG.error(String.format(errorMessage, "projectKey"));
             isValid = false;
         }
@@ -92,13 +92,11 @@ public class TenantConfiguration {
             LOG.error(String.format(errorMessage, "clientSecret"));
             isValid = false;
         }
-
         if (StringUtils.isEmpty(endpointUrl)) {
             LOG.error(String.format(errorMessage, "endpointUrl"));
             isValid = false;
         }
         return isValid;
-
     }
 
     /**
@@ -108,11 +106,8 @@ public class TenantConfiguration {
      */
     public SphereClient getSphereClient() {
         if (client == null) {
-            SphereClientConfig sphereConfig = SphereClientConfig.of(projectKey, clientId, clientSecret);
-            final SphereClientFactory factory = SphereClientFactory.of();
-            client = factory.createClient(sphereConfig);
+            client = SphereClientFactory.of().createClient(SphereClientConfig.of(projectKey, clientId, clientSecret));
         }
-
         return client;
     }
 
@@ -138,6 +133,4 @@ public class TenantConfiguration {
     public void setHttpUrlConnection(final HttpURLConnection httpUrlConnection) {
         this.httpUrlConnection = httpUrlConnection;
     }
-
-
 }
