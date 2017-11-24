@@ -42,9 +42,7 @@ The configuration file should contain the following "JSON-SNIPPET".
    ]
  }
    ```  
-
-
-
+   
 ## Run the application   
  
  - First, package the JAR
@@ -63,11 +61,11 @@ The API endpoint should cover the following steps:
 1. Fetch the current Emailobject by the given ID
 1. Check if the Emailobject is in state "pending"
 1. If true, send the email.
-    2. When the email delivery was successful
-        3. Delete current Emailobject
-        3. Set the Httpstatuscode "200" to the response
-    2. When the email delivery fails temporarily
-        3. Set the Httpstatuscode "503" to the response
-    2. When the email delivery fails permanently.
-        3. Set the status of the emailobject to "error"
-        3. Set the Httpstatuscode "400" to the response
+  2. When the email delivery was successful
+    3. Delete current Emailobject
+    3. Set the Httpstatuscode "200" to the response
+  2. When the email delivery fails temporarily
+    3. Set the Httpstatuscode "503" to the response
+  2. When the email delivery fails permanently.
+    3. Set the status of the emailobject to "error"
+    3. Set the Httpstatuscode "400" to the response
