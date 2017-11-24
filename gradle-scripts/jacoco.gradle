@@ -3,16 +3,18 @@ jacoco {
 }
 
 jacocoTestCoverageVerification {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
     violationRules {
         rule {
             limit {
-                minimum = 0 // test coverage should be at a minimum of 80%, otherwise build would fail.
+                minimum = 0.8 // test coverage should be at a minimum of 80%, otherwise build would fail.
             }
         }
     }
 }
 
 jacocoTestReport {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
     reports {
         xml.enabled = true
         xml.destination = "${buildDir}/reports/jacoco/report.xml"
