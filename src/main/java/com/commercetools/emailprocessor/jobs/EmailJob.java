@@ -4,14 +4,13 @@ package com.commercetools.emailprocessor.jobs;
 import com.commercetools.emailprocessor.email.EmailProcessor;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
-import com.commercetools.emailprocessor.model.TenantConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -29,32 +28,29 @@ public class EmailJob {
      * @param projectConfiguration configuration of a given Project
      */
 
-    public static List<Statistics> process(final ProjectConfiguration projectConfiguration) {
-        if (projectConfiguration != null && projectConfiguration.isValid()) {
-            EmailProcessor emailProcessor = new EmailProcessor();
-            final List<CompletionStage<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
+    public static List<Statistics> process(@Nonnull final ProjectConfiguration projectConfiguration) {
+        if (projectConfiguration.isValid()) {
+            final EmailProcessor emailProcessor = new EmailProcessor();
+            final List<CompletableFuture<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
                 .parallelStream()
-                .map((TenantConfiguration tenantConfiguration) -> {
+                .map(tenantConfiguration -> {
                         try {
-                            return emailProcessor.processEmails(tenantConfiguration);
+                            return emailProcessor.processEmails(tenantConfiguration).toCompletableFuture();
                         } catch (Exception exception) {
-                            LOG.error("Error in email processing for tenant [{}].",
-                                tenantConfiguration.getProjectKey(), exception);
+                            LOG.error(String.format("Error in email processing for tenant %s.",
+                                tenantConfiguration.getProjectKey()), exception);
                         }
                         return completedFuture(new Statistics());
-                        }
+                }
                 )
                 .collect(toList());
-            return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[0]))
+            return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[listOfStageOfStatistics.size()]))
                 .thenApply(ignoreVoid -> listOfStageOfStatistics.stream()
-                    .map(CompletionStage::toCompletableFuture)
                     .map(CompletableFuture::join)
                     .collect(toList()))
                 .toCompletableFuture().join();
-        } else {
-            LOG.error("NO valid config was found");
-
         }
+        LOG.error("Invalid project configuration!");
         return Collections.emptyList();
     }
 }
