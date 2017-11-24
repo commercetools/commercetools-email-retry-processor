@@ -86,7 +86,7 @@ public class Statistics {
     }
 
     @JsonIgnore
-    public String getStatisticsAsJSONString() throws JsonProcessingException {
+    private String getStatisticsAsJSONString() throws JsonProcessingException {
         final ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
     }
