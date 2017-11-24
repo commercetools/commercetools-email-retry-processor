@@ -1,0 +1,10 @@
+{
+  "tenants": [
+    {
+      "projectKey": "<ctp project key>",
+      "clientId": "<ctp project ID>",
+      "clientSecret": "<ctp project client secret>",
+      "endpointUrl": "<endpoint url>"
+    }
+  ]
+}
