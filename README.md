@@ -53,7 +53,7 @@ The configuration file should contain the following "JSON-SNIPPET".
    ```
  - Then run the JAR
    ```bash
-   java -jar build/libs/category-sync.jar
+   java -jar build/libs/email-processor.jar
    ```   
 
 ## API endpoint 
