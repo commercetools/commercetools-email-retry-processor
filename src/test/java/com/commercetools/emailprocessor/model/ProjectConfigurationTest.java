@@ -18,65 +18,58 @@ public class ProjectConfigurationTest {
 
     @Test
     public void configurationShouldBeValid() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
-            clientSecret, endPointUrl)));
+        ProjectConfiguration configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(
+            projectKey, clientId, clientSecret, endPointUrl)));
         assertEquals(configuration.isValid(), true);
 
-        configuration = new ProjectConfiguration();
+
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
             clientSecret, endPointUrl));
         tenantList.add(1, new TenantConfiguration(projectKey, clientId,
             clientSecret, endPointUrl));
 
-        configuration.setTenants(tenantList);
+        configuration = new ProjectConfiguration(tenantList);
         assertEquals(configuration.isValid(), true);
 
     }
 
     @Test
     public void configurationShouldNotBeValid() throws Exception {
-        ProjectConfiguration configuration = new ProjectConfiguration();
+        ProjectConfiguration configuration = new ProjectConfiguration(null);
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.emptyList());
+        configuration = new ProjectConfiguration(Collections.emptyList());
+
         assertEquals(false, configuration.isValid());
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
+        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
             clientSecret, null)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
+        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
             null, endPointUrl)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, null,
+        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, null,
             clientSecret, endPointUrl)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration("", clientId,
+        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration("", clientId,
             clientSecret, endPointUrl)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
-        configuration.setTenants(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
+        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
             clientSecret, null)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration();
+
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
             clientSecret, null));
         tenantList.add(1, new TenantConfiguration(projectKey, clientId,
-            clientSecret, endPointUrl));
-
-        configuration.setTenants(tenantList);
+            clientSecret, null));
+        configuration = new ProjectConfiguration(tenantList);
         assertEquals(configuration.isValid(), false);
 
     }

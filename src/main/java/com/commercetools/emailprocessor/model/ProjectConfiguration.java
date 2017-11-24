@@ -12,18 +12,20 @@ public class ProjectConfiguration {
     private List<TenantConfiguration> tenants;
 
     public ProjectConfiguration() {
+
+    }
+
+    public ProjectConfiguration(final List<TenantConfiguration> currentTenants) {
+        this.tenants = currentTenants;
     }
 
     public List<TenantConfiguration> getTenants() {
         return tenants;
     }
 
-    public void setTenants(final List<TenantConfiguration> tenants) {
-        this.tenants = tenants;
-    }
-
     /**
      * Validates the current project configuration.
+     *
      * @return true, if the configuration is valid
      */
     public boolean isValid() {
@@ -31,9 +33,7 @@ public class ProjectConfiguration {
         boolean valid = true;
         if (tenants != null && !tenants.isEmpty()) {
             for (TenantConfiguration tenant : tenants) {
-                if (!tenant.isValid()) {
-                    valid = false;
-                }
+                valid = tenant.isValid();
             }
         } else {
             LOG.error("Please define at least on tenant");
