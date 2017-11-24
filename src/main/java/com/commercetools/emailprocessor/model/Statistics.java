@@ -59,7 +59,7 @@ public class Statistics {
     }
 
     /**
-     * Update the statistic dependent on the httpStatusCode.
+     * Update the statistics depending on the httpStatusCode.
      *
      * @param httpStatusCode returned http status code of the api call.
      */
