@@ -67,5 +67,5 @@ The API endpoint should cover the following steps:
     - When the email delivery fails temporarily
       - Set the Httpstatuscode "503" to the response
     - When the email delivery fails permanently.
-    - Set the status of the emailobject to "error"
+      - Set the status of the emailobject to "error"
       - Set the Httpstatuscode "400" to the response
