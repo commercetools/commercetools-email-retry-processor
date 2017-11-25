@@ -34,7 +34,7 @@ public class EmailProcessorTest {
     private EmailProcessor emailProcessor;
     private TenantConfiguration tenantConfiguration;
     private List<CustomObject<JsonNode>> customObjects;
-    
+
     /**
      * Setup a email processor mock.
      *

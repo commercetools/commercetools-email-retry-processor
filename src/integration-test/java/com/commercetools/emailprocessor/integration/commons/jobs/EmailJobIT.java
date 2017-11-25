@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class EmailJobIT {
     private static final Logger LOG = LoggerFactory.getLogger(EmailJobIT.class);
@@ -44,9 +45,12 @@ public class EmailJobIT {
      */
     @BeforeClass
     public static void setup() {
+        assertEquals("The testvariable should not be null", true,
+            System.getenv("testvariable") != null);
         ConfigurationUtils.getConfiguration("").ifPresent(config -> {
             configuration = config;
         });
+        assertEquals("The Configuration should not be null", true, configuration != null);
         assertThat(configuration).isNotNull();
         assertThat(configuration.isValid()).isTrue();
         ctpClient = configuration.getTenants().get(0).getSphereClient();
@@ -77,16 +81,16 @@ public class EmailJobIT {
 
 
     public static <T, C extends QueryDsl<T, C>> void queryAndApply(
-            @Nonnull final SphereClient ctpClient,
-            @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
-            @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
+        @Nonnull final SphereClient ctpClient,
+        @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
+        @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
         queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
-                .thenApply(allRequests -> allRequests.stream()
-                        .map(ctpClient::execute)
-                        .map(CompletionStage::toCompletableFuture).collect(toList()))
-                .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
-                .thenCompose(CompletableFuture::allOf)
-                .toCompletableFuture().join();
+            .thenApply(allRequests -> allRequests.stream()
+                .map(ctpClient::execute)
+                .map(CompletionStage::toCompletableFuture).collect(toList()))
+            .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
+            .thenCompose(CompletableFuture::allOf)
+            .toCompletableFuture().join();
     }
 
 
@@ -105,7 +109,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_CODE_SUCCESS);
+            .RESPONSE_CODE_SUCCESS);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -140,7 +144,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_ERROR_PERMANENT);
+            .RESPONSE_ERROR_PERMANENT);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -157,7 +161,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-                .RESPONSE_ERROR_TEMP);
+            .RESPONSE_ERROR_TEMP);
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -199,7 +203,7 @@ public class EmailJobIT {
     private void createCustomObject(final String status, final String errorMailId) {
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObjectDraft<JsonNode> draft = CustomObjectDraft.ofUnversionedUpsert(EmailProcessor.CONTAINER_ID,
-                errorMailId, jsonNode);
+            errorMailId, jsonNode);
         ctpClient.execute(CustomObjectUpsertCommand.of(draft)).toCompletableFuture().join();
 
     }
