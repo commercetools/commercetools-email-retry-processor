@@ -24,28 +24,28 @@ public class ConfigurationUtils {
      * @return a projectconfiguration
      */
     public static Optional<ProjectConfiguration> getConfiguration(final String resourcePath) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = new ObjectMapper();
         ProjectConfiguration projectConfiguration = null;
         try {
-            if (StringUtils.isNotEmpty(resourcePath)) {
-                File file = new File(resourcePath);
+            if (StringUtils.isNotBlank(resourcePath)) {
+                final File file = new File(resourcePath);
                 try {
                     projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
                 } catch (IOException exception) {
                     LOG.error("The file cannot be parsed", exception);
                 }
             } else {
-                String ctpProjectConfig = System.getenv(CTP_PROJECT_CONFIG);
-                if (StringUtils.isNotEmpty(ctpProjectConfig)) {
+                final String ctpProjectConfig = System.getenv(CTP_PROJECT_CONFIG);
+                if (StringUtils.isNotBlank(ctpProjectConfig)) {
                     projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
                 }
             }
-        } catch (IOException jsonExecption) {
-            LOG.error("The json stream cannot be parsed", jsonExecption);
+        } catch (IOException jsonException) {
+            LOG.error("The json stream cannot be parsed", jsonException);
         }
 
         if (projectConfiguration == null) {
-            LOG.error("The projectconfiguration cannot be loaded");
+            LOG.error("The project configuration cannot be loaded");
         }
         return Optional.ofNullable(projectConfiguration);
     }

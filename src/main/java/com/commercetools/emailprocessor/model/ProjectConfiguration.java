@@ -15,6 +15,10 @@ public class ProjectConfiguration {
 
     }
 
+    public void setTenants(final List<TenantConfiguration> tenants) {
+        this.tenants = tenants;
+    }
+
     public ProjectConfiguration(final List<TenantConfiguration> currentTenants) {
         this.tenants = currentTenants;
     }
