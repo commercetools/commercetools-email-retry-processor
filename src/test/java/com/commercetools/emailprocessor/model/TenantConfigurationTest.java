@@ -49,8 +49,8 @@ public class TenantConfigurationTest {
 
     @Test
     public void getSphereClient() throws Exception {
-        SphereClient client = tenantConfig.getSphereClient();
-        SphereApiConfig clientConfig = client.getConfig();
+        final SphereClient client = tenantConfig.getSphereClient();
+        final SphereApiConfig clientConfig = client.getConfig();
         assertEquals(clientConfig.getProjectKey(), projectKey);
     }
 }
