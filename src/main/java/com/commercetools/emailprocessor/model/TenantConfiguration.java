@@ -14,7 +14,7 @@ import java.net.URL;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TenantConfiguration {
+public class TenantConfiguration implements Cloneable {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
@@ -28,7 +28,7 @@ public class TenantConfiguration {
     @JsonIgnore
     private HttpURLConnection httpUrlConnection;
 
-    public TenantConfiguration() {
+    public TenantConfiguration()  {
     }
 
     /**
@@ -44,6 +44,11 @@ public class TenantConfiguration {
         clientId = id;
         clientSecret = secret;
         endpointUrl = url;
+    }
+
+    public TenantConfiguration clone() throws CloneNotSupportedException {
+        return (TenantConfiguration) super.clone();
+
     }
 
 
