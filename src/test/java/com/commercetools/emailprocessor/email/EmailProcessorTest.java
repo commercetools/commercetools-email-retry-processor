@@ -1,6 +1,5 @@
 package com.commercetools.emailprocessor.email;
 
-
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,18 +9,11 @@ import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.HttpPost;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +34,7 @@ public class EmailProcessorTest {
     private EmailProcessor emailProcessor;
     private TenantConfiguration tenantConfiguration;
     private List<CustomObject<JsonNode>> customObjects;
-
+    
     /**
      * Setup a email processor mock.
      *
@@ -117,24 +109,22 @@ public class EmailProcessorTest {
     }
 
     @Test
-    public void  callApiEndpoint_validEndpointUrlisGiven_shouldAddCorrectVariablesToRequest()  throws Exception {
+    public void callApiEndpoint_validEndpointUrlisGiven_shouldAddCorrectVariablesToRequest() throws Exception {
         Mockito.doCallRealMethod().when(emailProcessor)
-                .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
-        final int httpStatus = 200;
+            .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
+        final int httpStatus = Statistics.RESPONSE_CODE_SUCCESS;
         final String id = "123";
         final String tenantid = "testTenant";
-        final String url = "http://www.anyurl.de";
-        MockUrlStreamHandler handler = new MockUrlStreamHandler(url);
-        URL.setURLStreamHandlerFactory(handler);
-        MockHttpUrlConnection httpUrlConnection = handler.getConnection();
+        final String url = "https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS;
+        HttpPost httpPost = new HttpPost(url);
         TenantConfiguration configuration = new TenantConfiguration();
-        configuration.setHttpUrlConnection(httpUrlConnection);
+        configuration.setHttpPost(httpPost);
         configuration.setProjectKey(tenantid);
         int result = emailProcessor.callApiEndpoint(id, configuration);
         assertEquals(httpStatus, result);
-        assertEquals(url, httpUrlConnection.getURL().toString());
-        assertEquals(IOUtils.toString(httpUrlConnection.getInputStream(), Charset.defaultCharset()),
-                "emailid=" + id + "&tenantid=" + tenantid);
+        assertEquals(url, httpPost.getURI().toString());
+        assertEquals("emailid=123&tenantid=testTenant",
+            IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
 
     }
 
@@ -148,82 +138,13 @@ public class EmailProcessorTest {
 
     @SuppressWarnings("unchecked")
     private CustomObject<JsonNode> createCustomObject(final String customobjectid, final String status, final int
-            endPointtatus)
-            throws Exception {
-        when(emailProcessor.callApiEndpoint(customobjectid, tenantConfiguration)).thenReturn(endPointtatus);
+        endPointstatus)
+        throws Exception {
+        when(emailProcessor.callApiEndpoint(customobjectid, tenantConfiguration)).thenReturn(endPointstatus);
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObject<JsonNode> customObject = mock(CustomObject.class);
         when(customObject.getId()).thenReturn(customobjectid);
         when(customObject.getValue()).thenReturn(jsonNode);
         return customObject;
     }
-
-    public static class MockUrlStreamHandler extends URLStreamHandler implements URLStreamHandlerFactory {
-        private MockHttpUrlConnection mockConnection;
-
-        public MockUrlStreamHandler(final String url) throws Exception {
-            openConnection(new URL(url));
-        }
-
-        // *** URLStreamHandler
-
-        public MockHttpUrlConnection getConnection() {
-            return mockConnection;
-        }
-
-        // *** URLStreamHandlerFactory
-
-        @Override
-        public HttpURLConnection openConnection(final URL url) throws IOException {
-            mockConnection = new MockHttpUrlConnection(url);
-            return mockConnection;
-        }
-
-        @Override
-        public URLStreamHandler createURLStreamHandler(final String protocol) {
-            return this;
-        }
-    }
-
-    public static class MockHttpUrlConnection extends HttpURLConnection {
-
-        ByteArrayOutputStream stream;
-
-        protected MockHttpUrlConnection(final URL url) {
-            super(url);
-        }
-
-        // *** HttpURLConnection
-        @Override
-        public int getResponseCode() throws IOException {
-            return 200;
-
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new ByteArrayInputStream(stream.toByteArray());
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            stream = new ByteArrayOutputStream();
-            return stream;
-        }
-
-        @Override
-        public void connect() throws IOException {
-        }
-
-        @Override
-        public void disconnect() {
-        }
-
-        @Override
-        public boolean usingProxy() {
-            return false;
-        }
-
-    }
-
 }

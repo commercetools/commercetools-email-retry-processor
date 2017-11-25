@@ -11,5 +11,5 @@ ext {
     commonsMailApiVersion= '1.5'
     commonsIoApiVersion= '2.6'
     commercetoolsJvmSdkVersion='1.26.0'
-    apacheHttpClientVersion= '4.5.3'
+    apacheHttpClientVersion='4.5.3'
 }

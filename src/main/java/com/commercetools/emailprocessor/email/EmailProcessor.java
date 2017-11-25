@@ -7,13 +7,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
@@ -74,20 +79,27 @@ public class EmailProcessor {
     /**
      * Sends a post request to a api endpoint.
      *
-     * @param customobjectid      ID of a customobject, which constains a email
+     * @param customObjectId      ID of a customobject, which constains a email
      * @param tenantConfiguration Configuration of the current tenant
      * @return Http Status code response code of the current request
      */
-    int callApiEndpoint(final String customobjectid, final TenantConfiguration tenantConfiguration) throws Exception {
-        HttpURLConnection httpUrlConnectionConnection = tenantConfiguration.getHttpUrlConnection();
-        httpUrlConnectionConnection.setRequestMethod("POST");
-        httpUrlConnectionConnection.setDoOutput(true);
-        String params = String.format(PARAM_EMAIL_ID + "=%s&" + PARAM_TENANT_ID + "=%s", customobjectid,
-            tenantConfiguration.getProjectKey());
-        IOUtils.write(params, httpUrlConnectionConnection.getOutputStream(), Charset.defaultCharset());
-        int responseCode = httpUrlConnectionConnection.getResponseCode();
-        IOUtils.close(httpUrlConnectionConnection);
-
+    int callApiEndpoint(final String customObjectId, final TenantConfiguration tenantConfiguration) throws Exception {
+        CloseableHttpResponse response = null;
+        int responseCode = Statistics.RESPONSE_CODE_SUCCESS;
+        try {
+            HttpPost httpPost = tenantConfiguration.getHttpPost();
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, customObjectId));
+            params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
+            httpPost.setEntity(new UrlEncodedFormEntity(params));
+            response = HttpClients.createDefault().execute(httpPost);
+            responseCode = response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
+                .RESPONSE_ERROR_PERMANENT;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
         return responseCode;
     }
 }

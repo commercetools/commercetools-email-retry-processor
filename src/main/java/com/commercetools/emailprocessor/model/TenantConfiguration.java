@@ -6,11 +6,9 @@ import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,9 +24,9 @@ public class TenantConfiguration implements Cloneable {
     private String endpointUrl;
 
     @JsonIgnore
-    private HttpURLConnection httpUrlConnection;
+    private HttpPost httpPost;
 
-    public TenantConfiguration()  {
+    public TenantConfiguration() {
     }
 
     /**
@@ -76,6 +74,7 @@ public class TenantConfiguration implements Cloneable {
         this.client = client;
     }
 
+
     /**
      * Validates the current tenant configuration.
      *
@@ -117,25 +116,24 @@ public class TenantConfiguration implements Cloneable {
     }
 
     /**
-     * Create a HttpURLConnection based on the current tenantconfig.
+     * Create a httpPost based on the current tenantconfig.
      *
-     * @return the current HttpURLConnection
+     * @return the current httpPost
      * @throws Exception when the HttpURLConnection cannot be created.
      */
     @JsonIgnore
-    public HttpURLConnection getHttpUrlConnection() throws Exception {
-        if (this.httpUrlConnection == null) {
-            URL postUrl = new URL(endpointUrl);
-            return (HttpURLConnection) postUrl.openConnection();
+    public HttpPost getHttpPost() {
+        if (this.httpPost == null) {
+            return new HttpPost(endpointUrl);
         }
-        return httpUrlConnection;
+        return httpPost;
     }
 
     /**
-     * Sets a given urlConnection.
+     * Sets a given HttpPost.
      */
     @JsonIgnore
-    public void setHttpUrlConnection(final HttpURLConnection httpUrlConnection) {
-        this.httpUrlConnection = httpUrlConnection;
+    public void setHttpPost(final HttpPost httpPost) {
+        this.httpPost = httpPost;
     }
 }
