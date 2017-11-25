@@ -5,6 +5,7 @@ dependencies {
     implementation "javax.mail:javax.mail-api:${mailApiVersion}"
     implementation "org.apache.commons:commons-email:${commonsMailApiVersion}"
     implementation "commons-io:commons-io:${commonsIoApiVersion}"
+    implementation "'org.apache.httpcomponents:httpclient:${apacheHttpClientVersion}"
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
     implementation "org.slf4j:slf4j-simple:${slf4jVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
