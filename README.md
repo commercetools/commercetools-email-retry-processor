@@ -1,8 +1,6 @@
 # commercetools-email-retry-processor
 
- The email retry processor fetches all emailobjects, which are saved in customobjects,  of the given tenants. For each
- of this emailobjects, the processor checks, if they are in state "pending" and ,if true, it triggers a api endpoint.
- This api endpoint should contain the email delivery logic.
+ The email retry processor fetches all email objects, which are saved as Custom Objects in CTP for different tenants/webshops. For each email object in "pending" state, this job triggers an api endpoint. This triggered api endpoint should contain the email delivery logic.
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
 
