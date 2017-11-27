@@ -88,7 +88,7 @@ public class EmailProcessorTest {
 
 
     @Test
-    public void processEmail_NoPendingEmailAvailable_shouldNotProcessEmails() throws Exception {
+    public void processEmail_noPendingEmailAvailable_shouldNotProcessEmails() throws Exception {
         customObjects.add(createCustomObject("1", EMAIL_STATUS_ERROR, Statistics.RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_CODE_SUCCESS));
@@ -109,7 +109,7 @@ public class EmailProcessorTest {
     }
 
     @Test
-    public void callApiEndpoint_validEndpointUrlisGiven_shouldAddCorrectVariablesToRequest() throws Exception {
+    public void callApiEndpoint_validEndpointUrlIsGiven_shouldAddCorrectVariablesToRequest() throws Exception {
         Mockito.doCallRealMethod().when(emailProcessor)
             .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
         final int httpStatus = Statistics.RESPONSE_CODE_SUCCESS;
