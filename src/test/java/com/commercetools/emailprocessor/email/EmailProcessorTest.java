@@ -9,13 +9,20 @@ import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,6 +30,8 @@ import java.util.concurrent.CompletableFuture;
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_ERROR;
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_PENDING;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,8 +54,13 @@ public class EmailProcessorTest {
         customObjects = new ArrayList<>();
         emailProcessor = mock(EmailProcessor.class);
         Mockito.doCallRealMethod().when(emailProcessor).processEmails(Mockito.any(TenantConfiguration.class));
+        Mockito.doCallRealMethod().when(emailProcessor).encrypt(anyString(), anyString(), anyInt());
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+        tenantConfiguration.setEncryptionKey(Arrays.toString(key.getEncoded()));
     }
 
     @Test
@@ -120,10 +134,17 @@ public class EmailProcessorTest {
         TenantConfiguration configuration = new TenantConfiguration();
         configuration.setHttpPost(httpPost);
         configuration.setProjectKey(tenantid);
+        configuration.setEncryptionKey(tenantConfiguration.getEncryptionKey());
         int result = emailProcessor.callApiEndpoint(id, configuration);
+
         assertEquals(httpStatus, result);
         assertEquals(url, httpPost.getURI().toString());
-        assertEquals("emailid=123&tenantid=testTenant",
+        String encryptedEmailId = emailProcessor.encrypt(id, configuration.getEncryptionKey(), Cipher.ENCRYPT_MODE);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(EmailProcessor.PARAM_EMAIL_ID, encryptedEmailId));
+        params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
+        UrlEncodedFormEntity exspectedPostEntity = new UrlEncodedFormEntity(params, Charset.defaultCharset());
+        assertEquals(IOUtils.toString(exspectedPostEntity.getContent(), Charset.defaultCharset()),
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
 
     }

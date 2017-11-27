@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -17,6 +18,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -28,9 +32,10 @@ public class EmailProcessor {
     public static final String EMAIL_PROPERTY_STATUS = "status";
     public static final String EMAIL_STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
+    static final String PARAM_EMAIL_ID = "emailid";
+    static final String PARAM_TENANT_ID = "tenantid";
+    private static final String ENCRYPTIONALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
-    private static final String PARAM_EMAIL_ID = "emailid";
-    private static final String PARAM_TENANT_ID = "tenantid";
 
     public EmailProcessor() {
     }
@@ -89,9 +94,10 @@ public class EmailProcessor {
         try {
             HttpPost httpPost = tenantConfiguration.getHttpPost();
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, customObjectId));
+            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encrypt(customObjectId, tenantConfiguration
+                .getEncryptionKey(), Cipher.ENCRYPT_MODE)));
             params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
+            httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
             response = HttpClients.createDefault().execute(httpPost);
             responseCode = response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
                 .RESPONSE_ERROR_PERMANENT;
@@ -101,5 +107,20 @@ public class EmailProcessor {
             }
         }
         return responseCode;
+    }
+
+    String encrypt(final String value, final String encryptionKey, final int cipherMode) {
+        try {
+            final byte[] keyData = encryptionKey.getBytes(Charset.forName("UTF-8"));
+            final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTIONALGORITHM);
+            final Cipher cipher = Cipher.getInstance(ENCRYPTIONALGORITHM);
+            cipher.init(cipherMode, ks);
+            final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
+            return Base64.encodeBase64String(encrypted);
+        } catch (Exception exception) {
+            LOG.error(String.format("Encryption of http body failed. With Exception %s", exception.getMessage()));
+        }
+
+        return null;
     }
 }

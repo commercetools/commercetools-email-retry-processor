@@ -22,6 +22,7 @@ public class TenantConfiguration implements Cloneable {
     private String clientId;
     private String clientSecret;
     private String endpointUrl;
+    private String encryptionKey;
 
     @JsonIgnore
     private HttpPost httpPost;
@@ -37,11 +38,13 @@ public class TenantConfiguration implements Cloneable {
      * @param secret ctp project client secret
      * @param url    api endpoint url
      */
-    public TenantConfiguration(final String key, final String id, final String secret, final String url) {
+    public TenantConfiguration(final String key, final String id, final String secret, final String url,final String
+        encryption) {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
         endpointUrl = url;
+        encryptionKey = encryption;
     }
 
     public TenantConfiguration clone() throws CloneNotSupportedException {
@@ -75,6 +78,14 @@ public class TenantConfiguration implements Cloneable {
     }
 
 
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(final String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
     /**
      * Validates the current tenant configuration.
      *
@@ -98,6 +109,10 @@ public class TenantConfiguration implements Cloneable {
         }
         if (StringUtils.isEmpty(endpointUrl)) {
             LOG.error(String.format(errorMessage, "endpointUrl"));
+            isValid = false;
+        }
+        if (StringUtils.isEmpty(encryptionKey)) {
+            LOG.error(String.format(errorMessage, "encryptionKey"));
             isValid = false;
         }
         return isValid;
