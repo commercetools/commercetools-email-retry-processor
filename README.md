@@ -66,3 +66,4 @@ The API endpoint should cover the following steps:
     - When the email delivery fails permanently.
       - Set the status of the Email object to "error"
       - Set the Httpstatuscode "400" to the response
+1. If false, the Email object should be ignored
