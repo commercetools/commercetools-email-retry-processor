@@ -45,8 +45,6 @@ public class EmailJobIT {
      */
     @BeforeClass
     public static void setup() {
-        assertEquals("The testvariable should not be null", true,
-            System.getenv("testvariable") != null);
         ConfigurationUtils.getConfiguration("").ifPresent(config -> {
             configuration = config;
         });
