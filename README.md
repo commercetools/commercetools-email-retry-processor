@@ -4,12 +4,11 @@
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Prerequisites
 
  - Java 8
- - CTP project, for which the email should be delivered
+ - CTP project, which contains the Email objects, which should be processed.
  - [API endpoint](#api-endpoint), which triggers the email delivery logic
 
 ## Configuration
