@@ -34,7 +34,7 @@ public class ProjectConfiguration {
      * @return true, if the configuration is valid
      */
     public boolean isValid() {
-        return tenants != null && tenants.size() > 0 && tenants.stream().filter(t -> !t.isValid()).count() == 0;
+        return tenants != null && !tenants.isEmpty() && tenants.stream().filter(t -> !t.isValid()).count() == 0;
     }
 
 
