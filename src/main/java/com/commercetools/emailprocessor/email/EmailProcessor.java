@@ -34,7 +34,7 @@ public class EmailProcessor {
     public static final String EMAIL_STATUS_ERROR = "error";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
-    private static final String ENCRYPTIONALGORITHM = "Blowfish";
+    private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
     public EmailProcessor() {
@@ -112,8 +112,8 @@ public class EmailProcessor {
     String encrypt(final String value, final String encryptionKey, final int cipherMode) {
         try {
             final byte[] keyData = encryptionKey.getBytes(Charset.forName("UTF-8"));
-            final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTIONALGORITHM);
-            final Cipher cipher = Cipher.getInstance(ENCRYPTIONALGORITHM);
+            final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
+            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
             cipher.init(cipherMode, ks);
             final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
             return Base64.encodeBase64String(encrypted);
