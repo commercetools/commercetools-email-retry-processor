@@ -10,6 +10,7 @@ public class Statistics {
     public static final int RESPONSE_CODE_SUCCESS = 200;
     public static final int RESPONSE_ERROR_TEMP = 503;
     public static final int RESPONSE_ERROR_PERMANENT = 400;
+    public static final int RESPONSE_IGNORED = 0;
     private String tenantId = "";
     private int processed = 0;
     private int notProcessed = 0;
@@ -21,6 +22,10 @@ public class Statistics {
 
     }
 
+    public Statistics(final String tenant) {
+        tenantId = tenant;
+    }
+
     public String getTenantId() {
         return tenantId;
     }
@@ -28,11 +33,6 @@ public class Statistics {
     public void setTenantId(final String tenantId) {
         this.tenantId = tenantId;
     }
-
-    public Statistics(final String tenant) {
-        tenantId = tenant;
-    }
-
 
     public int getNotProcessed() {
         return notProcessed;
@@ -76,12 +76,13 @@ public class Statistics {
             case RESPONSE_ERROR_PERMANENT:
                 permanentErrors++;
                 break;
-            default:
+            case RESPONSE_IGNORED:
                 notProcessed++;
                 processed--;
                 break;
-
-
+            default:
+                permanentErrors++;
+                break;
         }
     }
 
@@ -93,7 +94,8 @@ public class Statistics {
 
     /**
      * Print the statistic.
-      * @param logger passed logger
+     *
+     * @param logger passed logger
      */
     @JsonIgnore
     public void print(final Logger logger) {
