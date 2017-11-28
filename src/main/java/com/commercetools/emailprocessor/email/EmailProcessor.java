@@ -90,7 +90,6 @@ public class EmailProcessor {
      */
     int callApiEndpoint(final String customObjectId, final TenantConfiguration tenantConfiguration) throws Exception {
         CloseableHttpResponse response = null;
-        int responseCode = Statistics.RESPONSE_CODE_SUCCESS;
         try {
             HttpPost httpPost = tenantConfiguration.getHttpPost();
             List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -99,14 +98,15 @@ public class EmailProcessor {
             params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
             httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
             response = HttpClients.createDefault().execute(httpPost);
-            responseCode = response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
+            int responseCode = response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
                 .RESPONSE_ERROR_PERMANENT;
+
+            return responseCode;
         } finally {
             if (response != null) {
                 response.close();
             }
         }
-        return responseCode;
     }
 
     String encrypt(final String value, final String encryptionKey, final int cipherMode) {
