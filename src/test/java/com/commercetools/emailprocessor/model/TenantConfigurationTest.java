@@ -31,22 +31,22 @@ public class TenantConfigurationTest {
 
     @Test
     public void isNotValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, null);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, "");
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, null, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, "", secretKey);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, null, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, "", endpointUrl, secretKey);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, null, clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, "", clientSecret, endpointUrl, secretKey);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(null, clientId, clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration("", clientId, clientSecret, endpointUrl, secretKey);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(null, null, null, null, null);
+        tenantConfig = new TenantConfiguration("", "", "", "", "");
         assertEquals(tenantConfig.isValid(), false);
     }
 

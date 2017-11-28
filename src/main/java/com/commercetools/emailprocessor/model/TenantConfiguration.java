@@ -10,6 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TenantConfiguration implements Cloneable {
@@ -38,8 +40,8 @@ public class TenantConfiguration implements Cloneable {
      * @param secret ctp project client secret
      * @param url    api endpoint url
      */
-    public TenantConfiguration(final String key, final String id, final String secret, final String url,final String
-        encryption) {
+    public TenantConfiguration(@Nonnull final String key, @Nonnull final String id, @Nonnull final String secret,
+                               @Nonnull final String url, @Nonnull final String encryption) {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
