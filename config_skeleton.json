@@ -4,7 +4,8 @@
       "projectKey": "<ctp project key>",
       "clientId": "<ctp project ID>",
       "clientSecret": "<ctp project client secret>",
-      "endpointUrl": "<endpoint url>"
+      "endpointUrl": "<endpoint url>",
+      "encryptionKey" : "<blowfish encryptionkey>"
     }
   ]
 }
