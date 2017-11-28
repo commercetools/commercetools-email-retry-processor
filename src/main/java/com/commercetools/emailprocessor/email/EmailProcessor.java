@@ -93,7 +93,7 @@ public class EmailProcessor {
         try {
             HttpPost httpPost = tenantConfiguration.getHttpPost();
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encrypt(customObjectId, tenantConfiguration
+            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, blowFish(customObjectId, tenantConfiguration
                 .getEncryptionKey(), Cipher.ENCRYPT_MODE)));
             params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
             httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
@@ -109,9 +109,17 @@ public class EmailProcessor {
         }
     }
 
-    String encrypt(final String value, final String encryptionKey, final int cipherMode) {
+    /**
+     *  Encrypt / decrypt value using the blowfish algorithm
+     *  
+     * @param value Value to Encrypt / decrypt
+     * @param key key for encryption/decryption
+     * @param cipherMode  ciphermode
+     * @return modified value or null if someting went wrong.
+     */
+    String blowFish(final String value, final String key, final int cipherMode) {
         try {
-            final byte[] keyData = encryptionKey.getBytes(Charset.forName("UTF-8"));
+            final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
             final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
             final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
             cipher.init(cipherMode, ks);

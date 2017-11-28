@@ -54,7 +54,7 @@ public class EmailProcessorTest {
         customObjects = new ArrayList<>();
         emailProcessor = mock(EmailProcessor.class);
         Mockito.doCallRealMethod().when(emailProcessor).processEmails(Mockito.any(TenantConfiguration.class));
-        Mockito.doCallRealMethod().when(emailProcessor).encrypt(anyString(), anyString(), anyInt());
+        Mockito.doCallRealMethod().when(emailProcessor).blowFish(anyString(), anyString(), anyInt());
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
         KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
@@ -139,7 +139,7 @@ public class EmailProcessorTest {
 
         assertEquals(httpStatus, result);
         assertEquals(url, httpPost.getURI().toString());
-        String encryptedEmailId = emailProcessor.encrypt(id, configuration.getEncryptionKey(), Cipher.ENCRYPT_MODE);
+        String encryptedEmailId = emailProcessor.blowFish(id, configuration.getEncryptionKey(), Cipher.ENCRYPT_MODE);
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(EmailProcessor.PARAM_EMAIL_ID, encryptedEmailId));
         params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
