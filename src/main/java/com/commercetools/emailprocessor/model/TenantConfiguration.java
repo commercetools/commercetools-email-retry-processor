@@ -140,12 +140,4 @@ public class TenantConfiguration implements Cloneable {
         }
         return httpPost;
     }
-
-    /**
-     * Sets a given HttpPost.
-     */
-    @JsonIgnore
-    public void setHttpPost(final HttpPost httpPost) {
-        this.httpPost = httpPost;
-    }
 }

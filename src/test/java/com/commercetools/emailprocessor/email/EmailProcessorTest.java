@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.nio.charset.Charset;
@@ -29,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_ERROR;
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_PENDING;
+import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,9 +57,9 @@ public class EmailProcessorTest {
         Mockito.doCallRealMethod().when(emailProcessor).blowFish(anyString(), anyString(), anyInt());
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
+        final KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
         keyGenerator.init(128);
-        SecretKey key = keyGenerator.generateKey();
+        final SecretKey key = keyGenerator.generateKey();
         tenantConfiguration.setEncryptionKey(Arrays.toString(key.getEncoded()));
     }
 
@@ -128,23 +128,25 @@ public class EmailProcessorTest {
             .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
         final int httpStatus = Statistics.RESPONSE_CODE_SUCCESS;
         final String id = "123";
-        final String tenantid = "testTenant";
+        final String tenantId = "testTenant";
         final String url = "https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS;
-        HttpPost httpPost = new HttpPost(url);
-        TenantConfiguration configuration = new TenantConfiguration();
-        configuration.setHttpPost(httpPost);
-        configuration.setProjectKey(tenantid);
-        configuration.setEncryptionKey(tenantConfiguration.getEncryptionKey());
+        final HttpPost httpPost = new HttpPost(url);
+
+        final TenantConfiguration configuration = mock(TenantConfiguration.class);
+        when(configuration.getHttpPost()).thenReturn(httpPost);
+        when(configuration.getProjectKey()).thenReturn(tenantId);
+        when(configuration.getEncryptionKey()).thenReturn(tenantConfiguration.getEncryptionKey());
+
         int result = emailProcessor.callApiEndpoint(id, configuration);
+        final String encryptedEmailId = emailProcessor.blowFish(id, configuration.getEncryptionKey(), ENCRYPT_MODE);
+        final List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair(EmailProcessor.PARAM_EMAIL_ID, encryptedEmailId));
+        params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
+        final UrlEncodedFormEntity expectedPostEntity = new UrlEncodedFormEntity(params, Charset.defaultCharset());
 
         assertEquals(httpStatus, result);
         assertEquals(url, httpPost.getURI().toString());
-        String encryptedEmailId = emailProcessor.blowFish(id, configuration.getEncryptionKey(), Cipher.ENCRYPT_MODE);
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(EmailProcessor.PARAM_EMAIL_ID, encryptedEmailId));
-        params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
-        UrlEncodedFormEntity exspectedPostEntity = new UrlEncodedFormEntity(params, Charset.defaultCharset());
-        assertEquals(IOUtils.toString(exspectedPostEntity.getContent(), Charset.defaultCharset()),
+        assertEquals(IOUtils.toString(expectedPostEntity.getContent(), Charset.defaultCharset()),
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
 
     }
