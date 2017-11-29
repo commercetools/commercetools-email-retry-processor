@@ -173,7 +173,7 @@ public class EmailJobIT {
     @Test
     public void process_WithMultiTenants_ShouldReturnNoError() throws CloneNotSupportedException {
         TenantConfiguration firstTenant = configuration.getTenants().get(0);
-        TenantConfiguration secondTenant = firstTenant.clone();
+        TenantConfiguration secondTenant = configuration.getTenants().get(1);
         firstTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS);
         secondTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_ERROR_PERMANENT);
         configuration.getTenants().add(secondTenant);

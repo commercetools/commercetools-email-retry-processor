@@ -8,13 +8,14 @@ import io.sphere.sdk.client.SphereClientFactory;
 import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nonnull;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TenantConfiguration implements Cloneable {
+public class TenantConfiguration {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
@@ -48,18 +49,6 @@ public class TenantConfiguration implements Cloneable {
         endpointUrl = url;
         encryptionKey = encryption;
     }
-
-    /**
-     * For testing proposes to easily duplicate a configuration.
-     *
-     * @return A clone of the the current instance
-     * @throws CloneNotSupportedException if the instance cannot be cloned
-     */
-    public TenantConfiguration clone() throws CloneNotSupportedException {
-        return (TenantConfiguration) super.clone();
-
-    }
-
 
     public String getProjectKey() {
         return projectKey;
