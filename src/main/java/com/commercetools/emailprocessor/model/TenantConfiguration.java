@@ -40,8 +40,8 @@ public class TenantConfiguration implements Cloneable {
      * @param secret ctp project client secret
      * @param url    api endpoint url
      */
-    public TenantConfiguration(@Nonnull final String key, @Nonnull final String id, @Nonnull final String secret,
-                               @Nonnull final String url, @Nonnull final String encryption) {
+    TenantConfiguration(@Nonnull final String key, @Nonnull final String id, @Nonnull final String secret,
+                        @Nonnull final String url, @Nonnull final String encryption) {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
@@ -49,6 +49,12 @@ public class TenantConfiguration implements Cloneable {
         encryptionKey = encryption;
     }
 
+    /**
+     * For testing proposes to easily duplicate a configuration.
+     *
+     * @return A clone of the the current instance
+     * @throws CloneNotSupportedException if the instance cannot be cloned
+     */
     public TenantConfiguration clone() throws CloneNotSupportedException {
         return (TenantConfiguration) super.clone();
 
