@@ -10,6 +10,6 @@ tasks.withType(Test) {
         showStackTraces true
         maxGranularity 3
         minGranularity 0
-        showStandardStreams true
+        showStandardStreams false
     }
 }
