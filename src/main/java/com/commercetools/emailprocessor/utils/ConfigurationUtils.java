@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 public class ConfigurationUtils {
 
@@ -46,7 +48,31 @@ public class ConfigurationUtils {
 
         if (projectConfiguration == null) {
             LOG.error("The project configuration cannot be loaded");
+            return Optional.empty();
+        }
+
+        if (!projectConfiguration.isValid()) {
+            final String errorMessage = "Please define the missing Property '%s'";
+            projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
+                if (isBlank(tenantConfiguration.getProjectKey())) {
+                    LOG.error(String.format(errorMessage, "projectKey"));
+                }
+                if (isBlank(tenantConfiguration.getClientId())) {
+                    LOG.error(String.format(errorMessage, "clientId"));
+                }
+                if (isBlank(tenantConfiguration.getClientSecret())) {
+                    LOG.error(String.format(errorMessage, "clientSecret"));
+                }
+                if (isBlank(tenantConfiguration.getEndpointUrl())) {
+                    LOG.error(String.format(errorMessage, "endpointUrl"));
+                }
+                if (isBlank(tenantConfiguration.getEncryptionKey())) {
+                    LOG.error(String.format(errorMessage, "encryptionKey"));
+                }
+            });
+            return Optional.empty();
         }
         return Optional.ofNullable(projectConfiguration);
     }
+
 }

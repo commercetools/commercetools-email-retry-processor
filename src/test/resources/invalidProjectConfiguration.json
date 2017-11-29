@@ -1,0 +1,11 @@
+{
+  "tenants": [
+    {
+      "projectKey": "projectkey",
+      "clientId": "projectID",
+      "clientSecret": "clientID",
+      "endpointUrl": "",
+      "encryptionKey" : "encryptionkey"
+    }
+  ]
+}

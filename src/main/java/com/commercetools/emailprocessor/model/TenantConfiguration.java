@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -69,22 +69,33 @@ public class TenantConfiguration implements Cloneable {
         this.projectKey = projectKey;
     }
 
+    public void setClient(final SphereClient client) {
+        this.client = client;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
     public void setClientId(final String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     public void setClientSecret(final String clientSecret) {
         this.clientSecret = clientSecret;
     }
 
+    public String getEndpointUrl() {
+        return endpointUrl;
+    }
+
     public void setEndpointUrl(final String url) {
         this.endpointUrl = url;
     }
-
-    public void setClient(final SphereClient client) {
-        this.client = client;
-    }
-
 
     public String getEncryptionKey() {
         return encryptionKey;
@@ -100,30 +111,8 @@ public class TenantConfiguration implements Cloneable {
      * @return true, if the configuration is valid
      */
     boolean isValid() {
-        final String errorMessage = "Please define the missing Property '%s'";
-        boolean isValid = true;
-
-        if (StringUtils.isEmpty(projectKey)) {
-            LOG.error(String.format(errorMessage, "projectKey"));
-            isValid = false;
-        }
-        if (StringUtils.isEmpty(clientId)) {
-            LOG.error(String.format(errorMessage, "clientId"));
-            isValid = false;
-        }
-        if (StringUtils.isEmpty(clientSecret)) {
-            LOG.error(String.format(errorMessage, "clientSecret"));
-            isValid = false;
-        }
-        if (StringUtils.isEmpty(endpointUrl)) {
-            LOG.error(String.format(errorMessage, "endpointUrl"));
-            isValid = false;
-        }
-        if (StringUtils.isEmpty(encryptionKey)) {
-            LOG.error(String.format(errorMessage, "encryptionKey"));
-            isValid = false;
-        }
-        return isValid;
+        return isNotBlank(projectKey) && isNotBlank(clientId) && isNotBlank(clientSecret) && isNotBlank(endpointUrl)
+            && isNotBlank(encryptionKey);
     }
 
     /**

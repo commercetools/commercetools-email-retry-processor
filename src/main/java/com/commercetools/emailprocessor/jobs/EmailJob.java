@@ -29,7 +29,7 @@ public class EmailJob {
      */
 
     public static List<Statistics> process(@Nonnull final ProjectConfiguration projectConfiguration) {
-        if (projectConfiguration.isValid()) {
+        if (projectConfiguration != null) {
             final EmailProcessor emailProcessor = new EmailProcessor();
             final List<CompletableFuture<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
                 .parallelStream()
