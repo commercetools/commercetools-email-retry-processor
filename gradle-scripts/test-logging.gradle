@@ -1,5 +1,5 @@
 tasks.withType(Test) {
-    reports.html.destination = file("${reporting.baseDir}/${name}")
+    reports.html.setDestination(file("${reporting.baseDir}/${name}"))
     testLogging {
         // set options for log level LIFECYCLE
         events "passed", "skipped", "failed"

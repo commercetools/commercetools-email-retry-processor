@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
@@ -27,6 +28,8 @@ public class ConfigurationUtils {
      */
     public static Optional<ProjectConfiguration> getConfiguration(final String resourcePath) {
         final ObjectMapper objectMapper = new ObjectMapper();
+        //Allows single Quotes within the json files
+        objectMapper.configure(ALLOW_SINGLE_QUOTES, true);
         ProjectConfiguration projectConfiguration = null;
         try {
             if (StringUtils.isNotBlank(resourcePath)) {
