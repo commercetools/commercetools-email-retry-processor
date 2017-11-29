@@ -18,6 +18,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
@@ -88,20 +90,19 @@ public class EmailProcessor {
      * @param tenantConfiguration Configuration of the current tenant
      * @return Http Status code response code of the current request
      */
-    int callApiEndpoint(final String customObjectId, final TenantConfiguration tenantConfiguration) throws Exception {
+    int callApiEndpoint(@Nonnull final String customObjectId, @Nonnull final TenantConfiguration tenantConfiguration)
+        throws Exception {
         CloseableHttpResponse response = null;
         try {
-            HttpPost httpPost = tenantConfiguration.getHttpPost();
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            final HttpPost httpPost = tenantConfiguration.getHttpPost();
+            final List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair(PARAM_EMAIL_ID, blowFish(customObjectId, tenantConfiguration
                 .getEncryptionKey(), Cipher.ENCRYPT_MODE)));
             params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
             httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
             response = HttpClients.createDefault().execute(httpPost);
-            int responseCode = response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
+            return response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
                 .RESPONSE_ERROR_PERMANENT;
-
-            return responseCode;
         } finally {
             if (response != null) {
                 response.close();
@@ -110,14 +111,15 @@ public class EmailProcessor {
     }
 
     /**
-     *  Encrypt / decrypt value using the blowfish algorithm
-     *  
-     * @param value Value to Encrypt / decrypt
-     * @param key key for encryption/decryption
-     * @param cipherMode  ciphermode
-     * @return modified value or null if someting went wrong.
+     * Encrypt / decrypt value using the blowfish algorithm.
+     *
+     * @param value      Value to Encrypt / decrypt
+     * @param key        key for encryption/decryption
+     * @param cipherMode ciphermode
+     * @return modified value or null if something went wrong.
      */
-    String blowFish(final String value, final String key, final int cipherMode) {
+    @Nullable
+    String blowFish(@Nonnull final String value, @Nonnull final String key, @Nonnull final int cipherMode) {
         try {
             final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
             final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
