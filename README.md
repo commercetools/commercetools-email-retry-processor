@@ -20,7 +20,7 @@ The configuration can be passed via environment variables or via a configuration
 Please set the following environment variable:
 
 ```
-export CTP_PROJECT_CONFIG="{\"tenants\": [{\"projectKey\": \"<ctp project key>\",\"clientId\": \"<ctp project ID>\", \"clientSecret\": \"<ctp project client secret>\", \"endpointUrl\": \"<endpoint url>\", \"encryptionKey\" : \"<blowfish encryptionkey>\"}]}"
+export CTP_PROJECT_CONFIG="{\"tenants\": [{\"projectKey\": \"<ctp project key>\",\"clientId\": \"<ctp project ID>\", \"clientSecret\": \"<ctp project client secret>\", \"endpointUrl\": \"<endpoint url>\", \"encryptionKey\" : \"<blowfish encryptionkey>\", \"processAll\" : <true|false>}]}"
 ```
 ##  Configuration via configuration file:
 
@@ -31,12 +31,13 @@ The configuration file should contain the following "JSON-SNIPPET".
  {
    "tenants": [
      {
-       "projectKey": "<ctp project key>",
-       "clientId": "<ctp project ID>",
-       "clientSecret": "<ctp project client secret>",
-       "endpointUrl": "<endpoint url>",
-       "encryptionKey" : "<blowfish encryptionkey>"
-     }
+             "projectKey": "<ctp project key>",
+             "clientId": "<ctp project ID>",
+             "clientSecret": "<ctp project client secret>",
+             "endpointUrl": "<endpoint url>",
+             "encryptionKey" : "<blowfish encryptionkey>",
+             "processAll"    : <if true, all email objects (pending/error) are processed (Default: false)>
+           }
    ]
  }
    ```  

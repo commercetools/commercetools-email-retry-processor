@@ -26,6 +26,7 @@ public class TenantConfiguration {
     private String clientSecret;
     private String endpointUrl;
     private String encryptionKey;
+    private boolean processAll = false;
 
     @JsonIgnore
     private HttpPost httpPost;
@@ -42,12 +43,13 @@ public class TenantConfiguration {
      * @param url    api endpoint url
      */
     TenantConfiguration(@Nonnull final String key, @Nonnull final String id, @Nonnull final String secret,
-                        @Nonnull final String url, @Nonnull final String encryption) {
+                        @Nonnull final String url, @Nonnull final String encryption, boolean all) {
         projectKey = key;
         clientId = id;
         clientSecret = secret;
         endpointUrl = url;
         encryptionKey = encryption;
+        processAll = all;
     }
 
     public String getProjectKey() {
@@ -92,6 +94,14 @@ public class TenantConfiguration {
 
     public void setEncryptionKey(final String encryptionKey) {
         this.encryptionKey = encryptionKey;
+    }
+
+    public boolean isProcessAll() {
+        return processAll;
+    }
+
+    public void setProcessAll(boolean processAll) {
+        this.processAll = processAll;
     }
 
     /**

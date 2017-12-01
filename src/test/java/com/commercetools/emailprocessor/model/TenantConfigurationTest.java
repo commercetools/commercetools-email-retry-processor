@@ -19,34 +19,34 @@ public class TenantConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey,false);
 
     }
 
     @Test
     public void isValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey,false);
         assertEquals(tenantConfig.isValid(), true);
     }
 
     @Test
     public void isNotValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, "");
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, "",false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, "", secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, "", secretKey,false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, "", endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, "", endpointUrl, secretKey,false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, "", clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration(projectKey, "", clientSecret, endpointUrl, secretKey,false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration("", clientId, clientSecret, endpointUrl, secretKey);
+        tenantConfig = new TenantConfiguration("", clientId, clientSecret, endpointUrl, secretKey,false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration("", "", "", "", "");
+        tenantConfig = new TenantConfiguration("", "", "", "", "",false);
         assertEquals(tenantConfig.isValid(), false);
     }
 

@@ -66,7 +66,8 @@ public class EmailProcessor {
                     String status = email != null && email.get(EMAIL_PROPERTY_STATUS) != null ? email.get(
                         EMAIL_PROPERTY_STATUS)
                         .asText() : "";
-                    if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING)) {
+                    if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING) || tenantConfiguration
+                        .isProcessAll()) {
                         int httpStatusCode = 0;
                         try {
                             httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);

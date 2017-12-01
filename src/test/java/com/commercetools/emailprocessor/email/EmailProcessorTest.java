@@ -100,6 +100,20 @@ public class EmailProcessorTest {
         assertEquals(statistic.getPermanentErrors(), 0);
     }
 
+    @Test
+    public void processEmail_processAllFlagIsSet_shouldProcessAllEmails() throws Exception {
+        customObjects.add(createCustomObject("1", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("4", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
+        tenantConfiguration.setClient(mockSphereClient(customObjects));
+        tenantConfiguration.setProcessAll(true);
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
+        assertEquals(statistic.getProcessed(), 4);
+        assertEquals(statistic.getSentSuccessfully(), 1);
+        assertEquals(statistic.getTemporarilyErrors(), 2);
+        assertEquals(statistic.getPermanentErrors(), 1);
+    }
 
     @Test
     public void processEmail_noPendingEmailAvailable_shouldNotProcessEmails() throws Exception {
