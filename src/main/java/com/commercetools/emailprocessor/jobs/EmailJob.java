@@ -27,7 +27,6 @@ public class EmailJob {
      *
      * @param projectConfiguration configuration of a given Project
      */
-
     public static List<Statistics> process(@Nonnull final ProjectConfiguration projectConfiguration) {
         if (projectConfiguration != null) {
             final EmailProcessor emailProcessor = new EmailProcessor();
@@ -41,7 +40,7 @@ public class EmailJob {
                                 tenantConfiguration.getProjectKey()), exception);
                         }
                         return completedFuture(new Statistics());
-                }
+                    }
                 )
                 .collect(toList());
             return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[listOfStageOfStatistics.size()]))
