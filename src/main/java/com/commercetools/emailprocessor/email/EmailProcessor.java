@@ -87,7 +87,6 @@ public class EmailProcessor {
                 client.close();
                 return new Statistics();
             });
-
     }
 
     /**
@@ -137,7 +136,6 @@ public class EmailProcessor {
         } catch (Exception exception) {
             LOG.error(String.format("Encryption of http body failed. With Exception %s", exception.getMessage()));
         }
-
         return null;
     }
 }
