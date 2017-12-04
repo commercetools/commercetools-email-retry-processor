@@ -15,12 +15,12 @@ public class Main {
 
     /**
      * Triggers the execution of the email job.
+     *
      * @param args optional path to a configuration file.
      */
     public static void main(final String[] args) {
         getConfiguration(!isEmpty(args) ? args[0] : "")
             .ifPresent(config -> process(config)
                 .forEach(statistic -> statistic.print(LOGGER)));
-
     }
 }
