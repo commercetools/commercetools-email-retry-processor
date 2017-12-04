@@ -42,7 +42,7 @@ public class EmailJobIT {
      */
     @Before
     public void setup() {
-        ConfigurationUtils.getConfiguration("").ifPresent(config -> {
+        ConfigurationUtils.getConfigurationFromEnvVar().ifPresent(config -> {
             configuration = config;
         });
         ctpClient = configuration.getTenants().get(0).getSphereClient();
