@@ -83,6 +83,7 @@ public class EmailProcessor {
                 return statistics;
             })
             .exceptionally(exception -> {
+                LOG.error("An unknown error occurred", exception);
                 client.close();
                 return new Statistics();
             });
