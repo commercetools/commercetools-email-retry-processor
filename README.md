@@ -1,6 +1,7 @@
 # commercetools-email-retry-processor
 
- The email retry processor fetches all email objects, which are saved as Custom Objects in CTP for different tenants/webshops. For each email object in "pending" state, this job triggers an api endpoint. This triggered api endpoint should contain the email delivery logic.
+ The email retry processor fetches all email objects, which are saved as Custom Objects in CTP for different tenants/webshops. For each email object, this job triggers an api endpoint.
+ The api endpoint should contain the email delivery logic.
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
 
@@ -36,7 +37,7 @@ The configuration file should contain the following "JSON-SNIPPET".
              "clientSecret": "<ctp project client secret>",
              "endpointUrl": "<endpoint url>",
              "encryptionKey" : "<blowfish encryptionkey>",
-             "processAll"    : <if true, all email objects (pending/error) are processed (Default: false)>
+             "processAll"    : <if true, all email objects (pending/error) are processed, otherwise only "pending" email objects will be processed (Default: false).>
            }
    ]
  }
@@ -58,7 +59,6 @@ The configuration file should contain the following "JSON-SNIPPET".
 The API endpoint should cover the following steps:
 
 1. Fetch the current Email object by the given ID
-1.  Check if the Email object is in state "pending"
 1. If true, send the email:
     - When the email delivery was successful
       - Delete current Email object
