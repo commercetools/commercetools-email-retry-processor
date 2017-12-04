@@ -84,7 +84,7 @@ public class EmailJobIT {
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
             .RESPONSE_CODE_SUCCESS);
         configuration.getTenants().get(0).setProcessAll(true);
-        List<Statistics> statistics = EmailJob.process(configuration);
+        final List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(3);
@@ -101,9 +101,9 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://unknownEndpoint.de");
-        List<Statistics> statistics = EmailJob.process(configuration);
+        final  List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
-        Statistics statistic = statistics.get(0);
+        final Statistics statistic = statistics.get(0);
         statistic.print(LOG);
         assertThat(statistic.getProcessed()).isEqualTo(0);
         assertThat(statistic.getInErrorState()).isEqualTo(3);
@@ -119,9 +119,9 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
             .RESPONSE_ERROR_PERMANENT);
-        List<Statistics> statistics = EmailJob.process(configuration);
+        final  List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
-        Statistics statistic = statistics.get(0);
+        final  Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
@@ -136,9 +136,9 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
             .RESPONSE_ERROR_TEMP);
-        List<Statistics> statistics = EmailJob.process(configuration);
+        final  List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
-        Statistics statistic = statistics.get(0);
+        final  Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
@@ -148,8 +148,8 @@ public class EmailJobIT {
 
     @Test
     public void process_WithMultiTenants_ShouldReturnNoError() {
-        TenantConfiguration firstTenant = configuration.getTenants().get(0);
-        TenantConfiguration secondTenant = configuration.getTenants().get(1);
+        final  TenantConfiguration firstTenant = configuration.getTenants().get(0);
+        final   TenantConfiguration secondTenant = configuration.getTenants().get(1);
         firstTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS);
         secondTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_ERROR_PERMANENT);
         configuration.getTenants().add(secondTenant);
