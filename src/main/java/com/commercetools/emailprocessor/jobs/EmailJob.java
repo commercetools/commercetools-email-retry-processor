@@ -40,7 +40,7 @@ public class EmailJob {
                                 tenantConfiguration.getProjectKey()), exception);
                         }
                         return completedFuture(new Statistics());
-                    }
+                        }
                 )
                 .collect(toList());
             return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[listOfStageOfStatistics.size()]))
