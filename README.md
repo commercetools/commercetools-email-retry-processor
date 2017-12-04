@@ -8,7 +8,7 @@
 ## Prerequisites
 
  - Java 8
- - CTP project, which contains the Email objects, which should be processed.
+ - CTP project used for email deliveries.
  - [API endpoint](#api-endpoint), which triggers the email delivery logic
 
 ## Configuration
