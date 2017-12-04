@@ -64,6 +64,7 @@ The API endpoint should cover the following steps:
       - Delete current Email object
       - Set the Http status code "200" to the response
     - When the email delivery fails temporarily
+      - Set the status of the Email object to "pending"
       - Set the Http status code "503" to the response
     - When the email delivery fails permanently.
       - Set the status of the Email object to "error"
