@@ -45,15 +45,20 @@ public class EmailJobIT {
         ConfigurationUtils.getConfiguration("").ifPresent(config -> {
             configuration = config;
         });
-        assertEquals("The Configuration should not be null", true, configuration != null);
-        assertThat(configuration).isNotNull();
-        assertThat(configuration.isValid()).isTrue();
         ctpClient = configuration.getTenants().get(0).getSphereClient();
         queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
     }
 
+
     @Test
-    public void process_WithASuccessfulEmail_ShouldReturnNoError() {
+    public void getConfiguration_passValidConfigurations_shouldReturnValid() {
+        assertEquals("The Configuration should not be null", true, configuration != null);
+        assertThat(configuration).isNotNull();
+        assertThat(configuration.isValid()).isTrue();
+    }
+
+    @Test
+    public void process_withASuccessfulEmail_ShouldReturnNoError() {
 
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
