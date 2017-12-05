@@ -68,7 +68,7 @@ The configuration file should contain the following "JSON-SNIPPET".
 The API endpoint should cover the following steps:
 
 1. Fetch the current Email object by the given ID
-1. If true, send the email:
+1. After fetching it, send the email and process the result in the following way:
     - When the email delivery was successful
       - Delete current Email object
       - Set the Http status code "200" to the response
@@ -78,4 +78,3 @@ The API endpoint should cover the following steps:
     - When the email delivery fails permanently.
       - Set the status of the Email object to "error"
       - Set the Http status code "400" to the response
-1. If false, the Email object should be ignored
