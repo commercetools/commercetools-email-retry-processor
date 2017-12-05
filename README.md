@@ -17,14 +17,14 @@
 
 The configuration can be passed via environment variables or via a configuration file, as follows:
 
-##  Configuration via environment variable:
+###  Configuration via environment variable:
 
 Please set the following environment variable:
 
 ```
 export CTP_PROJECT_CONFIG="{\"tenants\": [{\"projectKey\": \"<ctp project key>\",\"clientId\": \"<ctp project ID>\", \"clientSecret\": \"<ctp project client secret>\", \"endpointUrl\": \"<endpoint url>\", \"encryptionKey\" : \"<blowfish encryptionkey>\", \"processAll\" : <true|false>}]}"
 ```
-##  Configuration via configuration file:
+###  Configuration via configuration file:
 
 Please pass the path to the configuration file as argument to the "main" method
 
