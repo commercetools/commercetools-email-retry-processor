@@ -12,3 +12,6 @@ shadowJar {
         println "Packaged JAR to ${destinationDir}/${archiveName}"
     }
 }
+
+// Disable 'jar' task which builds an unneeded shallow jar (without all dependencies).
+jar.enabled = false
