@@ -42,7 +42,7 @@ public class EmailProcessor {
     }
 
     /**
-     * Iterate through all Email objects and triggers the webhook for each  pending email object.
+     * Iterate through all Email objects and triggers the webhook for each pending email object.
      *
      * @param tenantConfiguration Configuration of a tenant
      * @return Statics of the sended emails
