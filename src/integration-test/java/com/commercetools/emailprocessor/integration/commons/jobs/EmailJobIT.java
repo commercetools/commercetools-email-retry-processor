@@ -9,12 +9,12 @@ import com.commercetools.emailprocessor.utils.ConfigurationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereRequest;
+import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.CustomObjectDraft;
 import io.sphere.sdk.customobjects.commands.CustomObjectDeleteCommand;
 import io.sphere.sdk.customobjects.commands.CustomObjectUpsertCommand;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import io.sphere.sdk.json.SphereJsonUtils;
-import io.sphere.sdk.queries.QueryDsl;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 
 public class EmailJobIT {
     private static final Logger LOG = LoggerFactory.getLogger(EmailJobIT.class);
+    private static final String HTTPBIN_DOMAIN = "https://httpbin.org/status/";
     private SphereClient ctpClient;
     private ProjectConfiguration configuration = null;
 
@@ -49,7 +50,6 @@ public class EmailJobIT {
         queryAndApply(ctpClient, CustomObjectQuery::ofJsonNode, CustomObjectDeleteCommand::ofJsonNode);
     }
 
-
     @Test
     public void getConfiguration_passValidConfigurations_shouldReturnValid() {
         assertEquals("The Configuration should not be null", true, configuration != null);
@@ -58,13 +58,12 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_withASuccessfulEmail_ShouldReturnNoError() {
-
+    public void process_withASuccessfulEmail_shouldReturnNoError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-            .RESPONSE_CODE_SUCCESS);
+        configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
+
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -76,14 +75,13 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_WithProcessAllFlagSet_ShouldReturnNoError() {
-
+    public void process_withProcessAllFlagSet_shouldReturnNoError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-            .RESPONSE_CODE_SUCCESS);
+        configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
         configuration.getTenants().get(0).setProcessAll(true);
+
         final List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
@@ -95,13 +93,13 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_WithIncorrectEndpointUrl_ShouldReturnEmptyStatics() {
-
+    public void process_withIncorrectEndpointUrl_shouldReturnEmptyStatics() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://unknownEndpoint.de");
-        final  List<Statistics> statistics = EmailJob.process(configuration);
+
+        final List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         statistic.print(LOG);
@@ -113,15 +111,15 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_WithUnsuccessfulEmail_ShouldReturnPermenantError() {
+    public void process_withUnsuccessfulEmail_shouldReturnPermenantError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-            .RESPONSE_ERROR_PERMANENT);
-        final  List<Statistics> statistics = EmailJob.process(configuration);
+        configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_PERMANENT);
+
+        final List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
-        final  Statistics statistic = statistics.get(0);
+        final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
@@ -130,15 +128,15 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_WithUnsuccessfulEmail_ShouldReturnTemporaryError() {
+    public void process_withUnsuccessfulEmail_shouldReturnTemporaryError() {
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
-        configuration.getTenants().get(0).setEndpointUrl("https://httpbin.org/status/" + Statistics
-            .RESPONSE_ERROR_TEMP);
-        final  List<Statistics> statistics = EmailJob.process(configuration);
+        configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_TEMP);
+
+        final List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
-        final  Statistics statistic = statistics.get(0);
+        final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
@@ -147,11 +145,11 @@ public class EmailJobIT {
     }
 
     @Test
-    public void process_WithMultiTenants_ShouldReturnNoError() {
-        final  TenantConfiguration firstTenant = configuration.getTenants().get(0);
-        final   TenantConfiguration secondTenant = configuration.getTenants().get(1);
-        firstTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS);
-        secondTenant.setEndpointUrl("https://httpbin.org/status/" + Statistics.RESPONSE_ERROR_PERMANENT);
+    public void process_withMultiTenants_shouldReturnNoError() {
+        final TenantConfiguration firstTenant = configuration.getTenants().get(0);
+        final TenantConfiguration secondTenant = configuration.getTenants().get(1);
+        firstTenant.setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
+        secondTenant.setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_PERMANENT);
         configuration.getTenants().add(secondTenant);
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
@@ -165,6 +163,7 @@ public class EmailJobIT {
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
+
         statistic = statistics.get(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getInErrorState()).isEqualTo(1);
@@ -182,22 +181,21 @@ public class EmailJobIT {
     }
 
     /**
-     * Applies the {@code pageMapper} function on each page fetched from the supplied {@code
-     * queryRequestSupplier} on
+     * Applies the {@code pageMapper} function on each page fetched from the supplied {@code queryRequestSupplier} on
      * the supplied {@code ctpClient}.
      *
      * @param ctpClient            defines the CTP project to apply the query on.
-     * @param queryRequestSupplier defines a supplier which, when executed, returns the query that should be made on
+     * @param queryRequestSupplier defines a supplier which, when executed, returns the query that should be
+     *                             made on
      *                             the CTP project.
      * @param resourceMapper       defines a mapper function that should be applied on each resource in the
      *                             fetched page
      *                             from the query on the specified CTP project.
      */
-
-    public <T, C extends QueryDsl<T, C>> void queryAndApply(
-        @Nonnull final SphereClient ctpClient,
-        @Nonnull final Supplier<QueryDsl<T, C>> queryRequestSupplier,
-        @Nonnull final Function<T, SphereRequest<T>> resourceMapper) {
+    void queryAndApply(@Nonnull final SphereClient ctpClient,
+                       @Nonnull final Supplier<CustomObjectQuery<JsonNode>> queryRequestSupplier,
+                       @Nonnull final Function<CustomObject<JsonNode>, SphereRequest<CustomObject<JsonNode>>>
+                           resourceMapper) {
         queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
             .thenApply(allRequests -> allRequests.stream()
                 .map(ctpClient::execute)
@@ -206,6 +204,5 @@ public class EmailJobIT {
             .thenCompose(CompletableFuture::allOf)
             .toCompletableFuture().join();
     }
-
 }
 
