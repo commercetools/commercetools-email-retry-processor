@@ -130,7 +130,6 @@ public class TenantConfiguration {
      * Create a httpPost based on the current tenantconfig.
      *
      * @return the current httpPost
-     * @throws Exception when the HttpURLConnection cannot be created.
      */
     @JsonIgnore
     public HttpPost getHttpPost() {
