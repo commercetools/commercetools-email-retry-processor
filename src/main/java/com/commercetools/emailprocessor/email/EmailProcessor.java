@@ -129,7 +129,6 @@ public class EmailProcessor {
 
     String blowFish(@Nonnull final String value, @Nonnull final String key, @Nonnull final int cipherMode) throws
         Exception {
-
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
         final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
         final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
