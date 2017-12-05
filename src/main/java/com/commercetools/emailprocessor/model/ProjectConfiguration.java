@@ -13,7 +13,6 @@ public class ProjectConfiguration {
     private List<TenantConfiguration> tenants;
 
     public ProjectConfiguration() {
-
     }
 
     public ProjectConfiguration(@Nonnull final List<TenantConfiguration> currentTenants) {
@@ -36,6 +35,4 @@ public class ProjectConfiguration {
     public boolean isValid() {
         return tenants != null && !tenants.isEmpty() && tenants.stream().filter(t -> !t.isValid()).count() == 0;
     }
-
-
 }
