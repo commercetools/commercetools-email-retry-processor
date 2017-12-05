@@ -38,7 +38,7 @@ public class EmailJob {
                         LOG.error(String.format("Error in email processing for tenant %s.",
                             tenantConfiguration.getProjectKey()), exception);
                     }
-                    return completedFuture(new Statistics());
+                    return completedFuture(new Statistics(tenantConfiguration.getProjectKey()));
                     }
             )
             .collect(toList());
