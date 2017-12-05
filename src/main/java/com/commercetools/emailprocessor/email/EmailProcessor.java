@@ -33,6 +33,7 @@ public class EmailProcessor {
     public static final String EMAIL_PROPERTY_STATUS = "status";
     public static final String EMAIL_STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
+    public static final int STATUS_UNPROCESS = 0;
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
     private static final String ENCRYPTION_ALGORITHM = "Blowfish";
@@ -45,9 +46,8 @@ public class EmailProcessor {
      * Iterate through all Email objects and triggers the webhook for each pending email object.
      *
      * @param tenantConfiguration Configuration of a tenant
-     * @return Statics of the sended emails
+     * @return Statics of the sent emails
      */
-
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfiguration) {
         SphereClient client = tenantConfiguration.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID).withLimit(100L)
@@ -67,15 +67,15 @@ public class EmailProcessor {
                         .asText() : "";
                     if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING) || tenantConfiguration
                         .isProcessAll()) {
-                        int httpStatusCode = 0;
+                        int httpStatusCode = STATUS_UNPROCESS;
                         try {
                             httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
-                        } catch (Exception exeception) {
-                            LOG.error("Cannot call endpoint", exeception);
+                        } catch (Exception exception) {
+                            LOG.error("Cannot call endpoint", exception);
                         }
                         statistics.update(httpStatusCode);
                     } else {
-                        statistics.update(0);
+                        statistics.update(STATUS_UNPROCESS);
                     }
                 }
                 client.close();
