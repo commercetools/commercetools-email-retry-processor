@@ -29,7 +29,6 @@ import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
 
-
     public static final String CONTAINER_ID = "unprocessedEmail";
     public static final String EMAIL_PROPERTY_STATUS = "status";
     public static final String EMAIL_STATUS_PENDING = "pending";
