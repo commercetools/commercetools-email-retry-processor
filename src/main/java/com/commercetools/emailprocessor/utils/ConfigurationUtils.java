@@ -23,6 +23,7 @@ public class ConfigurationUtils {
 
     /**
      * Load a configuration from a environment variable..
+     *
      * @return a projectconfiguration
      */
     public static Optional<ProjectConfiguration> getConfigurationFromEnvVar() {
@@ -66,8 +67,10 @@ public class ConfigurationUtils {
     private static Optional<ProjectConfiguration> getConfiguration(final ProjectConfiguration projectConfiguration) {
         if (projectConfiguration == null || !projectConfiguration.isValid()) {
             if (projectConfiguration != null) {
-                final String errorMessage = "Please define the missing Property '%s'";
+
                 projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
+                    final String errorMessage = "[" + tenantConfiguration.getProjectKey() + "] "
+                        + "Please define the missing Property '%s'";
                     if (isBlank(tenantConfiguration.getProjectKey())) {
                         LOG.error(String.format(errorMessage, "projectKey"));
                     }

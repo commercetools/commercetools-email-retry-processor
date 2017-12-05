@@ -71,7 +71,8 @@ public class EmailProcessor {
                         try {
                             httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
                         } catch (Exception exception) {
-                            LOG.error("Cannot call endpoint", exception);
+                            LOG.error(String.format("[%s] Cannot call endpoint", tenantConfiguration.getProjectKey()),
+                                exception);
                         }
                         statistics.update(httpStatusCode);
                     } else {
@@ -82,7 +83,8 @@ public class EmailProcessor {
                 return statistics;
             })
             .exceptionally(exception -> {
-                LOG.error("An unknown error occurred", exception);
+                LOG.error(String.format("[%s] An unknown error occurred", tenantConfiguration.getProjectKey()),
+                    exception);
                 client.close();
                 return new Statistics();
             });
@@ -133,7 +135,8 @@ public class EmailProcessor {
             final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
             return Base64.encodeBase64String(encrypted);
         } catch (Exception exception) {
-            LOG.error(String.format("Encryption of http body failed. With Exception %s", exception.getMessage()));
+            LOG.error(String.format("Encryption of http body failed. With Exception %s", exception.getMessage()),
+                exception);
         }
         return null;
     }
