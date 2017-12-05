@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
@@ -36,8 +35,9 @@ public class EmailProcessor {
     public static final int STATUS_UNPROCESS = 0;
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
-    private static final String ENCRYPTION_ALGORITHM = "Blowfish";
+    public static final String ENCRYPTION_ALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
+    private List<NameValuePair> params;
 
     public EmailProcessor() {
     }
@@ -103,8 +103,9 @@ public class EmailProcessor {
         try {
             final HttpPost httpPost = tenantConfiguration.getHttpPost();
             final List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, blowFish(customObjectId, tenantConfiguration
-                .getEncryptionKey(), Cipher.ENCRYPT_MODE)));
+            String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(), Cipher
+                .ENCRYPT_MODE);
+            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
             params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
             httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
             response = HttpClients.createDefault().execute(httpPost);
@@ -125,19 +126,15 @@ public class EmailProcessor {
      * @param cipherMode ciphermode
      * @return modified value or null if something went wrong.
      */
-    @Nullable
-    String blowFish(@Nonnull final String value, @Nonnull final String key, @Nonnull final int cipherMode) {
-        try {
-            final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
-            final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
-            final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-            cipher.init(cipherMode, ks);
-            final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
-            return Base64.encodeBase64String(encrypted);
-        } catch (Exception exception) {
-            LOG.error(String.format("Encryption of http body failed. With Exception %s", exception.getMessage()),
-                exception);
-        }
-        return null;
+
+    String blowFish(@Nonnull final String value, @Nonnull final String key, @Nonnull final int cipherMode) throws
+        Exception {
+
+        final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
+        final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
+        final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+        cipher.init(cipherMode, ks);
+        final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
+        return Base64.encodeBase64String(encrypted);
     }
 }

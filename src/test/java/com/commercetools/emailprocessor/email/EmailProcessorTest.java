@@ -17,11 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -57,10 +54,7 @@ public class EmailProcessorTest {
         Mockito.doCallRealMethod().when(emailProcessor).blowFish(anyString(), anyString(), anyInt());
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
-        final KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
-        keyGenerator.init(128);
-        final SecretKey key = keyGenerator.generateKey();
-        tenantConfiguration.setEncryptionKey(Arrays.toString(key.getEncoded()));
+        tenantConfiguration.setEncryptionKey("1234567899053146");
     }
 
     @Test
