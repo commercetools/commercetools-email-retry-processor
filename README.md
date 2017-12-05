@@ -44,12 +44,20 @@ The configuration file should contain the following "JSON-SNIPPET".
  }
    ```  
 
+
+## Develop the application   
+
+ Build the applicatiom and run tests
+   ```bash
+   ./gradlew clean build
+   ```
 ## Run the application   
 
  - First, package the JAR
    ```bash
-   ./gradlew clean jar
+   ./gradlew clean shadowJar
    ```
+   
  - Then run the JAR
    ```bash
    java -jar build/libs/email-processor.jar
