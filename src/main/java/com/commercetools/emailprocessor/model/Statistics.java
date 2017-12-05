@@ -19,7 +19,6 @@ public class Statistics {
     private int temporarilyErrors = 0;
 
     public Statistics() {
-
     }
 
     public Statistics(final String tenant) {
@@ -105,6 +104,4 @@ public class Statistics {
             logger.error("Cannot create json statistics.", exception);
         }
     }
-
-
 }
