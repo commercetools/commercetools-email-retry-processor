@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 public class StatisticsTest {
 
-    Statistics statistics = null;
+    private Statistics statistics = null;
 
     @Before
     public void setUp() throws Exception {

@@ -86,7 +86,7 @@ public class EmailProcessor {
                 LOG.error(String.format("[%s] An unknown error occurred", tenantConfiguration.getProjectKey()),
                     exception);
                 client.close();
-                return new Statistics();
+                return new Statistics(tenantConfiguration.getProjectKey());
             });
     }
 

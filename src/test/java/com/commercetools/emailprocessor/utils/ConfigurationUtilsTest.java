@@ -32,5 +32,4 @@ public class ConfigurationUtilsTest {
         assertEquals(projectConfiguration.isPresent(), false);
 
     }
-
 }

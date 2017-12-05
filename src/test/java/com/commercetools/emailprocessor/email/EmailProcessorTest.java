@@ -156,7 +156,6 @@ public class EmailProcessorTest {
         assertEquals(url, httpPost.getURI().toString());
         assertEquals(IOUtils.toString(expectedPostEntity.getContent(), Charset.defaultCharset()),
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
-
     }
 
     @SuppressWarnings("unchecked")
