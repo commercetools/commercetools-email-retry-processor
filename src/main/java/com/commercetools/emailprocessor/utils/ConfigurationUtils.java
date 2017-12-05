@@ -67,7 +67,6 @@ public class ConfigurationUtils {
     private static Optional<ProjectConfiguration> getConfiguration(final ProjectConfiguration projectConfiguration) {
         if (projectConfiguration == null || !projectConfiguration.isValid()) {
             if (projectConfiguration != null) {
-
                 projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
                     final String errorMessage = "[" + tenantConfiguration.getProjectKey() + "] "
                         + "Please define the missing Property '%s'";
@@ -89,10 +88,7 @@ public class ConfigurationUtils {
                 });
             }
             return Optional.empty();
-
         }
-
         return Optional.of(projectConfiguration);
     }
-
 }
