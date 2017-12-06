@@ -120,14 +120,11 @@ public class EmailProcessorTest {
         assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
 
-
         tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-
         assertEquals(statistic.getProcessed(), 0);
         assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporarilyErrors(), 0);
-
     }
 
     @Test
