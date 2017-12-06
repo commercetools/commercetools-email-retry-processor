@@ -17,9 +17,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TenantConfiguration {
 
-
     private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
-
     private SphereClient client;
     private String projectKey;
     private String clientId;
