@@ -54,11 +54,6 @@ public class ProjectConfigurationTest {
             clientSecret, endPointUrl, encryptionKey, true)));
         assertEquals(configuration.isValid(), false);
 
-        configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
-            clientSecret, "", encryptionKey, true)));
-        assertEquals(configuration.isValid(), false);
-
-
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
             clientSecret, "", encryptionKey, false));
