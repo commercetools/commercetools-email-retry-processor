@@ -36,7 +36,6 @@ import static org.mockito.Mockito.when;
 
 public class EmailProcessorTest {
 
-
     private EmailProcessor emailProcessor;
     private TenantConfiguration tenantConfiguration;
     private List<CustomObject<JsonNode>> customObjects;

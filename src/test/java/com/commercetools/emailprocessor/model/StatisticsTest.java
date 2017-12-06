@@ -12,7 +12,6 @@ public class StatisticsTest {
     @Before
     public void setUp() throws Exception {
         statistics = new Statistics();
-
     }
 
     @Test

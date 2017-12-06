@@ -126,7 +126,6 @@ public class EmailProcessor {
      * @param cipherMode ciphermode
      * @return modified value or null if something went wrong.
      */
-
     String blowFish(@Nonnull final String value, @Nonnull final String key, @Nonnull final int cipherMode) throws
         Exception {
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));

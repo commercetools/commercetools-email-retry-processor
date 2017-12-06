@@ -8,6 +8,7 @@ import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfi
 import static org.junit.Assert.assertEquals;
 
 public class ConfigurationUtilsTest {
+
     @Test
     public void configurationUtils_validConfigFileIsProvided_shouldReturnConfiguration() throws Exception {
         final String resourceFilePath = ConfigurationUtilsTest.class.getClassLoader()
@@ -22,7 +23,6 @@ public class ConfigurationUtilsTest {
             .getResource("invalidProjectConfiguration.json").getFile();
         Optional<ProjectConfiguration> projectConfiguration = getConfigurationFromFile(resourceFilePath);
         assertEquals(projectConfiguration.isPresent(), false);
-
     }
 
     @Test
@@ -30,6 +30,5 @@ public class ConfigurationUtilsTest {
         final String resourceFilePath = "invalid/path";
         Optional<ProjectConfiguration> projectConfiguration = getConfigurationFromFile(resourceFilePath);
         assertEquals(projectConfiguration.isPresent(), false);
-
     }
 }

@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 public class TenantConfigurationTest {
 
-
     private String projectKey = "anyKey";
     private String clientId = "anyID";
     private String clientSecret = "anySecret";
@@ -20,7 +19,6 @@ public class TenantConfigurationTest {
     @Before
     public void setUp() throws Exception {
         tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey,false);
-
     }
 
     @Test

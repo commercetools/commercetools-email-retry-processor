@@ -22,7 +22,6 @@ public class ProjectConfigurationTest {
             new TenantConfiguration(projectKey, clientId, clientSecret, endPointUrl, encryptionKey, true)));
         assertEquals(configuration.isValid(), true);
 
-
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
             clientSecret, endPointUrl, encryptionKey, true));
@@ -30,7 +29,6 @@ public class ProjectConfigurationTest {
             clientSecret, endPointUrl, encryptionKey, false));;
         configuration = new ProjectConfiguration(tenantList);
         assertEquals(configuration.isValid(), true);
-
     }
 
     @Test

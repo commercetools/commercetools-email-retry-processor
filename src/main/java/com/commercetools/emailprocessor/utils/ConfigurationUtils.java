@@ -42,7 +42,6 @@ public class ConfigurationUtils {
         return getConfiguration(projectConfiguration);
     }
 
-
     /**
      * Load a configuration from  a configuration file.
      *
