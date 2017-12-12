@@ -28,7 +28,7 @@ public class Main {
         if (!projectConfigurationOpt.isPresent()) {
             LOGGER.error("The project configuration cannot be loaded");
         }
-        projectConfigurationOpt.ifPresent(config -> process(config)
+        projectConfigurationOpt.ifPresent(config -> process(config).toCompletableFuture().join()
             .forEach(statistic -> statistic.print(LOGGER)));
 
     }

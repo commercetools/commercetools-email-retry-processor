@@ -63,8 +63,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
-
-        List<Statistics> statistics = EmailJob.process(configuration);
+        List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
@@ -82,7 +81,7 @@ public class EmailJobIT {
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
         configuration.getTenants().get(0).setProcessAll(true);
 
-        final List<Statistics> statistics = EmailJob.process(configuration);
+        final List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(3);
@@ -99,7 +98,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://unknownEndpoint.de");
 
-        final List<Statistics> statistics = EmailJob.process(configuration);
+        final List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         statistic.print(LOG);
@@ -117,7 +116,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_PERMANENT);
 
-        final List<Statistics> statistics = EmailJob.process(configuration);
+        final List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
@@ -134,7 +133,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_TEMP);
 
-        final List<Statistics> statistics = EmailJob.process(configuration);
+        final List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
@@ -155,7 +154,7 @@ public class EmailJobIT {
         createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
 
-        List<Statistics> statistics = EmailJob.process(configuration);
+        List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getNotProcessed()).isEqualTo(1);

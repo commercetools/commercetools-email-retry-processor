@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -26,7 +27,7 @@ public class EmailJob {
      *
      * @param projectConfiguration configuration of a given Project
      */
-    public static List<Statistics> process(@Nonnull final ProjectConfiguration projectConfiguration) {
+    public static CompletionStage<List<Statistics>> process(@Nonnull final ProjectConfiguration projectConfiguration) {
 
         final EmailProcessor emailProcessor = new EmailProcessor();
         final List<CompletableFuture<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
@@ -45,7 +46,6 @@ public class EmailJob {
         return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[listOfStageOfStatistics.size()]))
             .thenApply(ignoreVoid -> listOfStageOfStatistics.stream()
                 .map(CompletableFuture::join)
-                .collect(toList()))
-            .toCompletableFuture().join();
+                .collect(toList()));
     }
 }
