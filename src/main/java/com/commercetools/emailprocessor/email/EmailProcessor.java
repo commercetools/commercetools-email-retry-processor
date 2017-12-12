@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import static java.util.concurrent.CompletableFuture.allOf;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class EmailProcessor {
@@ -65,19 +67,24 @@ public class EmailProcessor {
                     LOG.info(String.format("No email to process for tenant %s", tenantConfig
                         .getProjectKey()));
                 }
-                for (CustomObject<JsonNode> customObject : response.getResults()) {
-                    Optional<CompletableFuture<Integer>> httpStatusCodeOpt = Optional.ofNullable(customObject)
-                        .map(CustomObject::getValue)
-                        .map(node -> node.get(EMAIL_PROPERTY_STATUS))
-                        .map(JsonNode::asText)
-                        .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig.isProcessAll())))
-                        .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig));
-                    if (httpStatusCodeOpt.isPresent()) {
-                        statistics.update(httpStatusCodeOpt.get().join());
-                    } else {
-                        statistics.update(STATUS_UNPROCESS);
-                    }
-                }
+
+                List<CompletableFuture<Void>> allTenants = response.getResults().parallelStream()
+                        .map(customObject -> Optional.ofNullable(customObject)
+                                .map(CustomObject::getValue)
+                                .map(node -> node.get(EMAIL_PROPERTY_STATUS))
+                                .map(JsonNode::asText)
+                                .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig.isProcessAll())))
+                                .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig)
+                                        .thenAccept(statistics::update))
+                                .orElseGet(() -> {
+                                    statistics.update(STATUS_UNPROCESS);
+                                    return CompletableFuture.completedFuture(null);
+                                }))
+                        .collect(toList());
+
+                // join all the email processors
+                allOf(allTenants.toArray(new CompletableFuture[0])).toCompletableFuture().join();
+
                 client.close();
                 return statistics;
             })

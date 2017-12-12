@@ -56,10 +56,14 @@ public class Statistics {
 
     /**
      * Update the statistics depending on the httpStatusCode.
+     * <p>
+     * This method is <i>synchronized</i> to allow update tenant statistic concurrently in parallel threads.
+     * Considering it is very simple method and it is called rarely - no need to optimize concurrency more than it is.
      *
      * @param httpStatusCode returned http status code of the api call.
      */
     @JsonIgnore
+    synchronized
     public void update(int httpStatusCode) {
         processed++;
         switch (httpStatusCode) {
