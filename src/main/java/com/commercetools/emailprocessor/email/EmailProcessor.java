@@ -62,7 +62,6 @@ public class EmailProcessor {
                         .getProjectKey()));
                 }
                 for (CustomObject<JsonNode> customObject : response.getResults()) {
-                    JsonNode email = customObject.getValue();
                     String status = Optional.ofNullable(customObject)
                         .map(CustomObject::getValue)
                         .map(node -> node.get(EMAIL_PROPERTY_STATUS))
