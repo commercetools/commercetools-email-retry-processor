@@ -6,8 +6,6 @@ import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
 import org.apache.http.client.methods.HttpPost;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
@@ -17,7 +15,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TenantConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TenantConfiguration.class);
     private SphereClient client;
     private String projectKey;
     private String clientId;
