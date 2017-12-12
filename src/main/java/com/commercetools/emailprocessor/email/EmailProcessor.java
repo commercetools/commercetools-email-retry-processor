@@ -33,9 +33,9 @@ public class EmailProcessor {
     public static final String EMAIL_STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
     public static final int STATUS_UNPROCESS = 0;
+    public static final String ENCRYPTION_ALGORITHM = "Blowfish";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
-    public static final String ENCRYPTION_ALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
     private List<NameValuePair> params;
 
@@ -57,7 +57,7 @@ public class EmailProcessor {
             .thenApply(response -> {
                 Statistics statistics = new Statistics(tenantConfiguration.getProjectKey());
                 if (response.getTotal() < 1) {
-                    LOG.error(String.format("No email to process for tenant %s", tenantConfiguration
+                    LOG.info(String.format("No email to process for tenant %s", tenantConfiguration
                         .getProjectKey()));
                 }
                 for (CustomObject<JsonNode> customObject : response.getResults()) {
