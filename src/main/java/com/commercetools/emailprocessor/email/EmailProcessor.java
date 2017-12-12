@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 public class EmailProcessor {
@@ -62,9 +63,11 @@ public class EmailProcessor {
                 }
                 for (CustomObject<JsonNode> customObject : response.getResults()) {
                     JsonNode email = customObject.getValue();
-                    String status = email != null && email.get(EMAIL_PROPERTY_STATUS) != null ? email.get(
-                        EMAIL_PROPERTY_STATUS)
-                        .asText() : "";
+                    String status = Optional.ofNullable(customObject)
+                        .map(CustomObject::getValue)
+                        .map(node -> node.get(EMAIL_PROPERTY_STATUS))
+                        .map(JsonNode::asText)
+                        .orElse("");
                     if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING) || tenantConfiguration
                         .isProcessAll()) {
                         int httpStatusCode = STATUS_UNPROCESS;
