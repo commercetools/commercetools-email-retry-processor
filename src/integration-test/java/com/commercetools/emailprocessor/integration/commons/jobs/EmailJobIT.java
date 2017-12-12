@@ -59,8 +59,8 @@ public class EmailJobIT {
 
     @Test
     public void process_withASuccessfulEmail_shouldReturnNoError() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
 
@@ -68,7 +68,7 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getInErrorState()).isEqualTo(1);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -76,8 +76,8 @@ public class EmailJobIT {
 
     @Test
     public void process_withProcessAllFlagSet_shouldReturnNoError() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
         configuration.getTenants().get(0).setProcessAll(true);
@@ -86,7 +86,7 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(3);
-        assertThat(statistic.getInErrorState()).isEqualTo(0);
+        assertThat(statistic.getNotProcessed()).isEqualTo(0);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(3);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -94,8 +94,8 @@ public class EmailJobIT {
 
     @Test
     public void process_withIncorrectEndpointUrl_shouldReturnEmptyStatics() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl("https://unknownEndpoint.de");
 
@@ -103,8 +103,8 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         statistic.print(LOG);
+        assertThat(statistic.getNotProcessed()).isEqualTo(3);
         assertThat(statistic.getProcessed()).isEqualTo(0);
-        assertThat(statistic.getInErrorState()).isEqualTo(3);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -112,8 +112,8 @@ public class EmailJobIT {
 
     @Test
     public void process_withUnsuccessfulEmail_shouldReturnPermenantError() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_PERMANENT);
 
@@ -121,7 +121,7 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getInErrorState()).isEqualTo(1);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);
@@ -129,8 +129,8 @@ public class EmailJobIT {
 
     @Test
     public void process_withUnsuccessfulEmail_shouldReturnTemporaryError() {
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
         configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_TEMP);
 
@@ -138,7 +138,7 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getInErrorState()).isEqualTo(1);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(2);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -151,22 +151,22 @@ public class EmailJobIT {
         firstTenant.setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
         secondTenant.setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_ERROR_PERMANENT);
         configuration.getTenants().add(secondTenant);
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "1");
-        createCustomObject(EmailProcessor.EMAIL_STATUS_PENDING, "2");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "1");
+        createCustomObject(EmailProcessor.STATUS_PENDING, "2");
         createCustomObject(EmailProcessor.EMAIL_STATUS_ERROR, "3");
 
         List<Statistics> statistics = EmailJob.process(configuration);
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
 
         statistic = statistics.get(1);
+        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getInErrorState()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);

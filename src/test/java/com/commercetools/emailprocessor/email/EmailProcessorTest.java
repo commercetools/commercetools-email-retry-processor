@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_ERROR;
-import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_PENDING;
+import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDING;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -58,10 +58,10 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_pendingEmailAvailable_shouldProcessEmails() throws Exception {
-        customObjects.add(createCustomObject("1", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("2", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
-        customObjects.add(createCustomObject("4", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
+        customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 3);
@@ -70,10 +70,10 @@ public class EmailProcessorTest {
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<CustomObject<JsonNode>>();
-        customObjects.add(createCustomObject("1", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("2", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
-        customObjects.add(createCustomObject("3", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
-        customObjects.add(createCustomObject("4", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("3", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 4);
@@ -82,9 +82,9 @@ public class EmailProcessorTest {
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<CustomObject<JsonNode>>();
-        customObjects.add(createCustomObject("1", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("2", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("3", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("3", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 3);
@@ -95,10 +95,10 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_processAllFlagIsSet_shouldProcessAllEmails() throws Exception {
-        customObjects.add(createCustomObject("1", EMAIL_STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("2", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
-        customObjects.add(createCustomObject("4", EMAIL_STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
+        customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         tenantConfiguration.setProcessAll(true);
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
@@ -141,14 +141,14 @@ public class EmailProcessorTest {
         when(configuration.getProjectKey()).thenReturn(tenantId);
         when(configuration.getEncryptionKey()).thenReturn(tenantConfiguration.getEncryptionKey());
 
-        int result = emailProcessor.callApiEndpoint(id, configuration);
+        Integer result = emailProcessor.callApiEndpoint(id, configuration).join();
         final String encryptedEmailId = emailProcessor.blowFish(id, configuration.getEncryptionKey(), ENCRYPT_MODE);
         final List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair(EmailProcessor.PARAM_EMAIL_ID, encryptedEmailId));
         params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
         final UrlEncodedFormEntity expectedPostEntity = new UrlEncodedFormEntity(params, Charset.defaultCharset());
 
-        assertEquals(httpStatus, result);
+        assertEquals(httpStatus, result.intValue());
         assertEquals(url, httpPost.getURI().toString());
         assertEquals(IOUtils.toString(expectedPostEntity.getContent(), Charset.defaultCharset()),
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
@@ -166,7 +166,8 @@ public class EmailProcessorTest {
     private CustomObject<JsonNode> createCustomObject(final String customobjectid, final String status, final int
         endPointstatus)
         throws Exception {
-        when(emailProcessor.callApiEndpoint(customobjectid, tenantConfiguration)).thenReturn(endPointstatus);
+        when(emailProcessor.callApiEndpoint(customobjectid, tenantConfiguration)).thenReturn(CompletableFuture
+            .completedFuture(endPointstatus));
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObject<JsonNode> customObject = mock(CustomObject.class);
         when(customObject.getId()).thenReturn(customobjectid);

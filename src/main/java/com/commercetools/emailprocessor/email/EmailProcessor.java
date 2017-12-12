@@ -8,7 +8,6 @@ import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,17 +20,21 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class EmailProcessor {
 
     public static final String CONTAINER_ID = "unprocessedEmail";
     public static final String EMAIL_PROPERTY_STATUS = "status";
-    public static final String EMAIL_STATUS_PENDING = "pending";
+    public static final String STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
     public static final int STATUS_UNPROCESS = 0;
     public static final String ENCRYPTION_ALGORITHM = "Blowfish";
@@ -46,37 +49,30 @@ public class EmailProcessor {
     /**
      * Iterate through all Email objects and triggers the webhook for each pending email object.
      *
-     * @param tenantConfiguration Configuration of a tenant
+     * @param tenantConfig Configuration of a tenant
      * @return Statics of the sent emails
      */
-    public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfiguration) {
-        SphereClient client = tenantConfiguration.getSphereClient();
+    public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
+        SphereClient client = tenantConfig.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID).withLimit(100L)
             .withSort(s -> s.createdAt().sort().asc());
         return client
             .execute(query)
             .thenApply(response -> {
-                Statistics statistics = new Statistics(tenantConfiguration.getProjectKey());
+                Statistics statistics = new Statistics(tenantConfig.getProjectKey());
                 if (response.getTotal() < 1) {
-                    LOG.info(String.format("No email to process for tenant %s", tenantConfiguration
+                    LOG.info(String.format("No email to process for tenant %s", tenantConfig
                         .getProjectKey()));
                 }
                 for (CustomObject<JsonNode> customObject : response.getResults()) {
-                    String status = Optional.ofNullable(customObject)
+                    Optional<CompletableFuture<Integer>> httpStatusCodeOpt = Optional.ofNullable(customObject)
                         .map(CustomObject::getValue)
                         .map(node -> node.get(EMAIL_PROPERTY_STATUS))
                         .map(JsonNode::asText)
-                        .orElse("");
-                    if (StringUtils.equalsIgnoreCase(status, EMAIL_STATUS_PENDING) || tenantConfiguration
-                        .isProcessAll()) {
-                        int httpStatusCode = STATUS_UNPROCESS;
-                        try {
-                            httpStatusCode = callApiEndpoint(customObject.getId(), tenantConfiguration);
-                        } catch (Exception exception) {
-                            LOG.error(String.format("[%s] Cannot call endpoint", tenantConfiguration.getProjectKey()),
-                                exception);
-                        }
-                        statistics.update(httpStatusCode);
+                        .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig.isProcessAll())))
+                        .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig));
+                    if (httpStatusCodeOpt.isPresent()) {
+                        statistics.update(httpStatusCodeOpt.get().join());
                     } else {
                         statistics.update(STATUS_UNPROCESS);
                     }
@@ -85,10 +81,10 @@ public class EmailProcessor {
                 return statistics;
             })
             .exceptionally(exception -> {
-                LOG.error(String.format("[%s] An unknown error occurred", tenantConfiguration.getProjectKey()),
+                LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
                     exception);
                 client.close();
-                return new Statistics(tenantConfiguration.getProjectKey());
+                return new Statistics(tenantConfig.getProjectKey());
             });
     }
 
@@ -99,26 +95,38 @@ public class EmailProcessor {
      * @param tenantConfiguration Configuration of the current tenant
      * @return Http Status code response code of the current request
      */
-    int callApiEndpoint(@Nonnull final String customObjectId, @Nonnull final TenantConfiguration tenantConfiguration)
-        throws Exception {
-        CloseableHttpResponse response = null;
-        try {
-            final HttpPost httpPost = tenantConfiguration.getHttpPost();
-            final List<NameValuePair> params = new ArrayList<>();
-            String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(), Cipher
-                .ENCRYPT_MODE);
-            params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
-            params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
-            httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
-            response = HttpClients.createDefault().execute(httpPost);
-            return response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
-                .RESPONSE_ERROR_PERMANENT;
-        } finally {
-            if (response != null) {
-                response.close();
+    CompletableFuture<Integer> callApiEndpoint(@Nonnull final String customObjectId,
+                                               @Nonnull final TenantConfiguration tenantConfiguration) {
+        return CompletableFuture.supplyAsync(() -> {
+            CloseableHttpResponse response = null;
+            try {
+                final HttpPost httpPost = tenantConfiguration.getHttpPost();
+                final List<NameValuePair> params = new ArrayList<>();
+                try {
+                    final String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
+                        Cipher.ENCRYPT_MODE);
+                    params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
+                    params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
+                    httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
+                    response = HttpClients.createDefault().execute(httpPost);
+                    return response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
+                        .RESPONSE_ERROR_PERMANENT;
+                } catch (Exception excepton) {
+                    LOG.error("Cannot trigger the enpoint", excepton);
+                    return STATUS_UNPROCESS;
+                }
+            } finally {
+                if (response != null) {
+                    try {
+                        response.close();
+                    } catch (IOException exception) {
+                        LOG.error("Cannot close stream", exception);
+                    }
+                }
             }
-        }
+        });
     }
+
 
     /**
      * Encrypt / decrypt value using the blowfish algorithm.

@@ -31,6 +31,6 @@ public class StatisticsTest {
         assertEquals(statistics.getPermanentErrors(), 1);
         assertEquals(statistics.getTemporarilyErrors(), 4);
         assertEquals(statistics.getProcessed(), 8);
-        assertEquals(statistics.getInErrorState(), 2);
+        assertEquals(statistics.getNotProcessed(), 2);
     }
 }

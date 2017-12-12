@@ -13,7 +13,7 @@ public class Statistics {
     public static final int RESPONSE_IGNORED = 0;
     private String tenantId = "";
     private int processed = 0;
-    private int inErrorState = 0;
+    private int notProcessed = 0;
     private int sentSuccessfully = 0;
     private int permanentErrors = 0;
     private int temporarilyErrors = 0;
@@ -33,15 +33,9 @@ public class Statistics {
         this.tenantId = tenantId;
     }
 
-    public int getInErrorState() {
-        return inErrorState;
-    }
-
-
     public int getProcessed() {
         return processed;
     }
-
 
     public int getSentSuccessfully() {
         return sentSuccessfully;
@@ -52,9 +46,12 @@ public class Statistics {
         return permanentErrors;
     }
 
-
     public int getTemporarilyErrors() {
         return temporarilyErrors;
+    }
+
+    public int getNotProcessed() {
+        return notProcessed;
     }
 
     /**
@@ -76,7 +73,7 @@ public class Statistics {
                 permanentErrors++;
                 break;
             case RESPONSE_IGNORED:
-                inErrorState++;
+                notProcessed++;
                 processed--;
                 break;
             default:
