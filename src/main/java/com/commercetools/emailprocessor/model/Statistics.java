@@ -12,6 +12,7 @@ public class Statistics {
     public static final int RESPONSE_ERROR_PERMANENT = 400;
     public static final int RESPONSE_IGNORED = 0;
     private String tenantId = "";
+    private int globalError = 0;
     private int processed = 0;
     private int notProcessed = 0;
     private int sentSuccessfully = 0;
@@ -23,10 +24,15 @@ public class Statistics {
 
     public Statistics(final String tenant) {
         tenantId = tenant;
+        globalError = 1;
     }
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public int getGlobalError() {
+        return globalError;
     }
 
     public void setTenantId(final String tenantId) {
@@ -40,7 +46,6 @@ public class Statistics {
     public int getSentSuccessfully() {
         return sentSuccessfully;
     }
-
 
     public int getPermanentErrors() {
         return permanentErrors;
