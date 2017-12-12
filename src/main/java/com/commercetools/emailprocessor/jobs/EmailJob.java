@@ -21,7 +21,7 @@ public class EmailJob {
     private static final Logger LOG = LoggerFactory.getLogger(EmailJob.class);
 
     /**
-     * This jobs try to process emails of a given List of tenant using the EmailProcessor
+     * This job tries to process emails of a given List of tenant using the EmailProcessor
      * The configuration of this job, can be passed by  a file or environment variable.
      *
      * @param projectConfiguration configuration of a given Project
