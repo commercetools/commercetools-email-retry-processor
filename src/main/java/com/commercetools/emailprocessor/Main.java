@@ -25,7 +25,11 @@ public class Main {
     public static void main(final String[] args) {
         Optional<ProjectConfiguration> projectConfigurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
             : getConfigurationFromEnvVar();
+        if (!projectConfigurationOpt.isPresent()) {
+            LOGGER.error("The project configuration cannot be loaded");
+        }
         projectConfigurationOpt.ifPresent(config -> process(config)
             .forEach(statistic -> statistic.print(LOGGER)));
+
     }
 }
