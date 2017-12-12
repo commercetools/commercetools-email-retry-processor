@@ -12,6 +12,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -108,9 +109,7 @@ public class EmailProcessor {
                     params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
                     params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
                     httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
-                    response = HttpClients.createDefault().execute(httpPost);
-                    return response.getStatusLine() != null ? response.getStatusLine().getStatusCode() : Statistics
-                        .RESPONSE_ERROR_PERMANENT;
+                    return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
                 } catch (Exception excepton) {
                     LOG.error("Cannot trigger the enpoint", excepton);
                     return STATUS_UNPROCESS;
@@ -127,6 +126,25 @@ public class EmailProcessor {
         });
     }
 
+    /**
+     * Execute the final post request.
+     *
+     * @param httpClient current httpClient
+     * @param httpPost   current post
+     * @param projectKey current projectKey
+     * @return http status code
+     * @throws IOException when the post request fails
+     */
+    int doPost(final CloseableHttpClient httpClient, final HttpPost httpPost, final String projectKey)
+        throws IOException {
+        final CloseableHttpResponse response = httpClient.execute(httpPost);
+        if (response.getStatusLine() != null) {
+            return response.getStatusLine().getStatusCode();
+        } else {
+            LOG.error(String.format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
+            return Statistics.RESPONSE_ERROR_PERMANENT;
+        }
+    }
 
     /**
      * Encrypt / decrypt value using the blowfish algorithm.
@@ -145,4 +163,6 @@ public class EmailProcessor {
         final byte[] encrypted = cipher.doFinal(value.getBytes(Charset.forName("UTF-8")));
         return Base64.encodeBase64String(encrypted);
     }
+
+
 }

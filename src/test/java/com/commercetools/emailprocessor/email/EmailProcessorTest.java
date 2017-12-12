@@ -10,8 +10,11 @@ import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.queries.PagedQueryResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +28,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_ERROR;
 import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDING;
+import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_CODE_SUCCESS;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
@@ -49,7 +54,7 @@ public class EmailProcessorTest {
     public void setUp() throws Exception {
         customObjects = new ArrayList<>();
         emailProcessor = mock(EmailProcessor.class);
-        Mockito.doCallRealMethod().when(emailProcessor).processEmails(Mockito.any(TenantConfiguration.class));
+        Mockito.doCallRealMethod().when(emailProcessor).processEmails(any(TenantConfiguration.class));
         Mockito.doCallRealMethod().when(emailProcessor).blowFish(anyString(), anyString(), anyInt());
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
@@ -58,7 +63,7 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_pendingEmailAvailable_shouldProcessEmails() throws Exception {
-        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
@@ -70,7 +75,7 @@ public class EmailProcessorTest {
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<CustomObject<JsonNode>>();
-        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
@@ -82,9 +87,9 @@ public class EmailProcessorTest {
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<CustomObject<JsonNode>>();
-        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
-        customObjects.add(createCustomObject("3", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("2", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("3", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 3);
@@ -95,7 +100,7 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_processAllFlagIsSet_shouldProcessAllEmails() throws Exception {
-        customObjects.add(createCustomObject("1", STATUS_PENDING, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
@@ -110,9 +115,11 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_noPendingEmailAvailable_shouldNotProcessEmails() throws Exception {
-        customObjects.add(createCustomObject("1", EMAIL_STATUS_ERROR, Statistics.RESPONSE_CODE_SUCCESS));
+        Mockito.doCallRealMethod().when(emailProcessor)
+            .callApiEndpoint(Mockito.anyString(), any(TenantConfiguration.class));
+        customObjects.add(createCustomObject("1", EMAIL_STATUS_ERROR, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", EMAIL_STATUS_ERROR, Statistics.RESPONSE_ERROR_TEMP));
-        customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, Statistics.RESPONSE_CODE_SUCCESS));
+        customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, RESPONSE_CODE_SUCCESS));
         tenantConfiguration.setClient(mockSphereClient(customObjects));
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 0);
@@ -129,11 +136,13 @@ public class EmailProcessorTest {
     @Test
     public void callApiEndpoint_validEndpointUrlIsGiven_shouldAddCorrectVariablesToRequest() throws Exception {
         Mockito.doCallRealMethod().when(emailProcessor)
-            .callApiEndpoint(Mockito.anyString(), Mockito.any(TenantConfiguration.class));
-        final int httpStatus = Statistics.RESPONSE_CODE_SUCCESS;
+            .doPost(any(CloseableHttpClient.class), any(HttpPost.class), Mockito.anyString());
+        Mockito.doCallRealMethod().when(emailProcessor)
+            .callApiEndpoint(Mockito.anyString(), any(TenantConfiguration.class));
+        final int httpStatus = RESPONSE_CODE_SUCCESS;
         final String id = "123";
         final String tenantId = "testTenant";
-        final String url = "https://httpbin.org/status/" + Statistics.RESPONSE_CODE_SUCCESS;
+        final String url = "https://httpbin.org/status/" + RESPONSE_CODE_SUCCESS;
         final HttpPost httpPost = new HttpPost(url);
 
         final TenantConfiguration configuration = mock(TenantConfiguration.class);
@@ -154,7 +163,34 @@ public class EmailProcessorTest {
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
     }
 
-    @SuppressWarnings("unchecked")
+    @Test
+    public void doPost_httpPostReturnNoStatusLine_shouldReturnPermanentError() throws Exception {
+        Mockito.doCallRealMethod().when(emailProcessor)
+            .doPost(any(CloseableHttpClient.class), any(HttpPost.class), Mockito.anyString());
+        CloseableHttpClient mockhttpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        HttpPost httpPost = mock(HttpPost.class);
+        when(response.getStatusLine()).thenReturn(null);
+        when(mockhttpClient.execute(any(HttpPost.class))).thenReturn(response);
+        int result = emailProcessor.doPost(mockhttpClient, httpPost, "anyProject");
+        assertEquals(Statistics.RESPONSE_ERROR_PERMANENT, result);
+    }
+
+    @Test
+    public void doPost_httpPostReturnStatusLine_shouldReturnCorrectMessage() throws Exception {
+        Mockito.doCallRealMethod().when(emailProcessor)
+            .doPost(any(CloseableHttpClient.class), any(HttpPost.class), Mockito.anyString());
+        CloseableHttpClient mockhttpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        HttpPost httpPost = mock(HttpPost.class);
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(RESPONSE_CODE_SUCCESS);
+        when(response.getStatusLine()).thenReturn(statusLine);
+        when(mockhttpClient.execute(any(HttpPost.class))).thenReturn(response);
+        int result = emailProcessor.doPost(mockhttpClient, httpPost, "anyProject");
+        assertEquals(RESPONSE_CODE_SUCCESS, result);
+    }
+
     private SphereClient mockSphereClient(final List<CustomObject<JsonNode>> customObjects) {
         SphereClient client = mock(SphereClient.class);
         final PagedQueryResult<CustomObject<JsonNode>> queryResult = PagedQueryResult.of(customObjects);
@@ -162,7 +198,6 @@ public class EmailProcessorTest {
         return client;
     }
 
-    @SuppressWarnings("unchecked")
     private CustomObject<JsonNode> createCustomObject(final String customobjectid, final String status, final int
         endPointstatus)
         throws Exception {
