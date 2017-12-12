@@ -23,6 +23,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -162,7 +163,7 @@ public class EmailProcessor {
      * @return modified value or null if something went wrong.
      */
     String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode) throws
-        Exception {
+        GeneralSecurityException {
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
         final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
         final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
