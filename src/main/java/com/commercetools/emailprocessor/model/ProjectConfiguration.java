@@ -1,6 +1,8 @@
 package com.commercetools.emailprocessor.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -10,11 +12,9 @@ public final class ProjectConfiguration {
 
     private List<TenantConfiguration> tenants;
 
-    public ProjectConfiguration() {
-    }
-
-    public ProjectConfiguration(@Nonnull final List<TenantConfiguration> currentTenants) {
-        this.tenants = currentTenants;
+    @JsonCreator
+    ProjectConfiguration(@JsonProperty("tenants") @Nonnull final List<TenantConfiguration> tenants) {
+        this.tenants = tenants;
     }
 
     public List<TenantConfiguration> getTenants() {

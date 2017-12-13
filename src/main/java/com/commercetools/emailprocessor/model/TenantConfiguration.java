@@ -1,7 +1,9 @@
 package com.commercetools.emailprocessor.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
@@ -26,25 +28,37 @@ public class TenantConfiguration {
     @JsonIgnore
     private HttpPost httpPost;
 
+    // TODO: only for tests now, should be removed then
     public TenantConfiguration() {
     }
 
     /**
      * Creates a configuration of a tenant.
      *
-     * @param key    ctp project key
-     * @param id     ctp project client id
-     * @param secret ctp project client secret
-     * @param url    api endpoint url
+     * // TODO: only for tests now, should be removed then
+     *
+     * @param projectKey   ctp project key
+     * @param clientId     ctp project client id
+     * @param clientSecret ctp project client secret
+     * @param endpointUrl  api endpoint url
      */
-    TenantConfiguration(@Nonnull final String key, @Nonnull final String id, @Nonnull final String secret,
-                        @Nonnull final String url, @Nonnull final String encryption, boolean all) {
-        projectKey = key;
-        clientId = id;
-        clientSecret = secret;
-        endpointUrl = url;
-        encryptionKey = encryption;
+    TenantConfiguration(@Nonnull final String projectKey, @Nonnull final String clientId, @Nonnull final String clientSecret,
+                        @Nonnull final String endpointUrl, @Nonnull final String encryptionKey, boolean all) {
+        this.projectKey = projectKey;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.endpointUrl = endpointUrl;
+        this.encryptionKey = encryptionKey;
         processAll = all;
+    }
+
+    @JsonCreator
+    TenantConfiguration(@JsonProperty("projectKey") @Nonnull final String projectKey,
+                        @JsonProperty("clientId") @Nonnull final String clientId,
+                        @JsonProperty("clientSecret") @Nonnull final String clientSecret,
+                        @JsonProperty("endpointUrl") @Nonnull final String endpointUrl,
+                        @JsonProperty("encryptionKey") @Nonnull final String encryptionKey) {
+        this(projectKey, clientId, clientSecret, endpointUrl, encryptionKey, false);
     }
 
     public String getProjectKey() {

@@ -14,7 +14,7 @@ public class TenantConfigurationTest {
     private String clientSecret = "anySecret";
     private String endpointUrl = "anyUrl";
     private String secretKey = "anySecretKey";
-    private TenantConfiguration tenantConfig = new TenantConfiguration();
+    private TenantConfiguration tenantConfig;
 
     @Before
     public void setUp() throws Exception {
