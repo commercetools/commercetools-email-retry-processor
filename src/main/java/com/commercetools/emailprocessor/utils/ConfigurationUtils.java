@@ -37,7 +37,7 @@ public class ConfigurationUtils {
                 projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
             }
         } catch (IOException exception) {
-            LOG.error("The file cannot be parsed", exception);
+            LOG.error(String.format("The environment variable '%s' cannot be parsed", CTP_PROJECT_CONFIG), exception);
         }
         return getConfiguration(projectConfiguration);
     }
@@ -57,7 +57,7 @@ public class ConfigurationUtils {
             final File file = new File(resourcePath);
             projectConfiguration = objectMapper.readValue(file, ProjectConfiguration.class);
         } catch (IOException exception) {
-            LOG.error("The file cannot be parsed", exception);
+            LOG.error(String.format("The File '%s' cannot be parsed", resourcePath), exception);
         }
         return getConfiguration(projectConfiguration);
     }
