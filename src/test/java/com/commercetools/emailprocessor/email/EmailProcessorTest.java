@@ -15,26 +15,26 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS_ERROR;
 import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDING;
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_CODE_SUCCESS;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -208,5 +208,22 @@ public class EmailProcessorTest {
         when(customObject.getId()).thenReturn(customobjectid);
         when(customObject.getValue()).thenReturn(jsonNode);
         return customObject;
+    }
+
+    @Test
+    public void doPost_200TimesInParallel() throws Exception {
+        EmailProcessor emailProcessor = new EmailProcessor();
+        IntStream.range(0, 200)
+                .parallel()
+                .map(i -> {
+                    try {
+                        return emailProcessor.doPost(HttpClients.createDefault(), new HttpPost("http://httpbin.org/post"), "testKey");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    return 400;
+                })
+                .forEach(response -> assertEquals(response, 200));
     }
 }

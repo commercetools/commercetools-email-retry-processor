@@ -140,13 +140,14 @@ public class EmailProcessor {
      * @throws IOException when the post request fails
      */
     int doPost(final CloseableHttpClient httpClient, final HttpPost httpPost, final String projectKey)
-        throws IOException {
-        final CloseableHttpResponse response = httpClient.execute(httpPost);
-        if (response.getStatusLine() != null) {
-            return response.getStatusLine().getStatusCode();
-        } else {
-            LOG.error(String.format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
-            return Statistics.RESPONSE_ERROR_PERMANENT;
+            throws IOException {
+        try (final CloseableHttpResponse response = httpClient.execute(httpPost)) {
+            if (response.getStatusLine() != null) {
+                return response.getStatusLine().getStatusCode();
+            } else {
+                LOG.error(String.format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
+                return Statistics.RESPONSE_ERROR_PERMANENT;
+            }
         }
     }
 
