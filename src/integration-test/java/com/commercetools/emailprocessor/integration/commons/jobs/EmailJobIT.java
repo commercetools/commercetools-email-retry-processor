@@ -6,6 +6,7 @@ import com.commercetools.emailprocessor.jobs.EmailJob;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
+import com.commercetools.emailprocessor.testutils.TestUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereRequest;
@@ -73,9 +74,10 @@ public class EmailJobIT {
     public void main_passInValidValidConfigurations_shouldReturnCorrectExitCode() {
         exitRule.expectSystemExitWithStatus(1);
         String[] args = new String[1];
-        args[0] = EmailJobIT.class.getClassLoader().getResource("invalidProjectConfiguration.json").getFile();
+        args[0] = TestUtils.getInvalidProjectConfigurationFilePath();
         Main.main(args);
     }
+
     @Test
     public void process_withASuccessfulEmail_shouldReturnNoError() {
         createCustomObject(EmailProcessor.STATUS_PENDING, "1");

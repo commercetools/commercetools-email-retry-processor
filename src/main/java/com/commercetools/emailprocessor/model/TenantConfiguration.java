@@ -32,18 +32,21 @@ public class TenantConfiguration {
     public TenantConfiguration() {
     }
 
+    // TODO: only for tests now, should be removed then
     /**
      * Creates a configuration of a tenant.
-     *
-     * // TODO: only for tests now, should be removed then
      *
      * @param projectKey   ctp project key
      * @param clientId     ctp project client id
      * @param clientSecret ctp project client secret
      * @param endpointUrl  api endpoint url
      */
-    TenantConfiguration(@Nonnull final String projectKey, @Nonnull final String clientId, @Nonnull final String clientSecret,
-                        @Nonnull final String endpointUrl, @Nonnull final String encryptionKey, boolean all) {
+    TenantConfiguration(@Nonnull final String projectKey,
+                        @Nonnull final String clientId,
+                        @Nonnull final String clientSecret,
+                        @Nonnull final String endpointUrl,
+                        @Nonnull final String encryptionKey,
+                        boolean all) {
         this.projectKey = projectKey;
         this.clientId = clientId;
         this.clientSecret = clientSecret;

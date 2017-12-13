@@ -54,10 +54,7 @@ public class ConfigurationUtils {
             objectMapper.enable(ALLOW_SINGLE_QUOTES);
             try {
                 projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
-<<<<<<< HEAD
 
-=======
->>>>>>> Simplify configuration utils.
                 if (projectConfiguration == null || !projectConfiguration.isValid()) {
                     if (projectConfiguration != null) {
                         projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {

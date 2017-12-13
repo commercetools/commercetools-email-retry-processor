@@ -1,4 +1,4 @@
-package com.commercetools.emailprocessor.testUtils;
+package com.commercetools.emailprocessor.testutils;
 
 public final class TestUtils {
 
