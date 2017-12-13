@@ -68,7 +68,7 @@ public class EmailProcessor {
                     LOG.info(String.format("No email to process for tenant %s", tenantConfig
                         .getProjectKey()));
                 }
-                List<CompletableFuture<Void>> allTenants = response.getResults().parallelStream()
+                List<CompletableFuture<Void>> allTenants = response.getResults().stream()
                     .map(customObject -> Optional.ofNullable(customObject)
                         .map(CustomObject::getValue)
                         .map(node -> node.get(EMAIL_PROPERTY_STATUS))
