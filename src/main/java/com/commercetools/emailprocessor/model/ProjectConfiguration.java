@@ -9,7 +9,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ProjectConfiguration {
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectConfiguration.class);
+
     private List<TenantConfiguration> tenants;
 
     public ProjectConfiguration() {
