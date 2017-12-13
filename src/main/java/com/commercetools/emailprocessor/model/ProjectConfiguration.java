@@ -8,12 +8,13 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProjectConfiguration {
+public final class ProjectConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectConfiguration.class);
     private List<TenantConfiguration> tenants;
 
     public ProjectConfiguration() {
     }
+
 
     public ProjectConfiguration(@Nonnull final List<TenantConfiguration> currentTenants) {
         this.tenants = currentTenants;

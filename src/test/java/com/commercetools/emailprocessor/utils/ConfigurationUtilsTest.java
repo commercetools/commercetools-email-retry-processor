@@ -2,6 +2,7 @@ package com.commercetools.emailprocessor.utils;
 
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import org.junit.Test;
+
 import java.util.Optional;
 
 import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfigurationFromFile;
@@ -14,7 +15,7 @@ public class ConfigurationUtilsTest {
         final String resourceFilePath = ConfigurationUtilsTest.class.getClassLoader()
             .getResource("validProjectConfiguration.json").getFile();
         Optional<ProjectConfiguration> projectConfiguration = getConfigurationFromFile(resourceFilePath);
-        assertEquals(projectConfiguration.isPresent(), true);
+        assertEquals(true, projectConfiguration.isPresent());
     }
 
     @Test
