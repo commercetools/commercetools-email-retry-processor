@@ -47,7 +47,6 @@ public class EmailProcessor {
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
-    private List<NameValuePair> params;
 
     /**
      * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all chained post
@@ -91,7 +90,7 @@ public class EmailProcessor {
                     .collect(toList());
 
                 // join all the email processors
-                allOf(allTenants.toArray(new CompletableFuture[0])).toCompletableFuture().join();
+                allOf(allTenants.toArray(new CompletableFuture[0])).join();
 
                 client.close();
                 return statistics;
@@ -114,8 +113,6 @@ public class EmailProcessor {
     CompletableFuture<Integer> callApiEndpoint(@Nonnull final String customObjectId,
                                                @Nonnull final TenantConfiguration tenantConfiguration) {
         return CompletableFuture.supplyAsync(() -> {
-            CloseableHttpResponse response = null;
-            try {
                 final HttpPost httpPost = tenantConfiguration.getHttpPost();
                 final List<NameValuePair> params = new ArrayList<>();
                 try {
@@ -129,17 +126,8 @@ public class EmailProcessor {
                     LOG.error("Cannot trigger the enpoint", excepton);
                     return STATUS_UNPROCESS;
                 }
-            } finally {
-                if (response != null) {
-                    try {
-                        response.close();
-                    } catch (IOException exception) {
-                        LOG.error("Cannot close stream", exception);
-                    }
-                }
-            }
-        },
-        callApiThreadPool);
+            },
+            callApiThreadPool);
     }
 
     /**
