@@ -31,8 +31,8 @@ public class ConfigurationUtils {
     public static Optional<ProjectConfiguration> getConfigurationFromFile(@Nonnull final String resourcePath) {
         Optional<ProjectConfiguration> projectConfiguration = Optional.empty();
         try {
-            projectConfiguration = getConfigurationFromString(new String(Files.readAllBytes(Paths.get(resourcePath)), Charset
-                .defaultCharset()));
+            projectConfiguration = getConfigurationFromString(new String(Files.readAllBytes(Paths.get(resourcePath)),
+                Charset.defaultCharset()));
         } catch (IOException exception) {
             LOG.error(String.format("The File '%s' cannot be parsed", resourcePath), exception);
         }
@@ -46,7 +46,7 @@ public class ConfigurationUtils {
      * @return A Project configuration
      * @throws IOException When the configuration string is not parsable.
      */
-    public static Optional<ProjectConfiguration> getConfigurationFromString(final String ctpProjectConfig)  {
+    public static Optional<ProjectConfiguration> getConfigurationFromString(final String ctpProjectConfig) {
         ProjectConfiguration projectConfiguration = null;
         if (StringUtils.isNotBlank(ctpProjectConfig)) {
             final ObjectMapper objectMapper = new ObjectMapper();
@@ -55,7 +55,7 @@ public class ConfigurationUtils {
             try {
                 projectConfiguration = objectMapper.readValue(ctpProjectConfig, ProjectConfiguration.class);
 
-            if (projectConfiguration == null || !projectConfiguration.isValid()) {
+                if (projectConfiguration == null || !projectConfiguration.isValid()) {
                     if (projectConfiguration != null) {
                         projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
                             final String errorMessage = "[" + tenantConfiguration.getProjectKey() + "] "
@@ -80,7 +80,7 @@ public class ConfigurationUtils {
                     return Optional.empty();
                 }
             } catch (IOException exception) {
-                LOG.error("Cannot parse configuration",exception);
+                LOG.error("Cannot parse configuration", exception);
             }
         }
         return Optional.of(projectConfiguration);

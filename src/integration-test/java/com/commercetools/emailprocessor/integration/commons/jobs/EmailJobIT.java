@@ -66,7 +66,7 @@ public class EmailJobIT {
     @Test
     public void main_passValidConfigurations_shouldReturnCorrectExitCode() {
         exitRule.expectSystemExitWithStatus(0);
-        Main.main(null);
+        Main.main(new String[0]);
     }
 
     @Test
