@@ -23,13 +23,19 @@ public class Main {
      * @param args optional path to a configuration file.
      */
     public static void main(final String[] args) {
-        Optional<ProjectConfiguration> projectConfigurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
-            : getConfigurationFromEnvVar();
-        if (!projectConfigurationOpt.isPresent()) {
-            LOGGER.error("The project configuration cannot be loaded");
-        }
-        projectConfigurationOpt.ifPresent(config -> process(config).toCompletableFuture().join()
-            .forEach(statistic -> statistic.print(LOGGER)));
+        final Optional<ProjectConfiguration> projectConfigurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
+                : getConfigurationFromEnvVar();
 
+        final Integer exitStatus = projectConfigurationOpt.map(config -> {
+            process(config)
+                    .thenAccept(statistics -> statistics.forEach(statistic -> statistic.print(LOGGER)))
+                    .toCompletableFuture().join();
+            return 0;
+        }).orElseGet(() -> {
+            LOGGER.error("The project configuration cannot be loaded");
+            return 1;
+        });
+
+        System.exit(exitStatus);
     }
 }
