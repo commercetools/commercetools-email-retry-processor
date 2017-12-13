@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class stEmailJobIT {
+public class EmailJobIT {
     private static final Logger LOG = LoggerFactory.getLogger(EmailJobIT.class);
     private static final String HTTPBIN_DOMAIN = "https://httpbin.org/status/";
     @Rule

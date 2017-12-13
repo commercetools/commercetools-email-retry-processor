@@ -34,7 +34,10 @@ import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDI
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_CODE_SUCCESS;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -214,16 +217,16 @@ public class EmailProcessorTest {
     public void doPost_200TimesInParallel() throws Exception {
         EmailProcessor emailProcessor = new EmailProcessor();
         IntStream.range(0, 200)
-                .parallel()
-                .map(i -> {
-                    try {
-                        return emailProcessor.doPost(HttpClients.createDefault(), new HttpPost("http://httpbin.org/post"), "testKey");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    return 400;
-                })
-                .forEach(response -> assertEquals(response, 200));
+            .parallel()
+            .map(i -> {
+                try {
+                    return emailProcessor.doPost(HttpClients.createDefault(), new HttpPost("http://httpbin.org/post"),
+                        "testKey");
+                } catch (IOException exeception) {
+                    exeception.printStackTrace();
+                }
+                return 400;
+            })
+            .forEach(response -> assertEquals(response, 200));
     }
 }

@@ -113,21 +113,20 @@ public class EmailProcessor {
     CompletableFuture<Integer> callApiEndpoint(@Nonnull final String customObjectId,
                                                @Nonnull final TenantConfiguration tenantConfiguration) {
         return CompletableFuture.supplyAsync(() -> {
-                final HttpPost httpPost = tenantConfiguration.getHttpPost();
-                final List<NameValuePair> params = new ArrayList<>();
-                try {
-                    final String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
-                        Cipher.ENCRYPT_MODE);
-                    params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
-                    params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
-                    httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
-                    return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
-                } catch (Exception excepton) {
-                    LOG.error("Cannot trigger the enpoint", excepton);
-                    return STATUS_UNPROCESS;
-                }
-            },
-            callApiThreadPool);
+            final HttpPost httpPost = tenantConfiguration.getHttpPost();
+            final List<NameValuePair> params = new ArrayList<>();
+            try {
+                final String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
+                    Cipher.ENCRYPT_MODE);
+                params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
+                params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
+                httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
+                return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
+            } catch (Exception excepton) {
+                LOG.error("Cannot trigger the enpoint", excepton);
+                return STATUS_UNPROCESS;
+            }
+        }, callApiThreadPool);
     }
 
     /**
@@ -140,7 +139,7 @@ public class EmailProcessor {
      * @throws IOException when the post request fails
      */
     int doPost(final CloseableHttpClient httpClient, final HttpPost httpPost, final String projectKey)
-            throws IOException {
+        throws IOException {
         try (final CloseableHttpResponse response = httpClient.execute(httpPost)) {
             if (response.getStatusLine() != null) {
                 return response.getStatusLine().getStatusCode();
@@ -160,7 +159,7 @@ public class EmailProcessor {
      * @return modified value or null if something went wrong.
      */
     String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode)
-            throws GeneralSecurityException {
+        throws GeneralSecurityException {
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
         final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
         final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
