@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.stream.Collectors.toList;
@@ -46,6 +48,12 @@ public class EmailProcessor {
     static final String PARAM_TENANT_ID = "tenantid";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
     private List<NameValuePair> params;
+
+    /**
+     * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all chained post
+     * processor. For now limited for up to 8 parallel requests.
+     */
+    private static final Executor callApiThreadPool = Executors.newWorkStealingPool(8);
 
     public EmailProcessor() {
     }
@@ -130,7 +138,8 @@ public class EmailProcessor {
                     }
                 }
             }
-        });
+        },
+        callApiThreadPool);
     }
 
     /**
@@ -161,8 +170,8 @@ public class EmailProcessor {
      * @param cipherMode ciphermode
      * @return modified value or null if something went wrong.
      */
-    String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode) throws
-        GeneralSecurityException {
+    String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode)
+            throws GeneralSecurityException {
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
         final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
         final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
