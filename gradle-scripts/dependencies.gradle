@@ -5,4 +5,5 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "junit:junit:${jUnitVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testCompile "com.github.stefanbirkner:system-rules:${systemRulesVersion}"
 }

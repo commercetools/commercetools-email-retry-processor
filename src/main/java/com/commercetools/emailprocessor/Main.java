@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 import static com.commercetools.emailprocessor.jobs.EmailJob.process;
-import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfigurationFromEnvVar;
 import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfigurationFromFile;
+import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfigurationFromString;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 
 public class Main {
 
+    public static final String CTP_PROJECT_CONFIG = "CTP_PROJECT_CONFIG";
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     /**
@@ -23,13 +24,12 @@ public class Main {
      * @param args optional path to a configuration file.
      */
     public static void main(final String[] args) {
-        final Optional<ProjectConfiguration> projectConfigurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
-                : getConfigurationFromEnvVar();
-
-        final Integer exitStatus = projectConfigurationOpt.map(config -> {
+        final Optional<ProjectConfiguration> configurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
+            : getConfigurationFromString(System.getenv(CTP_PROJECT_CONFIG));
+        final Integer exitStatus = configurationOpt.map(config -> {
             process(config)
-                    .thenAccept(statistics -> statistics.forEach(statistic -> statistic.print(LOGGER)))
-                    .toCompletableFuture().join();
+                .thenAccept(statistics -> statistics.forEach(statistic -> statistic.print(LOGGER)))
+                .toCompletableFuture().join();
             return 0;
         }).orElseGet(() -> {
             LOGGER.error("The project configuration cannot be loaded");

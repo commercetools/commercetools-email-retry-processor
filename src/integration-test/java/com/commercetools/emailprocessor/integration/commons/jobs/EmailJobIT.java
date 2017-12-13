@@ -1,11 +1,11 @@
 package com.commercetools.emailprocessor.integration.commons.jobs;
 
+import com.commercetools.emailprocessor.Main;
 import com.commercetools.emailprocessor.email.EmailProcessor;
 import com.commercetools.emailprocessor.jobs.EmailJob;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
-import com.commercetools.emailprocessor.utils.ConfigurationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereRequest;
@@ -16,7 +16,9 @@ import io.sphere.sdk.customobjects.commands.CustomObjectUpsertCommand;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
 import io.sphere.sdk.json.SphereJsonUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.commercetools.emailprocessor.Main.CTP_PROJECT_CONFIG;
+import static com.commercetools.emailprocessor.utils.ConfigurationUtils.getConfigurationFromString;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +39,8 @@ import static org.junit.Assert.assertEquals;
 public class EmailJobIT {
     private static final Logger LOG = LoggerFactory.getLogger(EmailJobIT.class);
     private static final String HTTPBIN_DOMAIN = "https://httpbin.org/status/";
+    @Rule
+    public final ExpectedSystemExit exitRule = ExpectedSystemExit.none();
     private SphereClient ctpClient;
     private ProjectConfiguration configuration = null;
 
@@ -43,7 +49,7 @@ public class EmailJobIT {
      */
     @Before
     public void setup() {
-        ConfigurationUtils.getConfigurationFromEnvVar().ifPresent(config -> {
+        getConfigurationFromString(System.getenv(CTP_PROJECT_CONFIG)).ifPresent(config -> {
             configuration = config;
         });
         ctpClient = configuration.getTenants().get(0).getSphereClient();
@@ -57,6 +63,19 @@ public class EmailJobIT {
         assertThat(configuration.isValid()).isTrue();
     }
 
+    @Test
+    public void main_passValidConfigurations_shouldReturnCorrectExitCode() {
+        exitRule.expectSystemExitWithStatus(0);
+        Main.main(null);
+    }
+
+    @Test
+    public void main_passInValidValidConfigurations_shouldReturnCorrectExitCode() {
+        exitRule.expectSystemExitWithStatus(1);
+        String[] args = new String[1];
+        args[0] = EmailJobIT.class.getClassLoader().getResource("invalidProjectConfiguration.json").getFile();
+        Main.main(args);
+    }
     @Test
     public void process_withASuccessfulEmail_shouldReturnNoError() {
         createCustomObject(EmailProcessor.STATUS_PENDING, "1");
