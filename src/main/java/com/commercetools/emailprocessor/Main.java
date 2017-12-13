@@ -24,6 +24,7 @@ public class Main {
      * @param args optional path to a configuration file.
      */
     public static void main(final String[] args) {
+<<<<<<< HEAD
         final Optional<ProjectConfiguration> configurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
             : getConfigurationFromString(System.getenv(CTP_PROJECT_CONFIG));
         final Integer exitStatus = configurationOpt.map(config -> {
@@ -32,6 +33,11 @@ public class Main {
                 .toCompletableFuture().join();
             return 0;
         }).orElseGet(() -> {
+=======
+        Optional<ProjectConfiguration> projectConfigurationOpt = !isEmpty(args) ? getConfigurationFromFile(args[0])
+            : getConfigurationFromString(System.getenv(CTP_PROJECT_CONFIG));
+        if (!projectConfigurationOpt.isPresent()) {
+>>>>>>> Simplify configuration utils.
             LOGGER.error("The project configuration cannot be loaded");
             return 1;
         });
