@@ -14,7 +14,7 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
 after_success:
-#- bash <(curl -s https://codecov.io/bash)
+st- bash <(curl -s https://codecov.io/bash)
 - ./travis-publish.sh || travis_terminate 1
 notifications:
   hipchat:
