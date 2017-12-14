@@ -2,7 +2,7 @@
 
 set -e
 
-export REPO="ctcommons/email-processor"
+export REPO="commercetools/commercetools-email-retry-processor"
 export COMMIT=${TRAVIS_COMMIT::8}
 export BASE_TAG="${REPO}:${COMMIT}"
 export DOCKER_TAG=`if [ "$TRAVIS_BRANCH" == "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then echo "latest"; else echo ${TRAVIS_BRANCH//\//-} ; fi`
