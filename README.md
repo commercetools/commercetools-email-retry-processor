@@ -5,7 +5,7 @@
  The api endpoint should contain the email delivery logic.
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
-
+[![codecov](https://codecov.io/gh/commercetools/commercetools-email-retry-processor/branch/create_cronjob/graph/badge.svg)](https://codecov.io/gh/commercetools/commercetools-email-retry-processor)
 
 ## Prerequisites
 
