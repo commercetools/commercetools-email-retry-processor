@@ -32,7 +32,7 @@ public class ConfigurationUtils {
         Optional<ProjectConfiguration> projectConfiguration = Optional.empty();
         try {
             projectConfiguration = getConfigurationFromString(new String(Files.readAllBytes(Paths.get(resourcePath)),
-                Charset.defaultCharset()));
+                    Charset.defaultCharset()));
         } catch (IOException exception) {
             LOG.error(String.format("The File '%s' cannot be parsed", resourcePath), exception);
         }
@@ -46,7 +46,7 @@ public class ConfigurationUtils {
      * @return A Project configuration
      * @throws IOException When the configuration string is not parsable.
      */
-    public static Optional<ProjectConfiguration> getConfigurationFromString(final String ctpProjectConfig) {
+    public static Optional<ProjectConfiguration> getConfigurationFromString(@Nonnull final String ctpProjectConfig) {
         ProjectConfiguration projectConfiguration = null;
         if (StringUtils.isNotBlank(ctpProjectConfig)) {
             final ObjectMapper objectMapper = new ObjectMapper();
@@ -59,7 +59,7 @@ public class ConfigurationUtils {
                     if (projectConfiguration != null) {
                         projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
                             final String errorMessage = "[" + tenantConfiguration.getProjectKey() + "] "
-                                + "Please define the missing Property '%s'";
+                                    + "Please define the missing Property '%s'";
                             if (isBlank(tenantConfiguration.getProjectKey())) {
                                 LOG.error(String.format(errorMessage, "projectKey"));
                             }
@@ -82,7 +82,10 @@ public class ConfigurationUtils {
             } catch (IOException exception) {
                 LOG.error("Cannot parse configuration", exception);
             }
+        } else {
+            LOG.info("The require projectconfiguration cannot be found");
         }
-        return Optional.of(projectConfiguration);
+
+        return Optional.ofNullable(projectConfiguration);
     }
 }
