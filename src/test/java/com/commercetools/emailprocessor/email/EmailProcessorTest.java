@@ -77,7 +77,7 @@ public class EmailProcessorTest {
         assertEquals(statistic.getTemporarilyErrors(), 1);
         assertEquals(statistic.getPermanentErrors(), 1);
 
-        customObjects = new ArrayList<CustomObject<JsonNode>>();
+        customObjects = new ArrayList<>();
         customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", STATUS_PENDING, Statistics.RESPONSE_ERROR_TEMP));
@@ -89,7 +89,7 @@ public class EmailProcessorTest {
         assertEquals(statistic.getTemporarilyErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
 
-        customObjects = new ArrayList<CustomObject<JsonNode>>();
+        customObjects = new ArrayList<>();
         customObjects.add(createCustomObject("1", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("3", STATUS_PENDING, RESPONSE_CODE_SUCCESS));
@@ -142,7 +142,6 @@ public class EmailProcessorTest {
             .doPost(any(CloseableHttpClient.class), any(HttpPost.class), Mockito.anyString());
         Mockito.doCallRealMethod().when(emailProcessor)
             .callApiEndpoint(Mockito.anyString(), any(TenantConfiguration.class));
-        final int httpStatus = RESPONSE_CODE_SUCCESS;
         final String id = "123";
         final String tenantId = "testTenant";
         final String url = "https://httpbin.org/status/" + RESPONSE_CODE_SUCCESS;
@@ -160,7 +159,7 @@ public class EmailProcessorTest {
         params.add(new BasicNameValuePair(EmailProcessor.PARAM_TENANT_ID, configuration.getProjectKey()));
         final UrlEncodedFormEntity expectedPostEntity = new UrlEncodedFormEntity(params, Charset.defaultCharset());
 
-        assertEquals(httpStatus, result.intValue());
+        assertEquals(RESPONSE_CODE_SUCCESS, result.intValue());
         assertEquals(url, httpPost.getURI().toString());
         assertEquals(IOUtils.toString(expectedPostEntity.getContent(), Charset.defaultCharset()),
             IOUtils.toString(httpPost.getEntity().getContent(), Charset.defaultCharset()));
