@@ -47,7 +47,7 @@ The configuration file should contain the following "JSON-SNIPPET".
 
 ## Develop the application   
 
- Build the applicatiom and run tests
+ Build the application and run tests
    ```bash
    ./gradlew clean build
    ```
