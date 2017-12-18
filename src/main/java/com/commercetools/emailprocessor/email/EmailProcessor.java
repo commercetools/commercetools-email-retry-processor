@@ -37,12 +37,11 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class EmailProcessor {
-
     public static final String CONTAINER_ID = "unprocessedEmail";
-    public static final String EMAIL_PROPERTY_STATUS = "status";
     public static final String STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
-    public static final String ENCRYPTION_ALGORITHM = "Blowfish";
+    private static final String EMAIL_PROPERTY_STATUS = "status";
+    private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
