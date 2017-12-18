@@ -24,19 +24,30 @@ public class Statistics {
 
     public Statistics(final String tenant) {
         tenantId = tenant;
-        globalError = 1;
+    }
+
+
+    /**
+     * Generates a statistic object for the error case.
+     * @param tenant Tenant, to which this static belongs
+     * @return Statistic, with global error set to 1.
+     */
+    public static Statistics ofError(final String tenant) {
+        Statistics statistics = new Statistics(tenant);
+        statistics.globalError = 1;
+        return statistics;
     }
 
     public String getTenantId() {
         return tenantId;
     }
 
-    public int getGlobalError() {
-        return globalError;
-    }
-
     public void setTenantId(final String tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public int getGlobalError() {
+        return globalError;
     }
 
     public int getProcessed() {
@@ -63,8 +74,8 @@ public class Statistics {
      * Update the statistics depending on the httpStatusCode.
      *
      * <p>This method is <i>synchronized</i> to allow update tenant statistic concurrently in parallel threads.
-     * Considering it is very simple method and it is called rarely - no need to optimize concurrency more than it is.
-     *
+     * Considering it is very simple method and it is called rarely -
+     * no need to optimize concurrency more than it is.</p>
      * @param httpStatusCode returned http status code of the api call.
      */
     @JsonIgnore
@@ -103,10 +114,12 @@ public class Statistics {
      */
     @JsonIgnore
     public void print(final Logger logger) {
-        try {
-            logger.info(getStatisticsAsJSONString());
-        } catch (JsonProcessingException exception) {
-            logger.error("Cannot create json statistics.", exception);
+        if (processed > 0) {
+            try {
+                logger.info(getStatisticsAsJSONString());
+            } catch (JsonProcessingException exception) {
+                logger.error("Cannot create json statistics.", exception);
+            }
         }
     }
 }

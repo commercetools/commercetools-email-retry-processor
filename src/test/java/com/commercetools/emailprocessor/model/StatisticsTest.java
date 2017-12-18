@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 public class StatisticsTest {
 
     private Statistics statistics = null;
+    private String tenant = "anyTenant";
 
     @Before
     public void setUp() throws Exception {
@@ -15,7 +16,7 @@ public class StatisticsTest {
     }
 
     @Test
-    public void update() throws Exception {
+    public void update_differentResponseCodesAreProvided_shouldShowCorrectStatistic() throws Exception {
         statistics.update(Statistics.RESPONSE_CODE_SUCCESS);
         statistics.update(Statistics.RESPONSE_CODE_SUCCESS);
         statistics.update(Statistics.RESPONSE_ERROR_TEMP);
@@ -33,4 +34,17 @@ public class StatisticsTest {
         assertEquals(statistics.getProcessed(), 8);
         assertEquals(statistics.getNotProcessed(), 2);
     }
+
+    @Test
+    public void ofError_isCalledForTenant_shouldShowCorrectStatstic() throws Exception {
+        statistics = Statistics.ofError(tenant);
+        assertEquals(statistics.getTenantId(), tenant);
+        assertEquals(statistics.getSentSuccessfully(), 0);
+        assertEquals(statistics.getPermanentErrors(), 0);
+        assertEquals(statistics.getTemporarilyErrors(), 0);
+        assertEquals(statistics.getProcessed(), 0);
+        assertEquals(statistics.getNotProcessed(), 0);
+        assertEquals(statistics.getGlobalError(), 1);
+    }
+
 }

@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.allOf;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.toList;
 
 
@@ -31,21 +30,22 @@ public class EmailJob {
 
         final EmailProcessor emailProcessor = new EmailProcessor();
         final List<CompletableFuture<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
-            .parallelStream()
-            .map(tenantConfiguration -> {
-                    try {
-                        return emailProcessor.processEmails(tenantConfiguration).toCompletableFuture();
-                    } catch (Exception exception) {
-                        LOG.error(String.format("Error in email processing for tenant %s.",
-                            tenantConfiguration.getProjectKey()), exception);
-                    }
-                    return completedFuture(new Statistics(tenantConfiguration.getProjectKey()));
-                    }
-            )
-            .collect(toList());
+                .parallelStream()
+                .map(tenantConfiguration -> {
+                            try {
+                                return emailProcessor.processEmails(tenantConfiguration).toCompletableFuture();
+                            } catch (Exception exception) {
+                                LOG.error(String.format("Error in email processing for tenant %s.",
+                                        tenantConfiguration.getProjectKey()), exception);
+                            }
+                            return CompletableFuture.completedFuture(Statistics.ofError(tenantConfiguration
+                                    .getProjectKey()));
+                        }
+                )
+                .collect(toList());
         return allOf(listOfStageOfStatistics.toArray(new CompletableFuture[listOfStageOfStatistics.size()]))
-            .thenApply(ignoreVoid -> listOfStageOfStatistics.stream()
-                .map(CompletableFuture::join)
-                .collect(toList()));
+                .thenApply(ignoreVoid -> listOfStageOfStatistics.stream()
+                        .map(CompletableFuture::join)
+                        .collect(toList()));
     }
 }
