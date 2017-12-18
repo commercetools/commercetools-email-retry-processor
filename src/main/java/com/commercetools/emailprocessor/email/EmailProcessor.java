@@ -42,7 +42,6 @@ public class EmailProcessor {
     public static final String EMAIL_PROPERTY_STATUS = "status";
     public static final String STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
-    public static final int STATUS_UNPROCESS = 0;
     public static final String ENCRYPTION_ALGORITHM = "Blowfish";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
@@ -84,7 +83,7 @@ public class EmailProcessor {
                         .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig)
                             .thenAccept(statistics::update))
                         .orElseGet(() -> {
-                            statistics.update(STATUS_UNPROCESS);
+                            statistics.update(Statistics.RESPONSE_IGNORED);
                             return CompletableFuture.completedFuture(null);
                         }))
                     .collect(toList());
@@ -124,7 +123,7 @@ public class EmailProcessor {
                 return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
             } catch (Exception excepton) {
                 LOG.error("Cannot trigger the enpoint", excepton);
-                return STATUS_UNPROCESS;
+                return Statistics.RESPONSE_IGNORED;
             }
         }, callApiThreadPool);
     }
