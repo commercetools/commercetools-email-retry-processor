@@ -90,7 +90,7 @@ public class EmailJobIT {
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
@@ -108,7 +108,7 @@ public class EmailJobIT {
         assertThat(statistic.getProcessed()).isEqualTo(3);
         assertThat(statistic.getNotProcessed()).isEqualTo(0);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(3);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
@@ -126,7 +126,7 @@ public class EmailJobIT {
         assertThat(statistic.getNotProcessed()).isEqualTo(3);
         assertThat(statistic.getProcessed()).isEqualTo(0);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
@@ -143,7 +143,7 @@ public class EmailJobIT {
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);
     }
 
@@ -160,7 +160,7 @@ public class EmailJobIT {
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(2);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(2);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
@@ -181,14 +181,14 @@ public class EmailJobIT {
         assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
 
         statistic = statistics.get(1);
         assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
-        assertThat(statistic.getTemporarilyErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);
     }
 

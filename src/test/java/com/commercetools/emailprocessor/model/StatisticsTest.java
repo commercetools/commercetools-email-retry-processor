@@ -30,7 +30,7 @@ public class StatisticsTest {
 
         assertEquals(statistics.getSentSuccessfully(), 3);
         assertEquals(statistics.getPermanentErrors(), 1);
-        assertEquals(statistics.getTemporarilyErrors(), 4);
+        assertEquals(statistics.getTemporaryErrors(), 4);
         assertEquals(statistics.getProcessed(), 8);
         assertEquals(statistics.getNotProcessed(), 2);
     }
@@ -41,7 +41,7 @@ public class StatisticsTest {
         assertEquals(statistics.getTenantId(), tenant);
         assertEquals(statistics.getSentSuccessfully(), 0);
         assertEquals(statistics.getPermanentErrors(), 0);
-        assertEquals(statistics.getTemporarilyErrors(), 0);
+        assertEquals(statistics.getTemporaryErrors(), 0);
         assertEquals(statistics.getProcessed(), 0);
         assertEquals(statistics.getNotProcessed(), 0);
         assertEquals(statistics.getGlobalError(), 1);

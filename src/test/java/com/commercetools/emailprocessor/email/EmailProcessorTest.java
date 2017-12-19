@@ -74,7 +74,7 @@ public class EmailProcessorTest {
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 3);
         assertEquals(statistic.getSentSuccessfully(), 1);
-        assertEquals(statistic.getTemporarilyErrors(), 1);
+        assertEquals(statistic.getTemporaryErrors(), 1);
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<>();
@@ -86,7 +86,7 @@ public class EmailProcessorTest {
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 4);
         assertEquals(statistic.getSentSuccessfully(), 1);
-        assertEquals(statistic.getTemporarilyErrors(), 2);
+        assertEquals(statistic.getTemporaryErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
 
         customObjects = new ArrayList<>();
@@ -97,7 +97,7 @@ public class EmailProcessorTest {
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 3);
         assertEquals(statistic.getSentSuccessfully(), 3);
-        assertEquals(statistic.getTemporarilyErrors(), 0);
+        assertEquals(statistic.getTemporaryErrors(), 0);
         assertEquals(statistic.getPermanentErrors(), 0);
     }
 
@@ -112,7 +112,7 @@ public class EmailProcessorTest {
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 4);
         assertEquals(statistic.getSentSuccessfully(), 1);
-        assertEquals(statistic.getTemporarilyErrors(), 2);
+        assertEquals(statistic.getTemporaryErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
     }
 
@@ -127,13 +127,13 @@ public class EmailProcessorTest {
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 0);
         assertEquals(statistic.getSentSuccessfully(), 0);
-        assertEquals(statistic.getTemporarilyErrors(), 0);
+        assertEquals(statistic.getTemporaryErrors(), 0);
 
         tenantConfiguration.setClient(mockSphereClient(Collections.emptyList()));
         statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
         assertEquals(statistic.getProcessed(), 0);
         assertEquals(statistic.getSentSuccessfully(), 0);
-        assertEquals(statistic.getTemporarilyErrors(), 0);
+        assertEquals(statistic.getTemporaryErrors(), 0);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class EmailProcessorTest {
     private SphereClient mockSphereClient(final List<CustomObject<JsonNode>> customObjects) {
         SphereClient client = mock(SphereClient.class);
         final PagedQueryResult<CustomObject<JsonNode>> queryResult = PagedQueryResult.of(customObjects);
-        when(client.execute(isA(CustomObjectQuery.class))).thenReturn(CompletableFuture.completedFuture(queryResult));
+        when(client.execute(any(CustomObjectQuery.class))).thenReturn(CompletableFuture.completedFuture(queryResult));
         return client;
     }
 

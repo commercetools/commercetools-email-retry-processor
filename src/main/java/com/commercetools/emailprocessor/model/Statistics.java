@@ -17,7 +17,7 @@ public class Statistics {
     private int notProcessed = 0;
     private int sentSuccessfully = 0;
     private int permanentErrors = 0;
-    private int temporarilyErrors = 0;
+    private int temporaryErrors = 0;
 
     public Statistics() {
     }
@@ -62,8 +62,8 @@ public class Statistics {
         return permanentErrors;
     }
 
-    public int getTemporarilyErrors() {
-        return temporarilyErrors;
+    public int getTemporaryErrors() {
+        return temporaryErrors;
     }
 
     public int getNotProcessed() {
@@ -86,7 +86,7 @@ public class Statistics {
                 sentSuccessfully++;
                 break;
             case RESPONSE_ERROR_TEMP:
-                temporarilyErrors++;
+                temporaryErrors++;
                 break;
             case RESPONSE_ERROR_PERMANENT:
                 permanentErrors++;
