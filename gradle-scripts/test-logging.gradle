@@ -1,0 +1,15 @@
+tasks.withType(Test) {
+    reports.html.setDestination(file("${reporting.baseDir}/${name}"))
+    testLogging {
+        // set options for log level LIFECYCLE
+        events "passed", "skipped", "failed"
+        displayGranularity 2
+        exceptionFormat "full"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+        maxGranularity 3
+        minGranularity 0
+        showStandardStreams false
+    }
+}

@@ -1,0 +1,17 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+shadowJar {
+    baseName = 'email-processor'
+    classifier = null
+    version = null
+    manifest {
+        attributes 'Implementation-Title': rootProject.name
+        attributes 'Implementation-Version': rootProject.version
+        attributes 'Description': rootProject.description
+    }
+    doLast {
+        println "Packaged JAR to ${destinationDir}/${archiveName}"
+    }
+}
+
+// Disable 'jar' task which builds an unneeded shallow jar (without all dependencies).
+jar.enabled = false
