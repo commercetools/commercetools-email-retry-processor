@@ -40,10 +40,10 @@ public class EmailProcessor {
     public static final String CONTAINER_ID = "unprocessedEmail";
     public static final String STATUS_PENDING = "pending";
     public static final String EMAIL_STATUS_ERROR = "error";
-    private static final String EMAIL_PROPERTY_STATUS = "status";
-    private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
+    private static final String EMAIL_PROPERTY_STATUS = "status";
+    private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
     /**
@@ -63,42 +63,44 @@ public class EmailProcessor {
      */
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
         SphereClient client = tenantConfig.getSphereClient();
-        CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID).withLimit(100L)
-            .withSort(s -> s.createdAt().sort().asc());
+        CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID)
+                .withLimit(tenantConfig.getQueryLimit())
+                .withSort(s -> s.createdAt().sort().asc());
         return client
-            .execute(query)
-            .thenApply(response -> {
-                Statistics statistics = new Statistics(tenantConfig.getProjectKey());
-                if (response.getTotal() < 1) {
-                    LOG.info(String.format("No email to process for tenant %s", tenantConfig
-                        .getProjectKey()));
-                }
-                List<CompletableFuture<Void>> allTenants = response.getResults().stream()
-                    .map(customObject -> Optional.ofNullable(customObject)
-                        .map(CustomObject::getValue)
-                        .map(node -> node.get(EMAIL_PROPERTY_STATUS))
-                        .map(JsonNode::asText)
-                        .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig.isProcessAll())))
-                        .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig)
-                            .thenAccept(statistics::update))
-                        .orElseGet(() -> {
-                            statistics.update(Statistics.RESPONSE_IGNORED);
-                            return CompletableFuture.completedFuture(null);
-                        }))
-                    .collect(toList());
+                .execute(query)
+                .thenApply(response -> {
+                    Statistics statistics = new Statistics(tenantConfig.getProjectKey());
+                    if (response.getTotal() < 1) {
+                        LOG.info(String.format("No email to process for tenant %s", tenantConfig
+                                .getProjectKey()));
+                    }
+                    List<CompletableFuture<Void>> allTenants = response.getResults().stream()
+                            .map(customObject -> Optional.ofNullable(customObject)
+                                    .map(CustomObject::getValue)
+                                    .map(node -> node.get(EMAIL_PROPERTY_STATUS))
+                                    .map(JsonNode::asText)
+                                    .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig
+                                            .isProcessAll())))
+                                    .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig)
+                                            .thenAccept(statistics::update))
+                                    .orElseGet(() -> {
+                                        statistics.update(Statistics.RESPONSE_IGNORED);
+                                        return CompletableFuture.completedFuture(null);
+                                    }))
+                            .collect(toList());
 
-                // join all the email processors
-                allOf(allTenants.toArray(new CompletableFuture[0])).join();
+                    // join all the email processors
+                    allOf(allTenants.toArray(new CompletableFuture[0])).join();
 
-                client.close();
-                return statistics;
-            })
-            .exceptionally(exception -> {
-                LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
-                    exception);
-                client.close();
-                return Statistics.ofError(tenantConfig.getProjectKey());
-            });
+                    client.close();
+                    return statistics;
+                })
+                .exceptionally(exception -> {
+                    LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
+                            exception);
+                    client.close();
+                    return Statistics.ofError(tenantConfig.getProjectKey());
+                });
     }
 
     /**
@@ -115,7 +117,7 @@ public class EmailProcessor {
             final List<NameValuePair> params = new ArrayList<>();
             try {
                 final String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
-                    Cipher.ENCRYPT_MODE);
+                        Cipher.ENCRYPT_MODE);
                 params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
                 params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
                 httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
@@ -137,7 +139,7 @@ public class EmailProcessor {
      * @throws IOException when the post request fails
      */
     int doPost(final CloseableHttpClient httpClient, final HttpPost httpPost, final String projectKey)
-        throws IOException {
+            throws IOException {
         try (final CloseableHttpResponse response = httpClient.execute(httpPost)) {
             if (response.getStatusLine() != null) {
                 return response.getStatusLine().getStatusCode();
@@ -157,7 +159,7 @@ public class EmailProcessor {
      * @return modified value or null if something went wrong.
      */
     String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode)
-        throws GeneralSecurityException {
+            throws GeneralSecurityException {
         final byte[] keyData = key.getBytes(Charset.forName("UTF-8"));
         final SecretKeySpec ks = new SecretKeySpec(keyData, ENCRYPTION_ALGORITHM);
         final Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);

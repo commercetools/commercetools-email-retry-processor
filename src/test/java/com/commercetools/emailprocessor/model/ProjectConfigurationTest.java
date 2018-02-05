@@ -19,14 +19,16 @@ public class ProjectConfigurationTest {
     @Test
     public void configurationShouldBeValid() throws Exception {
         ProjectConfiguration configuration = new ProjectConfiguration(Collections.singletonList(
-            new TenantConfiguration(projectKey, clientId, clientSecret, endPointUrl, encryptionKey, true)));
+            new TenantConfiguration(projectKey, clientId, clientSecret, endPointUrl, encryptionKey, true,100L)));
         assertEquals(configuration.isValid(), true);
 
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
-            clientSecret, endPointUrl, encryptionKey, true));
+            clientSecret, endPointUrl, encryptionKey, true,100L));
         tenantList.add(1, new TenantConfiguration(projectKey, clientId,
-            clientSecret, endPointUrl, encryptionKey, false));;
+            clientSecret, endPointUrl, encryptionKey, false,100L));
+        tenantList.add(1, new TenantConfiguration(projectKey, clientId,
+                clientSecret, endPointUrl, encryptionKey, false,null));
         configuration = new ProjectConfiguration(tenantList);
         assertEquals(configuration.isValid(), true);
     }
@@ -37,26 +39,26 @@ public class ProjectConfigurationTest {
         assertEquals(false, configuration.isValid());
 
         configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
-            clientSecret, "", encryptionKey,  true)));
+            clientSecret, "", encryptionKey,  true,100L)));
         assertEquals(configuration.isValid(), false);
 
         configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, clientId,
-            "", endPointUrl, encryptionKey, true)));
+            "", endPointUrl, encryptionKey, true ,100L)));
         assertEquals(configuration.isValid(), false);
 
         configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration(projectKey, "",
-            clientSecret, endPointUrl, encryptionKey, true)));
+            clientSecret, endPointUrl, encryptionKey, true,100L)));
         assertEquals(configuration.isValid(), false);
 
         configuration = new ProjectConfiguration(Collections.singletonList(new TenantConfiguration("", clientId,
-            clientSecret, endPointUrl, encryptionKey, true)));
+            clientSecret, endPointUrl, encryptionKey, true,100L)));
         assertEquals(configuration.isValid(), false);
 
         List<TenantConfiguration> tenantList = new ArrayList<TenantConfiguration>();
         tenantList.add(0, new TenantConfiguration(projectKey, clientId,
-            clientSecret, "", encryptionKey, false));
+            clientSecret, "", encryptionKey, false,100L));
         tenantList.add(1, new TenantConfiguration(projectKey, clientId,
-            clientSecret, endPointUrl, "", false));
+            clientSecret, endPointUrl, "", false,100L));
         configuration = new ProjectConfiguration(tenantList);
         assertEquals(configuration.isValid(), false);
     }

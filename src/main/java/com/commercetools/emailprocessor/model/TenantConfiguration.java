@@ -24,7 +24,7 @@ public class TenantConfiguration {
     private String endpointUrl;
     private String encryptionKey;
     private boolean processAll = false;
-
+    private Long queryLimit = 100L;
     @JsonIgnore
     private HttpPost httpPost;
 
@@ -33,6 +33,7 @@ public class TenantConfiguration {
     }
 
     // TODO: only for tests now, should be removed then
+
     /**
      * Creates a configuration of a tenant.
      *
@@ -46,13 +47,15 @@ public class TenantConfiguration {
                         @Nonnull final String clientSecret,
                         @Nonnull final String endpointUrl,
                         @Nonnull final String encryptionKey,
-                        boolean all) {
+                        boolean all,
+                        final Long limit) {
         this.projectKey = projectKey;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.endpointUrl = endpointUrl;
         this.encryptionKey = encryptionKey;
         processAll = all;
+        queryLimit = limit;
     }
 
     @JsonCreator
@@ -61,7 +64,7 @@ public class TenantConfiguration {
                         @JsonProperty("clientSecret") @Nonnull final String clientSecret,
                         @JsonProperty("endpointUrl") @Nonnull final String endpointUrl,
                         @JsonProperty("encryptionKey") @Nonnull final String encryptionKey) {
-        this(projectKey, clientId, clientSecret, endpointUrl, encryptionKey, false);
+        this(projectKey, clientId, clientSecret, endpointUrl, encryptionKey, false, 100L);
     }
 
     public String getProjectKey() {
@@ -116,6 +119,14 @@ public class TenantConfiguration {
         this.processAll = processAll;
     }
 
+    public Long getQueryLimit() {
+        return queryLimit;
+    }
+
+    public void setQueryLimit(final Long queryLimit) {
+        this.queryLimit = queryLimit;
+    }
+
     /**
      * Validates the current tenant configuration.
      *
@@ -123,7 +134,7 @@ public class TenantConfiguration {
      */
     boolean isValid() {
         return isNotBlank(projectKey) && isNotBlank(clientId) && isNotBlank(clientSecret) && isNotBlank(endpointUrl)
-            && isNotBlank(encryptionKey);
+                && isNotBlank(encryptionKey);
     }
 
     /**

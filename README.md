@@ -38,7 +38,9 @@ The configuration file should contain the following "JSON-SNIPPET".
              "clientSecret": "<ctp project client secret>",
              "endpointUrl": "<endpoint url>",
              "encryptionKey" : "<blowfish encryptionkey, which is used to encrypt the email object id before passing it the post request>",
-             "processAll" : true|false <if true, all email objects (pending/error) are processed, otherwise only "pending" email objects will be processed (Default: false).>
+             "processAll" : true|false <if true, all email objects (pending/error) are processed, otherwise only "pending" email objects will be processed (Default: false).>,
+             "queryLimit" : "<Number of email objects which should be fetched (Default: 100). >",
+             "queryLimit" : "<Number of email objects which should be fetched (Default: 100). >",
            }
    ]
  }
