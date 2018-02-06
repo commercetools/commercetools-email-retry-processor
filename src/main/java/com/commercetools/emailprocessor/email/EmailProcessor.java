@@ -5,8 +5,8 @@ import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
-import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
+import io.sphere.sdk.queries.QueryPredicate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
@@ -34,7 +33,6 @@ import java.util.concurrent.Executors;
 
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class EmailProcessor {
     public static final String CONTAINER_ID = "unprocessedEmail";
@@ -63,9 +61,12 @@ public class EmailProcessor {
      */
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
         SphereClient client = tenantConfig.getSphereClient();
-        CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID)
-                .withLimit(tenantConfig.getQueryLimit())
-                .withSort(s -> s.createdAt().sort().asc());
+        CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID);
+        if (!tenantConfig.isProcessAll()) {
+            query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
+        }
+        query = query.withLimit(tenantConfig.getQueryLimit());
+        query = query.withSort(s -> s.createdAt().sort().asc());
         return client
                 .execute(query)
                 .thenApply(response -> {
@@ -73,25 +74,13 @@ public class EmailProcessor {
                     if (response.getTotal() < 1) {
                         LOG.info(String.format("No email to process for tenant %s", tenantConfig
                                 .getProjectKey()));
+                        return statistics;
                     }
                     List<CompletableFuture<Void>> allTenants = response.getResults().stream()
-                            .map(customObject -> Optional.ofNullable(customObject)
-                                    .map(CustomObject::getValue)
-                                    .map(node -> node.get(EMAIL_PROPERTY_STATUS))
-                                    .map(JsonNode::asText)
-                                    .filter(status -> ((equalsIgnoreCase(status, STATUS_PENDING) || tenantConfig
-                                            .isProcessAll())))
-                                    .map(pending -> callApiEndpoint(customObject.getId(), tenantConfig)
-                                            .thenAccept(statistics::update))
-                                    .orElseGet(() -> {
-                                        statistics.update(Statistics.RESPONSE_IGNORED);
-                                        return CompletableFuture.completedFuture(null);
-                                    }))
-                            .collect(toList());
-
+                            .map(customObject -> callApiEndpoint(customObject.getId(), tenantConfig)
+                                    .thenAccept(statistics::update)).collect(toList());
                     // join all the email processors
                     allOf(allTenants.toArray(new CompletableFuture[0])).join();
-
                     client.close();
                     return statistics;
                 })
@@ -124,7 +113,7 @@ public class EmailProcessor {
                 return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
             } catch (Exception excepton) {
                 LOG.error("Cannot trigger the enpoint", excepton);
-                return Statistics.RESPONSE_IGNORED;
+                return Statistics.RESPONSE_ERROR_TEMP;
             }
         }, callApiThreadPool);
     }

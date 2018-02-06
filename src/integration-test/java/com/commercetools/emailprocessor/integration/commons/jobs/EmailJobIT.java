@@ -88,7 +88,6 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -106,7 +105,6 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(3);
-        assertThat(statistic.getNotProcessed()).isEqualTo(0);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(3);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -123,10 +121,9 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         statistic.print(LOG);
-        assertThat(statistic.getNotProcessed()).isEqualTo(3);
-        assertThat(statistic.getProcessed()).isEqualTo(0);
+        assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
-        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(2);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
     }
 
@@ -141,7 +138,6 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(2);
@@ -158,7 +154,6 @@ public class EmailJobIT {
         assertThat(statistics).isNotEmpty();
         final Statistics statistic = statistics.get(0);
         assertThat(statistic.getProcessed()).isEqualTo(2);
-        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(2);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
@@ -178,14 +173,12 @@ public class EmailJobIT {
         List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
         assertThat(statistics).isNotEmpty();
         Statistics statistic = statistics.get(0);
-        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(2);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
         assertThat(statistic.getPermanentErrors()).isEqualTo(0);
 
         statistic = statistics.get(1);
-        assertThat(statistic.getNotProcessed()).isEqualTo(1);
         assertThat(statistic.getProcessed()).isEqualTo(2);
         assertThat(statistic.getSentSuccessfully()).isEqualTo(0);
         assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
@@ -195,7 +188,7 @@ public class EmailJobIT {
     private void createCustomObject(final String status, final String errorMailId) {
         JsonNode jsonNode = SphereJsonUtils.parse(String.format("{\"status\":\"%s\"}", status));
         CustomObjectDraft<JsonNode> draft = CustomObjectDraft.ofUnversionedUpsert(EmailProcessor.CONTAINER_ID,
-            errorMailId, jsonNode);
+                errorMailId, jsonNode);
         ctpClient.execute(CustomObjectUpsertCommand.of(draft)).toCompletableFuture().join();
 
     }
@@ -215,14 +208,14 @@ public class EmailJobIT {
     void queryAndApply(@Nonnull final SphereClient ctpClient,
                        @Nonnull final Supplier<CustomObjectQuery<JsonNode>> queryRequestSupplier,
                        @Nonnull final Function<CustomObject<JsonNode>, SphereRequest<CustomObject<JsonNode>>>
-                           resourceMapper) {
+                               resourceMapper) {
         queryAll(ctpClient, queryRequestSupplier.get(), resourceMapper)
-            .thenApply(allRequests -> allRequests.stream()
-                .map(ctpClient::execute)
-                .map(CompletionStage::toCompletableFuture).collect(toList()))
-            .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
-            .thenCompose(CompletableFuture::allOf)
-            .toCompletableFuture().join();
+                .thenApply(allRequests -> allRequests.stream()
+                        .map(ctpClient::execute)
+                        .map(CompletionStage::toCompletableFuture).collect(toList()))
+                .thenApply(list -> list.toArray(new CompletableFuture[list.size()]))
+                .thenCompose(CompletableFuture::allOf)
+                .toCompletableFuture().join();
     }
 }
 

@@ -10,11 +10,9 @@ public class Statistics {
     public static final int RESPONSE_CODE_SUCCESS = 200;
     public static final int RESPONSE_ERROR_TEMP = 503;
     public static final int RESPONSE_ERROR_PERMANENT = 400;
-    public static final int RESPONSE_IGNORED = 0;
     private String tenantId = "";
     private int globalError = 0;
     private int processed = 0;
-    private int notProcessed = 0;
     private int sentSuccessfully = 0;
     private int permanentErrors = 0;
     private int temporaryErrors = 0;
@@ -29,6 +27,7 @@ public class Statistics {
 
     /**
      * Generates a statistic object for the error case.
+     *
      * @param tenant Tenant, to which this static belongs
      * @return Statistic, with global error set to 1.
      */
@@ -66,16 +65,13 @@ public class Statistics {
         return temporaryErrors;
     }
 
-    public int getNotProcessed() {
-        return notProcessed;
-    }
-
     /**
      * Update the statistics depending on the httpStatusCode.
      *
      * <p>This method is <i>synchronized</i> to allow update tenant statistic concurrently in parallel threads.
      * Considering it is very simple method and it is called rarely -
      * no need to optimize concurrency more than it is.</p>
+     *
      * @param httpStatusCode returned http status code of the api call.
      */
     @JsonIgnore
@@ -90,10 +86,6 @@ public class Statistics {
                 break;
             case RESPONSE_ERROR_PERMANENT:
                 permanentErrors++;
-                break;
-            case RESPONSE_IGNORED:
-                notProcessed++;
-                processed--;
                 break;
             default:
                 permanentErrors++;

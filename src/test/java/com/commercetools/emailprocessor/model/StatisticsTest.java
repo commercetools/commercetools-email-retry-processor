@@ -25,14 +25,13 @@ public class StatisticsTest {
         statistics.update(Statistics.RESPONSE_CODE_SUCCESS);
         statistics.update(Statistics.RESPONSE_ERROR_TEMP);
         statistics.update(Statistics.RESPONSE_ERROR_PERMANENT);
-        statistics.update(0);
-        statistics.update(0);
+
 
         assertEquals(statistics.getSentSuccessfully(), 3);
         assertEquals(statistics.getPermanentErrors(), 1);
         assertEquals(statistics.getTemporaryErrors(), 4);
         assertEquals(statistics.getProcessed(), 8);
-        assertEquals(statistics.getNotProcessed(), 2);
+
     }
 
     @Test
@@ -43,7 +42,6 @@ public class StatisticsTest {
         assertEquals(statistics.getPermanentErrors(), 0);
         assertEquals(statistics.getTemporaryErrors(), 0);
         assertEquals(statistics.getProcessed(), 0);
-        assertEquals(statistics.getNotProcessed(), 0);
         assertEquals(statistics.getGlobalError(), 1);
     }
 
