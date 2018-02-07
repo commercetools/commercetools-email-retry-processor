@@ -31,6 +31,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.stream.Collectors.toList;
 
@@ -61,26 +62,25 @@ public class EmailProcessor {
      */
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
         SphereClient client = tenantConfig.getSphereClient();
+
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID);
         if (!tenantConfig.isProcessAll()) {
             query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
         }
-        query = query.withLimit(tenantConfig.getQueryLimit());
         query = query.withSort(s -> s.createdAt().sort().asc());
-        return client
-                .execute(query)
-                .thenApply(response -> {
+        return queryAll(client, query)
+                .thenApply(result -> {
                     Statistics statistics = new Statistics(tenantConfig.getProjectKey());
-                    if (response.getTotal() < 1) {
+                    if (result.size() < 1) {
                         LOG.info(String.format("No email to process for tenant %s", tenantConfig
                                 .getProjectKey()));
                         return statistics;
                     }
-                    List<CompletableFuture<Void>> allTenants = response.getResults().stream()
+                    List<CompletableFuture<Void>> httpResponses = result.stream()
                             .map(customObject -> callApiEndpoint(customObject.getId(), tenantConfig)
                                     .thenAccept(statistics::update)).collect(toList());
                     // join all the email processors
-                    allOf(allTenants.toArray(new CompletableFuture[0])).join();
+                    allOf(httpResponses.toArray(new CompletableFuture[0])).join();
                     client.close();
                     return statistics;
                 })

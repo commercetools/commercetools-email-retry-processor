@@ -94,6 +94,23 @@ public class EmailJobIT {
     }
 
     @Test
+    public void process_withManyEmailsObjects_shouldReturnNoError() {
+        int customObjectId = 0;
+        while (customObjectId < 100) {
+            createCustomObject(EmailProcessor.STATUS_PENDING, String.valueOf(customObjectId));
+            customObjectId = customObjectId + 1;
+        }
+        configuration.getTenants().get(0).setEndpointUrl(HTTPBIN_DOMAIN + Statistics.RESPONSE_CODE_SUCCESS);
+        List<Statistics> statistics = EmailJob.process(configuration).toCompletableFuture().join();
+        assertThat(statistics).isNotEmpty();
+        Statistics statistic = statistics.get(0);
+        assertThat(statistic.getProcessed()).isEqualTo(100);
+        assertThat(statistic.getSentSuccessfully()).isEqualTo(100);
+        assertThat(statistic.getTemporaryErrors()).isEqualTo(0);
+        assertThat(statistic.getPermanentErrors()).isEqualTo(0);
+    }
+
+    @Test
     public void process_withProcessAllFlagSet_shouldReturnNoError() {
         createCustomObject(EmailProcessor.STATUS_PENDING, "1");
         createCustomObject(EmailProcessor.STATUS_PENDING, "2");
