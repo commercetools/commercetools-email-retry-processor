@@ -24,7 +24,7 @@ public class TenantConfiguration {
     private String endpointUrl;
     private String encryptionKey;
     private boolean processAll = false;
-    private Long queryLimit = 100L;
+
     @JsonIgnore
     private HttpPost httpPost;
 
@@ -47,15 +47,13 @@ public class TenantConfiguration {
                         @Nonnull final String clientSecret,
                         @Nonnull final String endpointUrl,
                         @Nonnull final String encryptionKey,
-                        boolean all,
-                        final Long limit) {
+                        boolean all) {
         this.projectKey = projectKey;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.endpointUrl = endpointUrl;
         this.encryptionKey = encryptionKey;
         processAll = all;
-        queryLimit = limit;
     }
 
     @JsonCreator
@@ -64,7 +62,7 @@ public class TenantConfiguration {
                         @JsonProperty("clientSecret") @Nonnull final String clientSecret,
                         @JsonProperty("endpointUrl") @Nonnull final String endpointUrl,
                         @JsonProperty("encryptionKey") @Nonnull final String encryptionKey) {
-        this(projectKey, clientId, clientSecret, endpointUrl, encryptionKey, false, 100L);
+        this(projectKey, clientId, clientSecret, endpointUrl, encryptionKey, false);
     }
 
     public String getProjectKey() {
@@ -117,14 +115,6 @@ public class TenantConfiguration {
 
     public void setProcessAll(boolean processAll) {
         this.processAll = processAll;
-    }
-
-    public Long getQueryLimit() {
-        return queryLimit;
-    }
-
-    public void setQueryLimit(final Long queryLimit) {
-        this.queryLimit = queryLimit;
     }
 
     /**

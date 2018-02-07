@@ -18,35 +18,35 @@ public class TenantConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, false);
     }
 
     @Test
     public void isValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, false);
         assertEquals(tenantConfig.isValid(), true);
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, false, null);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, secretKey, true);
         assertEquals(tenantConfig.isValid(), true);
     }
 
     @Test
     public void isNotValid() throws Exception {
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, "", false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, endpointUrl, "", false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, "", secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, clientSecret, "", secretKey, false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, clientId, "", endpointUrl, secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, clientId, "", endpointUrl, secretKey, false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration(projectKey, "", clientSecret, endpointUrl, secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration(projectKey, "", clientSecret, endpointUrl, secretKey, false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration("", clientId, clientSecret, endpointUrl, secretKey, false, 100L);
+        tenantConfig = new TenantConfiguration("", clientId, clientSecret, endpointUrl, secretKey, false);
         assertEquals(tenantConfig.isValid(), false);
 
-        tenantConfig = new TenantConfiguration("", "", "", "", "", false, 100L);
+        tenantConfig = new TenantConfiguration("", "", "", "", "", false);
         assertEquals(tenantConfig.isValid(), false);
     }
 
