@@ -5,7 +5,9 @@ import com.commercetools.emailprocessor.model.Statistics;
 import com.commercetools.emailprocessor.model.TenantConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
+import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
+import io.sphere.sdk.queries.QueryExecutionUtils;
 import io.sphere.sdk.queries.QueryPredicate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
@@ -30,9 +32,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
-import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
-import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.stream.Collectors.toList;
 
 public class EmailProcessor {
@@ -62,34 +63,26 @@ public class EmailProcessor {
      */
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
         SphereClient client = tenantConfig.getSphereClient();
-
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID);
         if (!tenantConfig.isProcessAll()) {
             query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
         }
         query = query.withSort(s -> s.createdAt().sort().asc());
-        return queryAll(client, query)
-                .thenApply(result -> {
-                    Statistics statistics = new Statistics(tenantConfig.getProjectKey());
-                    if (result.size() < 1) {
-                        LOG.info(String.format("No email to process for tenant %s", tenantConfig
-                                .getProjectKey()));
-                        return statistics;
-                    }
-                    List<CompletableFuture<Void>> httpResponses = result.stream()
-                            .map(customObject -> callApiEndpoint(customObject.getId(), tenantConfig)
-                                    .thenAccept(statistics::update)).collect(toList());
-                    // join all the email processors
-                    allOf(httpResponses.toArray(new CompletableFuture[0])).join();
-                    client.close();
+        Statistics statistics = new Statistics(tenantConfig.getProjectKey());
+
+        Function<CustomObject<JsonNode>, CompletableFuture<Integer>> callBack = customObject ->
+                callApiEndpoint(customObject.getId(), tenantConfig);
+
+        return QueryExecutionUtils.queryAll(client, query, callBack)
+                .thenApply(result -> result.stream()
+                        .map(httpResponse -> httpResponse.thenAccept(code -> statistics.update(code)))
+                        .collect(toList()))
+                .thenApply(futures -> {
+                    futures.forEach(CompletableFuture::join);
                     return statistics;
-                })
-                .exceptionally(exception -> {
-                    LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
-                            exception);
-                    client.close();
-                    return Statistics.ofError(tenantConfig.getProjectKey());
                 });
+
+
     }
 
     /**
