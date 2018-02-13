@@ -75,7 +75,7 @@ public class EmailProcessor {
 
         return QueryExecutionUtils.queryAll(client, query, callBack)
                 .thenApply(result -> result.stream()
-                        .map(httpResponse -> httpResponse.thenAccept(code -> statistics.update(code)))
+                        .map(httpResponse -> httpResponse.thenAccept(statistics::update))
                         .collect(toList()))
                 .thenApply(futures -> {
                     futures.forEach(CompletableFuture::join);
