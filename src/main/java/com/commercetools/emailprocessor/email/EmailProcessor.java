@@ -32,9 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
+import java.util.function.Consumer;
 
 public class EmailProcessor {
     public static final String CONTAINER_ID = "unprocessedEmail";
@@ -67,22 +65,18 @@ public class EmailProcessor {
         if (!tenantConfig.isProcessAll()) {
             query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
         }
+        //sorting the emailobject by creationt ime, to ensure that the emails are delivered in the correct chronically
+        // order
         query = query.withSort(s -> s.createdAt().sort().asc());
         Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
-        Function<CustomObject<JsonNode>, CompletableFuture<Integer>> callBack = customObject ->
-                callApiEndpoint(customObject.getId(), tenantConfig);
+        final Consumer<CustomObject<JsonNode>> pageConsumer = customObject ->
+                callApiEndpoint(customObject.getId(), tenantConfig)
+                        .thenAccept(statistics::update)
+                        .toCompletableFuture().join();
 
-        return QueryExecutionUtils.queryAll(client, query, callBack)
-                .thenApply(result -> result.stream()
-                        .map(httpResponse -> httpResponse.thenAccept(statistics::update))
-                        .collect(toList()))
-                .thenApply(futures -> {
-                    futures.forEach(CompletableFuture::join);
-                    return statistics;
-                });
-
-
+        return QueryExecutionUtils.queryAll(client, query, pageConsumer)
+                .thenApply(voidResult -> statistics);
     }
 
     /**
