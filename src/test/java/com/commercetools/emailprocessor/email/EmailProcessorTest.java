@@ -110,12 +110,12 @@ public class EmailProcessorTest {
         customObjects.add(createCustomObject("2", STATUS_PENDING, RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("4", STATUS_PENDING, Statistics.RESPONSE_ERROR_PERMANENT));
-        tenantConfiguration.setClient(mockSphereClient(customObjects, false));
+        tenantConfiguration.setClient(mockSphereClient(customObjects, true));
         tenantConfiguration.setProcessAll(true);
         Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
-        assertEquals(statistic.getProcessed(), 3);
+        assertEquals(statistic.getProcessed(), 4);
         assertEquals(statistic.getSentSuccessfully(), 1);
-        assertEquals(statistic.getTemporaryErrors(), 1);
+        assertEquals(statistic.getTemporaryErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
     }
 
