@@ -70,13 +70,22 @@ public class EmailProcessor {
         query = query.withSort(s -> s.createdAt().sort().asc());
         Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
-        final Consumer<CustomObject<JsonNode>> pageConsumer = customObject ->
+        final Consumer<CustomObject<JsonNode>> customObjectConsumer = customObject ->
                 callApiEndpoint(customObject.getId(), tenantConfig)
                         .thenAccept(statistics::update)
                         .toCompletableFuture().join();
 
-        return QueryExecutionUtils.queryAll(client, query, pageConsumer)
-                .thenApply(voidResult -> statistics);
+        return QueryExecutionUtils.queryAll(client, query, customObjectConsumer)
+                .thenApply(voidResult -> {
+                    client.close();
+                    return statistics;
+                })
+                .exceptionally(exception -> {
+                    LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
+                            exception);
+                    client.close();
+                    return Statistics.ofError(tenantConfig.getProjectKey());
+                });
     }
 
     /**
