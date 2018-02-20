@@ -65,8 +65,8 @@ public class EmailProcessor {
         if (!tenantConfig.isProcessAll()) {
             query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
         }
-        //sorting the emailobject by creationt ime, to ensure that the emails are delivered in the correct chronically
-        // order
+        // We sort the email object by creation time, to ensure that the emails are delivered in the correct
+        // chronological order they were sent with.
         query = query.withSort(s -> s.createdAt().sort().asc());
         Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
