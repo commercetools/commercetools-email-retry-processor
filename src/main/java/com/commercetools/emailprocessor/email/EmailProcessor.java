@@ -32,7 +32,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static java.util.concurrent.CompletableFuture.allOf;
 
 public class EmailProcessor {
     public static final String CONTAINER_ID = "unprocessedEmail";
@@ -70,22 +72,25 @@ public class EmailProcessor {
         query = query.withSort(s -> s.createdAt().sort().asc());
         final Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
-        final Consumer<CustomObject<JsonNode>> customObjectConsumer = customObject ->
-                callApiEndpoint(customObject.getId(), tenantConfig)
-                        .thenAccept(statistics::update)
-                        .toCompletableFuture().join();
+        final Function<CustomObject<JsonNode>, CompletableFuture<Void>> customObjectMapper = customObject ->
+            callApiEndpoint(customObject.getId(), tenantConfig)
+                .thenAccept(statistics::update)
+                .toCompletableFuture();
 
-        return QueryExecutionUtils.queryAll(client, query, customObjectConsumer)
-                .thenApply(voidResult -> {
-                    client.close();
-                    return statistics;
-                })
-                .exceptionally(exception -> {
-                    LOG.error(String.format("[%s] An unknown error occurred", tenantConfig.getProjectKey()),
-                            exception);
-                    client.close();
-                    return Statistics.ofError(tenantConfig.getProjectKey());
-                });
+        // 1. Query for all custom objects and map each to the future chain above.
+        // 2. Map the list of future to an allOf future to execute them in parallel.
+        return QueryExecutionUtils.queryAll(client, query, customObjectMapper)
+                                  .thenApply(stages -> allOf(stages.toArray(new CompletableFuture[stages.size()])))
+                                  .handle(((aVoid, exception) -> {
+                                      client.close();
+                                      if (exception != null) {
+                                          LOG.error(String.format("[Tenant Project key: %s] An error occurred while "
+                                                  + "processing custom objects.",
+                                              tenantConfig.getProjectKey()), exception);
+                                          return Statistics.ofError(tenantConfig.getProjectKey());
+                                      }
+                                      return statistics;
+                                  }));
     }
 
     /**
