@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
-import io.sphere.sdk.queries.QueryExecutionUtils;
 import io.sphere.sdk.queries.QueryPredicate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
@@ -34,6 +33,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
+import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.concurrent.CompletableFuture.allOf;
 
 public class EmailProcessor {
@@ -42,7 +42,6 @@ public class EmailProcessor {
     public static final String EMAIL_STATUS_ERROR = "error";
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
-    private static final String EMAIL_PROPERTY_STATUS = "status";
     private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
@@ -56,7 +55,7 @@ public class EmailProcessor {
     }
 
     /**
-     * Iterate through all Email objects and triggers the webhook for each pending email object.
+     * Iterate through all Email objects and triggers the web hook for each pending email object.
      *
      * @param tenantConfig Configuration of a tenant
      * @return Statics of the sent emails
@@ -73,30 +72,31 @@ public class EmailProcessor {
         final Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
         final Function<CustomObject<JsonNode>, CompletableFuture<Void>> customObjectMapper = customObject ->
-            callApiEndpoint(customObject.getId(), tenantConfig)
-                .thenAccept(statistics::update)
-                .toCompletableFuture();
+                callApiEndpoint(customObject.getId(), tenantConfig)
+                        .thenAccept(statistics::update)
+                        .toCompletableFuture();
+
 
         // 1. Query for all custom objects and map each to the future chain above.
         // 2. Map the list of future to an allOf future to execute them in parallel.
-        return QueryExecutionUtils.queryAll(client, query, customObjectMapper)
-                                  .thenApply(stages -> allOf(stages.toArray(new CompletableFuture[stages.size()])))
-                                  .handle(((aVoid, exception) -> {
-                                      client.close();
-                                      if (exception != null) {
-                                          LOG.error(String.format("[Tenant Project key: %s] An error occurred while "
-                                                  + "processing custom objects.",
-                                              tenantConfig.getProjectKey()), exception);
-                                          return Statistics.ofError(tenantConfig.getProjectKey());
-                                      }
-                                      return statistics;
-                                  }));
+        return queryAll(client, query, customObjectMapper)
+                .thenCompose(stages -> allOf(stages.toArray(new CompletableFuture[stages.size()])))
+                .handle(((voidResult, exception) -> {
+                    client.close();
+                    if (exception != null) {
+                        LOG.error(String.format("[Tenant Project key: %s] An error occurred while "
+                                        + "processing custom objects.",
+                                tenantConfig.getProjectKey()), exception);
+                        return Statistics.ofError(tenantConfig.getProjectKey());
+                    }
+                    return statistics;
+                }));
     }
 
     /**
      * Sends a post request to a api endpoint.
      *
-     * @param customObjectId      ID of a customobject, which constains a email
+     * @param customObjectId      ID of a custom object, which contains a email
      * @param tenantConfiguration Configuration of the current tenant
      * @return Http Status code response code of the current request
      */
@@ -106,14 +106,14 @@ public class EmailProcessor {
             final HttpPost httpPost = tenantConfiguration.getHttpPost();
             final List<NameValuePair> params = new ArrayList<>();
             try {
-                final String encyptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
+                final String encryptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
                         Cipher.ENCRYPT_MODE);
-                params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encyptedCustomerId));
+                params.add(new BasicNameValuePair(PARAM_EMAIL_ID, encryptedCustomerId));
                 params.add(new BasicNameValuePair(PARAM_TENANT_ID, tenantConfiguration.getProjectKey()));
                 httpPost.setEntity(new UrlEncodedFormEntity(params, Charset.defaultCharset()));
                 return doPost(HttpClients.createDefault(), httpPost, tenantConfiguration.getProjectKey());
-            } catch (Exception excepton) {
-                LOG.error("Cannot trigger the enpoint", excepton);
+            } catch (Exception exception) {
+                LOG.error("Cannot trigger the endpoint", exception);
                 return Statistics.RESPONSE_ERROR_TEMP;
             }
         }, callApiThreadPool);
@@ -145,7 +145,7 @@ public class EmailProcessor {
      *
      * @param value      Value to Encrypt / decrypt
      * @param key        key for encryption/decryption
-     * @param cipherMode ciphermode
+     * @param cipherMode cipher mode
      * @return modified value or null if something went wrong.
      */
     String blowFish(@Nonnull final String value, @Nonnull final String key, final int cipherMode)
