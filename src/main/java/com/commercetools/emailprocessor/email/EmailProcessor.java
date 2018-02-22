@@ -60,7 +60,7 @@ public class EmailProcessor {
      * @return Statics of the sent emails
      */
     public CompletionStage<Statistics> processEmails(final TenantConfiguration tenantConfig) {
-        SphereClient client = tenantConfig.getSphereClient();
+        final SphereClient client = tenantConfig.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID);
         if (!tenantConfig.isProcessAll()) {
             query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
@@ -68,7 +68,7 @@ public class EmailProcessor {
         // We sort the email object by creation time, to ensure that the emails are delivered in the correct
         // chronological order they were sent with.
         query = query.withSort(s -> s.createdAt().sort().asc());
-        Statistics statistics = new Statistics(tenantConfig.getProjectKey());
+        final Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
         final Consumer<CustomObject<JsonNode>> customObjectConsumer = customObject ->
                 callApiEndpoint(customObject.getId(), tenantConfig)
