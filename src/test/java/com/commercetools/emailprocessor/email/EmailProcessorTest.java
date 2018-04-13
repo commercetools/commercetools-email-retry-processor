@@ -35,12 +35,13 @@ import static com.commercetools.emailprocessor.email.EmailProcessor.EMAIL_STATUS
 import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDING;
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_CODE_SUCCESS;
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_ERROR_TEMP;
+import static io.sphere.sdk.utils.CompletableFutureUtils.exceptionallyCompletedFuture;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.junit.Assert.assertEquals;
-
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,6 +118,20 @@ public class EmailProcessorTest {
         assertEquals(statistic.getSentSuccessfully(), 1);
         assertEquals(statistic.getTemporaryErrors(), 2);
         assertEquals(statistic.getPermanentErrors(), 1);
+    }
+
+    @Test
+    public void processEmail_ClientThrowsException_shouldHandleException() {
+        SphereClient client = mock(SphereClient.class);
+        when(client.execute(any(CustomObjectQuery.class)))
+                .thenReturn(exceptionallyCompletedFuture(new Exception("anyError")));
+        tenantConfiguration.setClient(client);
+        tenantConfiguration.setProcessAll(true);
+        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
+        assertEquals(statistic.getGlobalError(), 1);
+        assertEquals(statistic.getSentSuccessfully(), 0);
+        assertEquals(statistic.getTemporaryErrors(), 0);
+        assertEquals(statistic.getPermanentErrors(), 0);
     }
 
     @Test
