@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
+import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.allOf;
 
 public class EmailProcessor {
@@ -64,7 +65,7 @@ public class EmailProcessor {
         final SphereClient client = tenantConfig.getSphereClient();
         CustomObjectQuery<JsonNode> query = CustomObjectQuery.ofJsonNode().byContainer(CONTAINER_ID);
         if (!tenantConfig.isProcessAll()) {
-            query = query.plusPredicates(QueryPredicate.of("value(status=\"" + STATUS_PENDING + "\")"));
+            query = query.plusPredicates(QueryPredicate.of(format("value(status=\"%s\")", STATUS_PENDING)));
         }
         // We sort the email object by creation time, to ensure that the emails are delivered in the correct
         // chronological order they were sent with.
@@ -84,7 +85,7 @@ public class EmailProcessor {
                 .handle(((voidResult, exception) -> {
                     client.close();
                     if (exception != null) {
-                        LOG.error(String.format("[Tenant Project key: %s] An error occurred while "
+                        LOG.error(format("[Tenant Project key: %s] An error occurred while "
                                         + "processing custom objects.",
                                 tenantConfig.getProjectKey()), exception);
                         return Statistics.ofError(tenantConfig.getProjectKey());
@@ -134,7 +135,7 @@ public class EmailProcessor {
             if (response.getStatusLine() != null) {
                 return response.getStatusLine().getStatusCode();
             } else {
-                LOG.error(String.format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
+                LOG.error(format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
                 return Statistics.RESPONSE_ERROR_PERMANENT;
             }
         }
