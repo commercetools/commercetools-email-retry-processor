@@ -1,7 +1,5 @@
 package com.commercetools.emailprocessor.jobs;
 
-
-import com.commercetools.emailprocessor.email.EmailProcessor;
 import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import org.slf4j.Logger;
@@ -12,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import static com.commercetools.emailprocessor.email.EmailProcessor.of;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.stream.Collectors.toList;
 
@@ -28,12 +27,12 @@ public class EmailJob {
      */
     public static CompletionStage<List<Statistics>> process(@Nonnull final ProjectConfiguration projectConfiguration) {
 
-        final EmailProcessor emailProcessor = new EmailProcessor();
+
         final List<CompletableFuture<Statistics>> listOfStageOfStatistics = projectConfiguration.getTenants()
                 .parallelStream()
                 .map(tenantConfiguration -> {
                             try {
-                                return emailProcessor.processEmails(tenantConfiguration).toCompletableFuture();
+                                return of().processEmails(tenantConfiguration).toCompletableFuture();
                             } catch (Exception exception) {
                                 LOG.error(String.format("Error in email processing for tenant %s.",
                                         tenantConfiguration.getProjectKey()), exception);

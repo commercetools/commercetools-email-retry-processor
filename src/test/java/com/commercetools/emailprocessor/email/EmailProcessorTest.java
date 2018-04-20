@@ -21,6 +21,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import uk.org.lidalia.slf4jext.Level;
+import uk.org.lidalia.slf4jtest.LoggingEvent;
+import uk.org.lidalia.slf4jtest.TestLogger;
+import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,18 +40,19 @@ import static com.commercetools.emailprocessor.email.EmailProcessor.STATUS_PENDI
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_CODE_SUCCESS;
 import static com.commercetools.emailprocessor.model.Statistics.RESPONSE_ERROR_TEMP;
 import static io.sphere.sdk.utils.CompletableFutureUtils.exceptionallyCompletedFuture;
+import static java.lang.String.format;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
-
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
 public class EmailProcessorTest {
 
+    TestLogger testLogger;
     private EmailProcessor emailProcessor;
     private TenantConfiguration tenantConfiguration;
     private List<CustomObject<JsonNode>> customObjects;
@@ -60,9 +65,10 @@ public class EmailProcessorTest {
     @Before
     public void setUp() throws Exception {
         customObjects = new ArrayList<>();
-        emailProcessor = mock(EmailProcessor.class);
-        Mockito.doCallRealMethod().when(emailProcessor).processEmails(any(TenantConfiguration.class));
-        Mockito.doCallRealMethod().when(emailProcessor).blowFish(anyString(), anyString(), anyInt());
+        emailProcessor = Mockito.spy(EmailProcessor.of());
+        testLogger = TestLoggerFactory.getTestLogger(EmailProcessor.class);
+
+
         tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setProjectKey("testproject");
         tenantConfiguration.setEncryptionKey("1234567899053146");
@@ -132,12 +138,17 @@ public class EmailProcessorTest {
         assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporaryErrors(), 0);
         assertEquals(statistic.getPermanentErrors(), 0);
+        final LoggingEvent loggingEvent = testLogger.getAllLoggingEvents().get(0);
+        assertThat(loggingEvent).isExactlyInstanceOf(LoggingEvent.class);
+        assertThat(loggingEvent.getLevel()).isEqualTo(Level.ERROR);
+        assertThat(loggingEvent.getMessage()).contains(format("[Tenant Project key: %s] An error occurred while "
+                + "processing custom objects.", tenantConfiguration.getProjectKey()));
+
     }
 
     @Test
     public void processEmail_noPendingEmailAvailable_shouldNotProcessEmails() throws Exception {
-        Mockito.doCallRealMethod().when(emailProcessor)
-                .callApiEndpoint(anyString(), any(TenantConfiguration.class));
+
         customObjects.add(createCustomObject("1", EMAIL_STATUS_ERROR, RESPONSE_CODE_SUCCESS));
         customObjects.add(createCustomObject("2", EMAIL_STATUS_ERROR, RESPONSE_ERROR_TEMP));
         customObjects.add(createCustomObject("3", EMAIL_STATUS_ERROR, RESPONSE_CODE_SUCCESS));
@@ -236,7 +247,7 @@ public class EmailProcessorTest {
 
     @Test
     public void doPost_200TimesInParallel() throws Exception {
-        EmailProcessor emailProcessor = new EmailProcessor();
+        EmailProcessor emailProcessor = EmailProcessor.of();
         IntStream.range(0, 200)
                 .parallel()
                 .map(i -> {

@@ -44,15 +44,15 @@ public class EmailProcessor {
     static final String PARAM_EMAIL_ID = "emailid";
     static final String PARAM_TENANT_ID = "tenantid";
     private static final String ENCRYPTION_ALGORITHM = "Blowfish";
-    private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
-
     /**
      * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all chained post
      * processor. For now limited for up to 8 parallel requests.
      */
     private static final Executor callApiThreadPool = Executors.newWorkStealingPool(8);
+    private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
 
-    public EmailProcessor() {
+    public static EmailProcessor of() {
+        return new EmailProcessor();
     }
 
     /**
