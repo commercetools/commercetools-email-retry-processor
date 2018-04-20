@@ -225,8 +225,7 @@ public class EmailProcessorTest {
     private SphereClient mockSphereClient(final List<CustomObject<JsonNode>> customObjects, final boolean processAll) {
         SphereClient client = mock(SphereClient.class);
         final PagedQueryResult<CustomObject<JsonNode>> queryResult = PagedQueryResult.of(customObjects.stream()
-                .filter(co -> StringUtils.equals(co.getValue().get("status").asText(), STATUS_PENDING)
-                        || processAll)
+                .filter(co -> processAll || StringUtils.equals(co.getValue().get("status").asText(), STATUS_PENDING))
                 .collect(Collectors.toList()));
 
         when(client.execute(any(CustomObjectQuery.class))).thenReturn(CompletableFuture.completedFuture(queryResult));
