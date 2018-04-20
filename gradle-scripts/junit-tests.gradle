@@ -1,0 +1,5 @@
+configurations {
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    integrationTestImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+}
+

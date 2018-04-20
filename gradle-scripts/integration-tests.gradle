@@ -11,8 +11,6 @@ sourceSets {
 
 configurations {
     integrationTestImplementation.extendsFrom implementation, testImplementation
-    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    integrationTestImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 task integrationTest(type: Test) {
