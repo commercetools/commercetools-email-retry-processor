@@ -33,6 +33,7 @@ public class TenantConfiguration {
     }
 
     // TODO: only for tests now, should be removed then
+
     /**
      * Creates a configuration of a tenant.
      *
@@ -123,7 +124,7 @@ public class TenantConfiguration {
      */
     boolean isValid() {
         return isNotBlank(projectKey) && isNotBlank(clientId) && isNotBlank(clientSecret) && isNotBlank(endpointUrl)
-            && isNotBlank(encryptionKey);
+                && isNotBlank(encryptionKey);
     }
 
     /**

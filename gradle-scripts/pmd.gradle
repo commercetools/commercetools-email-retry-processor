@@ -12,5 +12,6 @@ tasks.withType(Pmd) {
     }
 }
 
+pmdMain.mustRunAfter checkstyleIntegrationTest
 pmdTest.mustRunAfter pmdMain
 pmdIntegrationTest.mustRunAfter pmdTest

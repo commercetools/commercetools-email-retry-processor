@@ -8,5 +8,6 @@ tasks.withType(FindBugs) {
     }
 }
 
+findbugsMain.mustRunAfter pmdIntegrationTest
 findbugsTest.mustRunAfter findbugsMain
 findbugsIntegrationTest.mustRunAfter findbugsTest
