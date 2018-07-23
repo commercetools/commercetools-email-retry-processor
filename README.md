@@ -1,8 +1,8 @@
 # commercetools-email-retry-processor
 
- The email retry processor fetches all email objects, which are saved as Custom Objects in CTP for different tenants/webshops.
- For each email object, this job triggers a HTTP call to an api endpoint defined in the configuration.
- The api endpoint should contain the email delivery logic.
+Service which can be run as a cron job to ensure that in case of potential down time of an e-mail provider an e-mail can be send/re-tried asynchronously. 
+
+Not succesfuly send e-mails are temporarily persisted as [Custom Objects](https://docs.commercetools.com/http-api-projects-custom-objects.html) in Commercetools Platform. For each email object, service triggers an HTTP call to a configured endpoint. API endpoint in turn should contain the e-mail delivery logic.
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
 [![codecov](https://codecov.io/gh/commercetools/commercetools-email-retry-processor/branch/create_cronjob/graph/badge.svg)](https://codecov.io/gh/commercetools/commercetools-email-retry-processor)
