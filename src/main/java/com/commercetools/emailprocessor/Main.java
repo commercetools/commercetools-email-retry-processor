@@ -28,7 +28,7 @@ public class Main {
      * @param args optional path to a configuration file.
      */
     public static void main(final String[] args) {
-        bridgeJULToSLF4J();
+        bridgeJulToSlf4j();
 
         int exitStatus = 1;
         long startTime = System.nanoTime();
@@ -64,13 +64,15 @@ public class Main {
      *     <li>Removing existing handlers attached to the j.u.l root logger.</li>
      *     <li>Adding SLF4JBridgeHandler to j.u.l's root logger.</li>
      * </ol>
+     *
      * <p>Why we do the routing?
+     *
      * <p>Some dependencies (e.g. org.javamoney.moneta's DefaultMonetaryContextFactory) log events using the
      * j.u.l. This causes such logs to ignore the logback.xml configuration which is only
      * applied to logs from the SLF4j implementation.
      *
      */
-    private static void bridgeJULToSLF4J() {
+    private static void bridgeJulToSlf4j() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
     }
