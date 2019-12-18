@@ -128,12 +128,20 @@ public class EmailProcessorTest {
 
     @Test
     public void processEmail_ClientThrowsException_shouldHandleException() {
-        SphereClient client = mock(SphereClient.class);
+        // preparation
+        final SphereClient client = mock(SphereClient.class);
         when(client.execute(any(CustomObjectQuery.class)))
                 .thenReturn(exceptionallyCompletedFuture(new Exception("anyError")));
         tenantConfiguration.setClient(client);
         tenantConfiguration.setProcessAll(true);
-        Statistics statistic = emailProcessor.processEmails(tenantConfiguration).toCompletableFuture().join();
+
+        // test
+        final Statistics statistic = emailProcessor
+            .processEmails(tenantConfiguration)
+            .toCompletableFuture()
+            .join();
+
+        // assertion
         assertEquals(statistic.getGlobalError(), 1);
         assertEquals(statistic.getSentSuccessfully(), 0);
         assertEquals(statistic.getTemporaryErrors(), 0);
