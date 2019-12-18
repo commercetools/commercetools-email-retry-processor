@@ -3,10 +3,11 @@ dependencies {
     implementation "com.commercetools.sdk.jvm.core:commercetools-java-client:${commercetoolsJvmSdkVersion}"
     implementation "com.commercetools.sdk.jvm.core:commercetools-convenience:${commercetoolsJvmSdkVersion}"
     implementation "net.logstash.logback:logstash-logback-encoder:${logStashLogbackEncoderVersion}"
-    implementation "ch.qos.logback:logback-classic:${logbackClassicVersion}"
-    implementation "org.slf4j:jul-to-slf4j:${julToSlf4jVersion}"
+    // ch.qos.logback:logback-classic is excluded from the unit and integration test classpath in /junit-tests.gradle
+    implementation ("ch.qos.logback:logback-classic:${logbackClassicVersion}")
+    implementation ("org.slf4j:jul-to-slf4j:${julToSlf4jVersion}")
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    implementation "uk.org.lidalia:slf4j-test:${slf4jTestVersion}"
+    testImplementation "uk.org.lidalia:slf4j-test:${slf4jTestVersion}"
     testImplementation "junit:junit:${jUnitVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testCompile "com.github.stefanbirkner:system-rules:${systemRulesVersion}"
