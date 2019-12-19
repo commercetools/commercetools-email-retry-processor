@@ -108,7 +108,7 @@ public class Statistics {
      * @param logger passed logger
      */
     @JsonIgnore
-    public void print(final Logger logger) {
+    public synchronized void print(final Logger logger) {
         if (processed > 0) {
             try {
                 logger.info(appendRaw("statistics", getStatisticsAsJSONString()),
