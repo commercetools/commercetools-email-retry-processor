@@ -5,6 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 
+import static java.lang.String.format;
+import static net.logstash.logback.marker.Markers.appendRaw;
+
 
 public class Statistics {
     public static final int RESPONSE_CODE_SUCCESS = 200;
@@ -105,10 +108,11 @@ public class Statistics {
      * @param logger passed logger
      */
     @JsonIgnore
-    public void print(final Logger logger) {
+    public synchronized void print(final Logger logger) {
         if (processed > 0) {
             try {
-                logger.info(getStatisticsAsJSONString());
+                logger.info(appendRaw("statistics", getStatisticsAsJSONString()),
+                    format("Statistics for tenant with id [%s]", this.getTenantId()));
             } catch (JsonProcessingException exception) {
                 logger.error("Cannot create json statistics.", exception);
             }

@@ -1,5 +1,5 @@
 configurations {
-    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    integrationTestImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'ch.qos.logback', module: 'logback-classic'
+    integrationTestImplementation.exclude group: 'ch.qos.logback', module: 'logback-classic'
 }
 
