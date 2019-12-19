@@ -1,5 +1,8 @@
 # commercetools-email-retry-processor
 
+[![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
+[![codecov](https://codecov.io/gh/commercetools/commercetools-email-retry-processor/branch/create_cronjob/graph/badge.svg)](https://codecov.io/gh/commercetools/commercetools-email-retry-processor)
+
 Typically run as a cron job to ensure that an e-mail is sent (and re-tried) asynchronously, in case of potential down time of an e-mail provider. 
 
 - This application sends an HTTP request to a configured endpoint. 
@@ -8,9 +11,6 @@ This configured API endpoint should contain the e-mail delivery logic. More info
 - This application expects e-mails that failed to be sent, to be persisted as [Custom Objects](https://docs.commercetools.com/http-api-projects-custom-objects.html) in the commercetools Platform. 
 
 - This application supports multi-tenant configurations. In other words, it can be used for multiple applications, each with their own commercetools project for persistence.
-
-[![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
-[![codecov](https://codecov.io/gh/commercetools/commercetools-email-retry-processor/branch/create_cronjob/graph/badge.svg)](https://codecov.io/gh/commercetools/commercetools-email-retry-processor)
 
 ## Prerequisites
 
@@ -76,10 +76,10 @@ The API endpoint should cover the following steps:
 1. After fetching it, send the e-mail and process the result in the following way:
     - If the e-mail delivery is successful
       - Delete the current e-mail object
-      - Set the response Http status code to "200" 
+      - Set the response Http status code to `200`
     - If the e-mail delivery fails temporarily (TODO: WHAT DOES IT MEAN)
-      - Set the status of the e-mail CustomObject to "pending"
-      - Set the response Http status code to "503"
+      - Set the status of the e-mail CustomObject to `pending`
+      - Set the response Http status code to `503`
     - If the e-mail delivery fails permanently (TODO: WHAT DOES IT MEAN)
-      - Set the status of the e-mail CustomObject to "error"
-      - Set the response Http status code to "400"
+      - Set the status of the e-mail CustomObject to `error`
+      - Set the response Http status code to `400`
