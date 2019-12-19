@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
-public class ConfigurationUtils {
+public final class ConfigurationUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
 
@@ -34,7 +34,7 @@ public class ConfigurationUtils {
             projectConfiguration = getConfigurationFromString(new String(Files.readAllBytes(Paths.get(resourcePath)),
                     Charset.defaultCharset()));
         } catch (IOException exception) {
-            LOG.error(String.format("The File '%s' cannot be parsed", resourcePath), exception);
+            LOG.error(String.format("The file '%s' cannot be parsed", resourcePath), exception);
         }
         return projectConfiguration;
     }
@@ -57,9 +57,9 @@ public class ConfigurationUtils {
 
                 if (projectConfiguration == null || !projectConfiguration.isValid()) {
                     if (projectConfiguration != null) {
-                        projectConfiguration.getTenants().stream().forEach(tenantConfiguration -> {
+                        projectConfiguration.getTenants().forEach(tenantConfiguration -> {
                             final String errorMessage = "[" + tenantConfiguration.getProjectKey() + "] "
-                                    + "Please define the missing Property '%s'";
+                                    + "Please define the missing property '%s'";
                             if (isBlank(tenantConfiguration.getProjectKey())) {
                                 LOG.error(String.format(errorMessage, "projectKey"));
                             }
@@ -83,9 +83,12 @@ public class ConfigurationUtils {
                 LOG.error("Cannot parse configuration", exception);
             }
         } else {
-            LOG.info("The require projectconfiguration cannot be found");
+            LOG.error("Project configuration is not provided. Refer to https://github.com/commercetools/commercetools-email-retry-processor#configuration for more info.");
         }
 
         return Optional.ofNullable(projectConfiguration);
+    }
+
+    private ConfigurationUtils() {
     }
 }

@@ -48,7 +48,7 @@ public class Main {
                 LOGGER.info(format("%s completed after %s second", PROJECT_NAME, seconds));
                 return 0;
             }).orElseGet(() -> {
-                LOGGER.error(format("%s failed: The project configuration cannot be loaded", PROJECT_NAME));
+                LOGGER.error(format("Unable to start the %s application due to missing configuration.", PROJECT_NAME));
                 return 1;
             });
         } catch (Throwable throwable) {
