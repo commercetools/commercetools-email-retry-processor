@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        shadowJar = '5.2.0'
+        shadowJar = '2.0.4'
     }
     repositories {
         jcenter()
