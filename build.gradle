@@ -1,17 +1,13 @@
 buildscript {
-    ext {
-        shadowJar = '2.0.4'
-    }
     repositories {
         jcenter()
     }
     dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowJar}"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
     }
 }
 
 apply from: "$rootDir/gradle-scripts/plugins.gradle"
-apply from: "$rootDir/gradle-scripts/extensions.gradle"
 apply from: "$rootDir/gradle-scripts/project-info.gradle"
 apply from: "$rootDir/gradle-scripts/java-compile.gradle"
 apply from: "$rootDir/gradle-scripts/repositories.gradle"

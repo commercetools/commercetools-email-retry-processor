@@ -1,14 +1,14 @@
 dependencies {
-    implementation "com.commercetools.sdk.jvm.core:commercetools-models:${commercetoolsJvmSdkVersion}"
-    implementation "com.commercetools.sdk.jvm.core:commercetools-java-client:${commercetoolsJvmSdkVersion}"
-    implementation "com.commercetools.sdk.jvm.core:commercetools-convenience:${commercetoolsJvmSdkVersion}"
-    implementation "net.logstash.logback:logstash-logback-encoder:${logStashLogbackEncoderVersion}"
+    implementation "com.commercetools.sdk.jvm.core:commercetools-models:1.48.0"
+    implementation "com.commercetools.sdk.jvm.core:commercetools-java-client:1.48.0"
+    implementation "com.commercetools.sdk.jvm.core:commercetools-convenience:1.48.0"
+    implementation "net.logstash.logback:logstash-logback-encoder:6.3"
     // ch.qos.logback:logback-classic is excluded from the unit and integration test classpath in /junit-tests.gradle
-    implementation ("ch.qos.logback:logback-classic:${logbackClassicVersion}")
-    implementation ("org.slf4j:jul-to-slf4j:${julToSlf4jVersion}")
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "uk.org.lidalia:slf4j-test:${slf4jTestVersion}"
-    testImplementation "junit:junit:${jUnitVersion}"
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
-    testCompile "com.github.stefanbirkner:system-rules:${systemRulesVersion}"
+    implementation "ch.qos.logback:logback-classic:1.2.3"
+    implementation "org.slf4j:jul-to-slf4j:1.7.29"
+    testImplementation "org.mockito:mockito-core:3.2.4"
+    testImplementation "uk.org.lidalia:slf4j-test:1.2.0"
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.assertj:assertj-core:3.14.0"
+    testCompile "com.github.stefanbirkner:system-rules:1.19.0"
 }
