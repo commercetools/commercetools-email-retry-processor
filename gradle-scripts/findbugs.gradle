@@ -1,5 +1,5 @@
 findbugs {
-    toolVersion = '3.0.1'
+    toolVersion = findbugsVersion
 }
 
 tasks.withType(FindBugs) {
