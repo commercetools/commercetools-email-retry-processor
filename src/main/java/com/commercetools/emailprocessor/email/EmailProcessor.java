@@ -135,7 +135,7 @@ public class EmailProcessor {
             if (response.getStatusLine() != null) {
                 return response.getStatusLine().getStatusCode();
             } else {
-                LOG.error(format("[%s] The Statuscode of the current api call cannot be retrieved", projectKey));
+                LOG.error(format("[%s] The status code of the current api call cannot be retrieved", projectKey));
                 return Statistics.RESPONSE_ERROR_PERMANENT;
             }
         }
