@@ -7,19 +7,6 @@ buildscript {
     }
 }
 
-apply from: "$rootDir/gradle-scripts/plugins.gradle"
-apply from: "$rootDir/gradle-scripts/project-info.gradle"
-apply from: "$rootDir/gradle-scripts/java-compile.gradle"
-apply from: "$rootDir/gradle-scripts/repositories.gradle"
-apply from: "$rootDir/gradle-scripts/integration-tests.gradle"
-apply from: "$rootDir/gradle-scripts/junit-tests.gradle"
-apply from: "$rootDir/gradle-scripts/test-logging.gradle"
-apply from: "$rootDir/gradle-scripts/checkstyle.gradle"
-apply from: "$rootDir/gradle-scripts/pmd.gradle"
-apply from: "$rootDir/gradle-scripts/jacoco.gradle"
-apply from: "$rootDir/gradle-scripts/findbugs.gradle"
-apply from: "$rootDir/gradle-scripts/shadow.gradle"
-
 ext{
     checkstyleVersion = '7.7'
     pmdVersion = '5.6.1'
@@ -36,6 +23,19 @@ ext{
     systemRulesVersion = '1.19.0'
 
 }
+
+apply from: "$rootDir/gradle-scripts/plugins.gradle"
+apply from: "$rootDir/gradle-scripts/project-info.gradle"
+apply from: "$rootDir/gradle-scripts/java-compile.gradle"
+apply from: "$rootDir/gradle-scripts/repositories.gradle"
+apply from: "$rootDir/gradle-scripts/integration-tests.gradle"
+apply from: "$rootDir/gradle-scripts/junit-tests.gradle"
+apply from: "$rootDir/gradle-scripts/test-logging.gradle"
+apply from: "$rootDir/gradle-scripts/checkstyle.gradle"
+apply from: "$rootDir/gradle-scripts/pmd.gradle"
+apply from: "$rootDir/gradle-scripts/jacoco.gradle"
+apply from: "$rootDir/gradle-scripts/findbugs.gradle"
+apply from: "$rootDir/gradle-scripts/shadow.gradle"
 
 
 dependencies {
