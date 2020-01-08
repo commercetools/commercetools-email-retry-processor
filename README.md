@@ -77,9 +77,9 @@ The API endpoint should cover the following steps:
     - If the e-mail delivery is successful
       - Delete the current e-mail object
       - Set the response Http status code to `200`
-    - If the e-mail delivery fails temporarily (TODO: WHAT DOES IT MEAN)
+    - If the e-mail delivery fails for a temporary reason (e.g. connection error, slow network, etc..)
       - Set the status of the e-mail CustomObject to `pending`
       - Set the response Http status code to `503`
-    - If the e-mail delivery fails permanently (TODO: WHAT DOES IT MEAN)
+    - If the e-mail delivery fails for a permanent reason (e.g. wrong e-mail address, etc..)
       - Set the status of the e-mail CustomObject to `error`
       - Set the response Http status code to `400`
