@@ -47,7 +47,7 @@ public class EmailProcessor {
     static final String PARAM_TENANT_ID = "tenantid";
     private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     /**
-     * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration, String)} and all
+     * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all
      * chained post processor. For now limited for up to 8 parallel requests.
      */
     private static final Executor callApiThreadPool = Executors.newWorkStealingPool(8);
@@ -75,7 +75,7 @@ public class EmailProcessor {
         final Statistics statistics = new Statistics(tenantConfig.getProjectKey());
 
         final Function<CustomObject<JsonNode>, CompletableFuture<Void>> customObjectMapper = customObject ->
-                callApiEndpoint(customObject.getId(), tenantConfig, getFromMDCOrGenerateNew())
+                callApiEndpoint(customObject.getId(), tenantConfig)
                         .thenAccept(statistics::update)
                         .toCompletableFuture();
 
@@ -106,12 +106,11 @@ public class EmailProcessor {
      */
     CompletableFuture<Integer> callApiEndpoint(
         @Nonnull final String customObjectId,
-        @Nonnull final TenantConfiguration tenantConfiguration,
-        @Nonnull final String correlationId) {
+        @Nonnull final TenantConfiguration tenantConfiguration) {
 
         return CompletableFuture.supplyAsync(() -> {
             final HttpPost httpPost = tenantConfiguration.getHttpPost();
-            httpPost.addHeader(HttpHeaders.X_CORRELATION_ID, correlationId);
+            httpPost.addHeader(HttpHeaders.X_CORRELATION_ID, getFromMDCOrGenerateNew());
 
             final List<NameValuePair> params = new ArrayList<>();
             try {
