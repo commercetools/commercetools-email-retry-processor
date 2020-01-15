@@ -43,6 +43,8 @@ dependencies {
     implementation "com.commercetools.sdk.jvm.core:commercetools-java-client:${commercetoolsJvmSdkVersion}"
     implementation "com.commercetools.sdk.jvm.core:commercetools-convenience:${commercetoolsJvmSdkVersion}"
     implementation "net.logstash.logback:logstash-logback-encoder:${logStashLogbackEncoderVersion}"
+    // TODO: remove when JVM SDK is bumped tp 1.49.0
+    implementation "com.heshammassoud:commercetools-correlation-id-decorator:0.1.0"
     // ch.qos.logback:logback-classic is excluded from the unit and integration test classpath in /junit-tests.gradle
     implementation "ch.qos.logback:logback-classic:${logbackClassicVersion}"
     implementation "org.slf4j:jul-to-slf4j:${julToSlf4jVersion}"

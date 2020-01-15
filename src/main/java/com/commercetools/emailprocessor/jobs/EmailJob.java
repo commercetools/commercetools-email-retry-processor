@@ -4,6 +4,7 @@ import com.commercetools.emailprocessor.model.ProjectConfiguration;
 import com.commercetools.emailprocessor.model.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -37,6 +38,7 @@ public class EmailJob {
                                 LOG.error(String.format("Error in email processing for tenant %s.",
                                         tenantConfiguration.getProjectKey()), exception);
                             }
+                            MDC.clear();
                             return CompletableFuture.completedFuture(Statistics.ofError(tenantConfiguration
                                     .getProjectKey()));
                         }
