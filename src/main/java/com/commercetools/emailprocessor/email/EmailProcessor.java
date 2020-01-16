@@ -34,7 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import static com.commercetools.emailprocessor.utils.CorrelationIdUtils.getFromMDCOrGenerateNew;
+import static com.commercetools.emailprocessor.utils.CorrelationIdUtils.getFromMdcOrGenerateNew;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.allOf;
@@ -110,7 +110,7 @@ public class EmailProcessor {
 
         return CompletableFuture.supplyAsync(() -> {
             final HttpPost httpPost = tenantConfiguration.getHttpPost();
-            httpPost.addHeader(HttpHeaders.X_CORRELATION_ID, getFromMDCOrGenerateNew());
+            httpPost.addHeader(HttpHeaders.X_CORRELATION_ID, getFromMdcOrGenerateNew());
 
             final List<NameValuePair> params = new ArrayList<>();
             try {
