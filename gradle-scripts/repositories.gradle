@@ -1,7 +1,3 @@
 repositories {
     mavenCentral()
-    maven {
-        // TODO: remove when JVM SDK is bumped tp 1.49.0
-        url "https://dl.bintray.com/heshammassoud/maven/"
-    }
 }
