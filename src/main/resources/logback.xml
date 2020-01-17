@@ -10,6 +10,7 @@ As such, enabling logback status data is very highly recommended and should be c
             <providers>
                 <message/>
                 <arguments/>
+                <mdc/>
                 <logstashMarkers/>
                 <!-- Some fields are mapped to camel-case for consistency -->
                 <timestamp>

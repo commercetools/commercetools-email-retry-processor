@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.customobjects.CustomObject;
 import io.sphere.sdk.customobjects.queries.CustomObjectQuery;
+import io.sphere.sdk.http.HttpHeaders;
 import io.sphere.sdk.queries.QueryPredicate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
@@ -33,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
+import static com.commercetools.emailprocessor.utils.CorrelationIdUtils.getFromMdcOrGenerateNew;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.allOf;
@@ -45,8 +47,8 @@ public class EmailProcessor {
     static final String PARAM_TENANT_ID = "tenantid";
     private static final String ENCRYPTION_ALGORITHM = "Blowfish";
     /**
-     * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all chained post
-     * processor. For now limited for up to 8 parallel requests.
+     * Limited thread pool where to execute {@link #callApiEndpoint(String, TenantConfiguration)} and all
+     * chained post processor. For now limited for up to 8 parallel requests.
      */
     private static final Executor callApiThreadPool = Executors.newWorkStealingPool(8);
     private static final Logger LOG = LoggerFactory.getLogger(EmailProcessor.class);
@@ -80,8 +82,9 @@ public class EmailProcessor {
 
         // 1. Query for all custom objects and map each to the future chain above.
         // 2. Map the list of future to an allOf future to execute them in parallel.
+        // TODO: Need to pass correlation id here to queryAll
         return queryAll(client, query, customObjectMapper)
-                .thenCompose(stages -> allOf(stages.toArray(new CompletableFuture[stages.size()])))
+                .thenCompose(stages -> allOf(stages.toArray(new CompletableFuture[0])))
                 .handle(((voidResult, exception) -> {
                     client.close();
                     if (exception != null) {
@@ -101,10 +104,14 @@ public class EmailProcessor {
      * @param tenantConfiguration Configuration of the current tenant
      * @return Http Status code response code of the current request
      */
-    CompletableFuture<Integer> callApiEndpoint(@Nonnull final String customObjectId,
-                                               @Nonnull final TenantConfiguration tenantConfiguration) {
+    CompletableFuture<Integer> callApiEndpoint(
+        @Nonnull final String customObjectId,
+        @Nonnull final TenantConfiguration tenantConfiguration) {
+
         return CompletableFuture.supplyAsync(() -> {
             final HttpPost httpPost = tenantConfiguration.getHttpPost();
+            httpPost.addHeader(HttpHeaders.X_CORRELATION_ID, getFromMdcOrGenerateNew());
+
             final List<NameValuePair> params = new ArrayList<>();
             try {
                 final String encryptedCustomerId = blowFish(customObjectId, tenantConfiguration.getEncryptionKey(),
