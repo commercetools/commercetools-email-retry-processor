@@ -18,7 +18,7 @@ ext{
     julToSlf4jVersion = '1.7.30'
     mockitoVersion = '3.5.13'
     slf4jTestVersion = '1.2.0'
-    jUnitVersion = '4.13'
+    jUnitVersion = '4.13.1'
     assertjVersion = '3.17.2'
     systemRulesVersion = '1.19.0'
 
