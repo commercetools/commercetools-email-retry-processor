@@ -19,7 +19,7 @@ ext{
     mockitoVersion = '3.5.15'
     slf4jTestVersion = '1.2.0'
     jUnitVersion = '4.13.1'
-    assertjVersion = '3.17.2'
+    assertjVersion = '3.18.0'
     systemRulesVersion = '1.19.0'
 
 }
