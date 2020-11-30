@@ -13,7 +13,7 @@ ext{
     jacocoVersion = '0.8.5'
     findbugsVersion = '3.0.1'
     commercetoolsJvmSdkVersion = '1.55.0'
-    logStashLogbackEncoderVersion = '6.4'
+    logStashLogbackEncoderVersion = '6.5'
     logbackClassicVersion = '1.2.3'
     julToSlf4jVersion = '1.7.30'
     mockitoVersion = '3.6.0'
