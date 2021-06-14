@@ -16,7 +16,7 @@ ext{
     logStashLogbackEncoderVersion = '6.6'
     logbackClassicVersion = '1.2.3'
     julToSlf4jVersion = '1.7.30'
-    mockitoVersion = '3.11.0'
+    mockitoVersion = '3.11.1'
     slf4jTestVersion = '1.2.0'
     jUnitVersion = '4.13.2'
     assertjVersion = '3.19.0'
