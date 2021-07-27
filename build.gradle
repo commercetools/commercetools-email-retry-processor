@@ -14,7 +14,7 @@ ext{
     findbugsVersion = '3.0.1'
     commercetoolsJvmSdkVersion = '1.64.0'
     logStashLogbackEncoderVersion = '6.6'
-    logbackClassicVersion = '1.2.4-groovyless'
+    logbackClassicVersion = '1.2.5'
     julToSlf4jVersion = '1.7.32'
     mockitoVersion = '3.11.2'
     slf4jTestVersion = '1.2.0'
