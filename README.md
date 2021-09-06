@@ -82,3 +82,27 @@ The API endpoint should cover the following steps:
     - If the e-mail delivery fails for a permanent reason (e.g. wrong e-mail address, etc..)
       - Set the status of the e-mail CustomObject to `error`
       - Set the response Http status code to `400`
+
+## Build and deploy
+
+- This module is deployed as docker image to dockerhub.
+
+- The build and deployment of the docker are done using github actions.
+
+- On each push to the remote github repository, the github action [ci](https://github.com/commercetools
+/commercetools-email-retry-processor/actions/workflows/ci.yml) is triggered, which builds the project and
+ executes it`s tests. 
+ 
+- The github action [cd](https://github.com/commercetools/commercetools-email-retry-processor/actions/workflows/cd
+.yml) is used to create the docker-image and deploy it to dockerhub. This action is triggered when a git release tag is
+ created.
+
+ There are two ways to create the release-tag:
+ - via command line
+
+ ```bash
+ git tag -a v1.0.1 -m "Minor text adjustments."
+ ```
+ 
+- via [Github UI](https://github.com/commercetools/commercetools-email-retry-processor/releases)
+
