@@ -1,6 +1,5 @@
 # commercetools-email-retry-processor
 
-[![Build Status](https://travis-ci.org/commercetools/commercetools-email-retry-processor.svg?branch=create_cronjob)](https://travis-ci.org/commercetools/commercetools-email-retry-processor)
 [![codecov](https://codecov.io/gh/commercetools/commercetools-email-retry-processor/branch/create_cronjob/graph/badge.svg)](https://codecov.io/gh/commercetools/commercetools-email-retry-processor)
 
 Typically run as a cron job to ensure that an e-mail is sent (and re-tried) asynchronously, in case of potential down time of an e-mail provider. 
